@@ -60,8 +60,8 @@ return [
     */
 
     'middleware' => [
-        'verify_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
-        'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
+        'verify_csrf_token' => de\xovatec\financeAnalyzer\Http\Middleware\VerifyCsrfToken::class,
+        'encrypt_cookies' => de\xovatec\financeAnalyzer\Http\Middleware\EncryptCookies::class,
     ],
 
 ];

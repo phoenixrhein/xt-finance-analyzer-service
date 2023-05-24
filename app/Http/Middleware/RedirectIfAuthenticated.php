@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace de\xovatec\financeAnalyzer\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
+use de\xovatec\financeAnalyzer\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

@@ -1,5 +1,5 @@
 {
-    "name": "laravel/laravel",
+    "name": "xt/finance-analyzer",
     "type": "project",
     "description": "The Laravel Framework.",
     "keywords": ["framework", "laravel"],
@@ -22,14 +22,14 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/",
+            "de\\xovatec\\financeAnalyzer\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "de\\xovatec\\Tests\\financeAnalyzer\\": "tests/"
         }
     },
     "scripts": {
