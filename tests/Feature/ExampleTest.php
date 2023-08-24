@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Feature;
+namespace de\xovatec\Tests\financeAnalyzer\Feature;
 
 // use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use de\xovatec\Tests\financeAnalyzer\TestCase;
 
 class ExampleTest extends TestCase
 {
