@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace de\xovatec\Tests\financeAnalyzer;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
