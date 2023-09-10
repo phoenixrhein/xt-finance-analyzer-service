@@ -1,6 +1,6 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Console\Commands;
+namespace de\xovatec\financeAnalyzer\Console\Commands\Account;
 
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use Illuminate\Console\Command;
@@ -29,12 +29,12 @@ class AccountEdit extends Command
     {
         $accountId = $this->argument('accountId');
         $account = BankAccount::findOrFail($accountId);
-        if (strlen(implode('',array_values($this->options()))) === 0) {
+        if (strlen(implode('', array_values($this->options()))) === 0) {
             $this->info("No option for update");
             exit();
         }
         $iban = $this->option('iban') ?? $account->iban;
-        $bic = $this->option('bic') ?? $account->bic;        
+        $bic = $this->option('bic') ?? $account->bic;
         $validator = Validator::make(
             ['iban' => $iban, 'bic' => $bic],
             BankAccount::$rules

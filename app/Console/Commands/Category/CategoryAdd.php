@@ -1,6 +1,6 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Console\Commands;
+namespace de\xovatec\financeAnalyzer\Console\Commands\Category;
 
 use de\xovatec\financeAnalyzer\Models\Category;
 use Illuminate\Console\Command;

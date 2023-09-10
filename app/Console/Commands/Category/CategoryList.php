@@ -1,6 +1,6 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Console\Commands;
+namespace de\xovatec\financeAnalyzer\Console\Commands\Category;
 
 use de\xovatec\financeAnalyzer\Models\Cashflow;
 use de\xovatec\financeAnalyzer\Models\Category;
@@ -44,7 +44,7 @@ class CategoryList extends Command
      */
     private function displayCategoryWithSubcategories($category, $indent): void
     {
-        $this->info(str_repeat('-', $indent) . $category->name);
+        $this->info(str_repeat('-', $indent) . $category->name . " [" . $category->id . "]");
 
         foreach ($category->subCategories as $subCategory) {
             $this->displayCategoryWithSubcategories($subCategory, $indent + 2);
