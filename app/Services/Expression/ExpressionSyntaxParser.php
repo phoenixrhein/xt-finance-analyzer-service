@@ -128,7 +128,7 @@ class ExpressionSyntaxParser
                     'condition' => $this->buildRule(substr($expressionTail, $startPos, $currentPos)),
                     'conditionType' => ConditionType::rule,
                     'logicOperator' => $logicOperator,
-                    'linkTo' => static::parseCondition(
+                    'linkTo' => $this->parseCondition(
                         substr($expressionTail, $currentPos + strlen(' ' . $logicOperator . ' '))
                     )
                 ];
