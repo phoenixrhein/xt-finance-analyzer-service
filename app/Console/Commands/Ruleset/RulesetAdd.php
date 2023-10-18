@@ -40,7 +40,7 @@ class RulesetAdd extends Command
             DB::beginTransaction();
             $id = $this->expressionService->saveRulesetExpression(
                 $this->argument('name'),
-                $this->argument('categoryId'),
+                (int)$this->argument('categoryId'),
                 $rulesetData
             );
             DB::commit();
