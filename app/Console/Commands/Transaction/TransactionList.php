@@ -18,7 +18,7 @@ class TransactionList extends Command
      *
      * @var array
      */
-    private $viewConfig = [
+    private static $viewConfig = [
         'id' => 'Id',
         'booking_date' => 'Buchungstag',
         'exchange_date' => 'Valutadatum',
@@ -42,17 +42,17 @@ class TransactionList extends Command
      *
      * @var array
      */
-    private $compactView = [
+    public static $compactView = [
         'id' => 'Id',
         'booking_date' => 'Buchungstag',
         'booking_type' => 'Buchungstext',
         'reason_for_payment' => [
             'headline' => 'Verwendungszweck',
-            'maxWidth' => 35
+            'maxWidth' => 28
         ],
         'beneficiary_payee' => [
             'headline' => 'Beguenstigter/Zahlungspflichtiger',
-            'maxWidth' => 30
+            'maxWidth' => 24
         ],
         'creditor_iban' => 'Kontonummer/IBAN',
         'amount' => 'Betrag',
@@ -154,9 +154,9 @@ class TransactionList extends Command
     public function handle()
     {
         $bankAccount = BankAccount::findOrFail($this->argument('accountId'));
-        $viewConfig = $this->compactView;
+        $viewConfig = static::$compactView;
         if ($this->option('full')) {
-            $viewConfig = $this->viewConfig;
+            $viewConfig = static::$viewConfig;
         }
 
         $from = null;
