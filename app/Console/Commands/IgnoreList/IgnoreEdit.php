@@ -47,5 +47,6 @@ class IgnoreEdit extends Command
         $comment = $this->ask('Comment', $ignoreEntry->comment);
         $ignoreEntry->comment = $comment;
         $ignoreEntry->save();
+        $this->info("Entry edited.");
     }
 }

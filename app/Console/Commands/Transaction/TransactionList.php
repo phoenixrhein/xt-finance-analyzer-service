@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
+use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
 use Symfony\Component\Console\Exception\InvalidOptionException;
@@ -183,20 +184,22 @@ class TransactionList extends Command
         
         $transactions = $transactions->select($this->getColumns($viewConfig))
                             ->orderBy('booking_date')
-                            ->orderByDesc('id')
-                            ->get();
-        
+                            ->orderByDesc('id');
+        /*
         $this->tableConsolePagination(
-            $transactions,
+            $transactions->get(),
             $this->getHeadlines($viewConfig),
             $this->option('noLimit') ? null : $this->option('limit'),
             $this->getMaxWidth($viewConfig)
         );
+        */
         $sum = 0;
-        foreach(Arr::pluck($transactions->toArray(), 'amount') as $amount) {
+        $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
+        $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        foreach(Arr::pluck($transactions->get()->toArray(), 'amount') as $amount) {
             $sum = round($sum + $amount, 2);
         }
         $totalAmount = number_format($sum, 2, ',', '');
-        $this->info('Anzahl: ' . count($transactions->toArray()) . ' / Betrag: ' . $totalAmount);
+        $this->info('Anzahl: ' . count($transactions->get()->toArray()) . ' / Betrag: ' . $totalAmount);
     }
 }
