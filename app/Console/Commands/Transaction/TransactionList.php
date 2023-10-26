@@ -185,14 +185,14 @@ class TransactionList extends Command
         $transactions = $transactions->select($this->getColumns($viewConfig))
                             ->orderBy('booking_date')
                             ->orderByDesc('id');
-        /*
+        
         $this->tableConsolePagination(
             $transactions->get(),
             $this->getHeadlines($viewConfig),
             $this->option('noLimit') ? null : $this->option('limit'),
             $this->getMaxWidth($viewConfig)
         );
-        */
+        
         $sum = 0;
         $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
         $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
