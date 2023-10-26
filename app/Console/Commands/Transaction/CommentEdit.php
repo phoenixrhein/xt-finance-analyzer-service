@@ -52,22 +52,22 @@ class CommentEdit extends Command
             TransactionList::$compactView))
         );
         if (!empty($transaction->note)) {
-            $this->info('Aktueller Kommentar: ' . $transaction->note);
+            $this->info('Current comment: ' . $transaction->note);
         }
-        $note = $this->ask('Kommentar');
+        $note = $this->ask('Comment');
 
         if (strlen($transaction->note) > 0 && strlen($note) === 0) {
-            if ($this->confirm('Wollen Sie den aktuellen Kommentar löschen?') === false) {
+            if ($this->confirm('Do you want to delete the current comment?') === false) {
                 return;
             }
         } elseif (strlen($transaction->note) !== strlen($note)
-            && $this->confirm('Wollen Sie den aktuellen Kommentar überschreiben?') === false
+            && $this->confirm('Do you want to overwrite the current comment?') === false
         ) {
             return;
         }
 
         $transaction->note = $note ?? '';
         $transaction->save();
-        $this->info('Der Kommentar wurde geändert.');
+        $this->info('The comment was changed.');
     }
 }

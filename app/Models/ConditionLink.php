@@ -12,8 +12,16 @@ class ConditionLink extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     *
+     * @var string
+     */
     protected $table = 'condition_link';
 
+    /**
+     *
+     * @var array
+     */
     protected $fillable = [
         'condition_foreign_id',
         'condition_type',
@@ -21,23 +29,39 @@ class ConditionLink extends Model
         'link_operator'
     ];
 
-
+    /**
+     *
+     * @return BelongsTo
+     */
     public function rule(): BelongsTo
     {
         return $this->belongsTo(Rule::class, 'condition_foreign_id');
     }
 
-    public function ruleset()
+    /**
+     *
+     * @return BelongsTo
+     */
+    public function ruleset(): BelongsTo
     {
         return $this->belongsTo(Ruleset::class, 'condition_foreign_id');
     }
 
+    /**
+     *
+     * @return void
+     */
     public function linkedCondition()
     {
         return $this->belongsTo(ConditionLink::class, 'linked_condition_id');
     }
 
-    protected static function boot()
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    protected static function boot(): void
     {
         parent::boot();
 

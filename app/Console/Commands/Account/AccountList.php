@@ -3,7 +3,6 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\Account;
 
 use de\xovatec\financeAnalyzer\Models\BankAccount;
-use de\xovatec\financeAnalyzer\Models\User;
 use Illuminate\Console\Command;
 
 class AccountList extends Command
