@@ -10,8 +10,16 @@ class User extends Model
 {
     use SoftDeletes;
     
+    /**
+     *
+     * @var string
+     */
     protected $table = 'user';
-    
+
+    /**
+     *
+     * @var array
+     */
     public static $rules = [
         'email' => 'required|email'
     ];
@@ -25,6 +33,10 @@ class User extends Model
         'email',
     ];
 
+    /**
+     *
+     * @return BelongsToMany
+     */
     public function bankAccounts(): BelongsToMany
     {
         return $this->belongsToMany(BankAccount::class)->withTimestamps();

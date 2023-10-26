@@ -1,6 +1,6 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Console\Commands;
+namespace de\xovatec\financeAnalyzer\Console\Commands\User;
 
 use de\xovatec\financeAnalyzer\Models\User;
 use Illuminate\Console\Command;

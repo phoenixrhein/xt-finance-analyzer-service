@@ -44,6 +44,6 @@ class UserList extends Command
                             ->all();
                 })
             );
-        }       
+        }
     }
 }
