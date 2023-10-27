@@ -131,12 +131,13 @@ class TransactionList extends Command
         }
 
         if ($length == 6) {
-            $date = substr($date, 2, 4) . '-' . substr($date, 0, 2);
+            $date = Carbon::createFromFormat('mY', $date);
         } elseif ($length == 8) {
-            $date = substr($date, 4, 4) . '-' . substr($date, 2, 2) . '-' . substr($date, 0, 2);
+            $date = Carbon::createFromFormat('dmY', $date);
+        } else {
+            $date = Carbon::create($date);
         }
-        
-        $date = Carbon::create($date);
+
         if ($start && $length == 4) {
             $date = $date->startOfYear();
         } elseif ($start && $length == 6) {
