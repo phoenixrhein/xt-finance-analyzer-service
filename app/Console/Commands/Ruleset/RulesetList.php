@@ -35,7 +35,7 @@ class RulesetList extends Command
             ['Id', 'Name', 'Expression', 'Category'],
             Arr::map($this->rulesetService->getMainRulesetsWithExpression(), function (array $value) {
                 $category = $value['actions']['category']['name'] . ' [' . $value['actions']['category']['id'] . ']';
-                return Arr::only($value, ['id', 'name', 'expression'])+ [$category];
+                return Arr::only($value, ['id', 'name', 'expression']) + [$category];
             })
         );
     }
