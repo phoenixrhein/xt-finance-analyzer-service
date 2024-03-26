@@ -42,6 +42,7 @@ class RulesetAdd extends Command
         //fgdfgdsfg
         //dfsdfsdf
         //dsfsdfsadfas
+        //dsfsdfsfs
         try {
             $rulesetData = $this->expressionParser->parse($this->argument('expression'));
             DB::beginTransaction();
