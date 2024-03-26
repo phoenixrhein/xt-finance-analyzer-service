@@ -38,6 +38,7 @@ class RulesetAdd extends Command
         //test1
         //test2
         //test3
+        //test4
         try {
             $rulesetData = $this->expressionParser->parse($this->argument('expression'));
             DB::beginTransaction();
