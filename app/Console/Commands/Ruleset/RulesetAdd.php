@@ -10,13 +10,17 @@ use Throwable;
 
 class RulesetAdd extends Command
 {
+    /**
+     * @param ExpressionSyntaxParser $expressionParser
+     * @param ExpressionService $expressionService
+     */
     public function __construct(
         private ExpressionSyntaxParser $expressionParser,
         private ExpressionService $expressionService
     ) {
         parent::__construct();
     }
-    
+
     /**
      * The name and signature of the console command.
      *
@@ -51,5 +55,4 @@ class RulesetAdd extends Command
             $this->error($e->getMessage());
         }
     }
-
 }

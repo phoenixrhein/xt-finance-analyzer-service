@@ -9,7 +9,6 @@ class RulesetService
 {
     public function __construct(private Ruleset $model, private ExpressionBuilder $builder)
     {
-        
     }
 
     /**
@@ -19,7 +18,7 @@ class RulesetService
     public function getMainRulesetsWithExpression(): array
     {
         $data = [];
-        foreach($this->getMainRuleset() as $mainRuleset) {
+        foreach ($this->getMainRuleset() as $mainRuleset) {
             $mainRuleset['expression'] = $this->builder->build($mainRuleset['condition']);
             $data[] = $mainRuleset;
         }
@@ -33,7 +32,7 @@ class RulesetService
      */
     private function getMainRuleset(): array
     {
-        $getLinkedCondtion = function($query) use(&$getLinkedCondtion) {
+        $getLinkedCondtion = function ($query) use (&$getLinkedCondtion) {
             $row = $query->get()->first();
             if ($row == null) {
                 return null;
@@ -47,18 +46,18 @@ class RulesetService
                 'ruleset.condition',
                 'ruleset.condition.rule',
                 'ruleset.condition.ruleset',
-                'ruleset.condition.linkedCondition' => function($query) use($getLinkedCondtion) {
+                'ruleset.condition.linkedCondition' => function ($query) use ($getLinkedCondtion) {
                     return $getLinkedCondtion($query);
                 }
             ]);
         };
-        
+
         return $this->model->with([
             'actions.category',
             'condition',
             'condition.rule',
             'condition.ruleset',
-            'condition.linkedCondition' => function($query) use($getLinkedCondtion) {
+            'condition.linkedCondition' => function ($query) use ($getLinkedCondtion) {
                 return $getLinkedCondtion($query);
             }])->where('type', 'main')->get()->toArray();
     }

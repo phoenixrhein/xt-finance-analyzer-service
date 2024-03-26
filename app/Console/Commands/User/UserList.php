@@ -39,7 +39,7 @@ class UserList extends Command
         if ($userId) {
             $this->table(
                 ['Id', 'IBAN', 'BIC'],
-                $users->first()->bankAccounts->map(function($bankAccount) {
+                $users->first()->bankAccounts->map(function ($bankAccount) {
                     return collect($bankAccount->toArray())
                             ->only('id', 'iban', 'bic')
                             ->all();

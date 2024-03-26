@@ -10,4 +10,4 @@ permissions: {}
 
 jobs:
   php_test:
-    uses: phoenixrhein/xt-github-action/.github/workflows/phpci.yml@main
+    uses: phoenixrhein/xt-github-action/.github/workflows/phpci.yml@1.0.0

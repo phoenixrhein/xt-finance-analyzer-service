@@ -9,7 +9,7 @@ use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
 class CommentEdit extends Command
 {
     use TableConsolePagination;
-    
+
     /**
      * The name and signature of the console command.
      *
@@ -35,15 +35,17 @@ class CommentEdit extends Command
                             ->get();
         $this->tableConsolePagination(
             $transactions,
-            array_map(function($item) {
+            array_map(
+                function ($item) {
                     if (is_array($item)) {
                         return $item['headline'];
                     }
                     return $item;
                 },
-            TransactionList::$compactView),
+                TransactionList::$compactView
+            ),
             null,
-            array_filter(array_map(function($item) {
+            array_filter(array_map(function ($item) {
                 if (is_array($item)) {
                     return $item['maxWidth'];
                 }
@@ -60,7 +62,8 @@ class CommentEdit extends Command
             if ($this->confirm('Do you want to delete the current comment?') === false) {
                 return;
             }
-        } elseif (strlen($transaction->note) !== strlen($note)
+        } elseif (
+            strlen($transaction->note) !== strlen($note)
             && $this->confirm('Do you want to overwrite the current comment?') === false
         ) {
             return;

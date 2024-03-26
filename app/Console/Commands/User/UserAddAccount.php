@@ -27,7 +27,7 @@ class UserAddAccount extends Command
     public function handle()
     {
         $user = User::find($this->argument('userId'));
- 
+
         $user->bankAccounts()->attach($this->argument('bankAccountid'));
         $this->info(
             'Assigned user with id ' . $this->argument('userId') .

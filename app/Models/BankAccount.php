@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BankAccount extends Model
 {
     use SoftDeletes;
-    
+
     /**
      *
      * @var string
@@ -36,7 +36,7 @@ class BankAccount extends Model
         'iban',
         'bic'
     ];
-    
+
     /**
      *
      * @return BelongsToMany

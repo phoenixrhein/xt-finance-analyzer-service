@@ -24,13 +24,12 @@ trait TableConsolePagination
     ): void {
         $limit = $limit ?? $transactions->count();
         for ($i = 0; $i < $transactions->count(); $i = $i + $limit) {
-
             $rows = $transactions->slice($i, $limit);
             $this->table(
                 $columns,
                 $this->prepareRows($rows, $columsLengthConfig)
             );
-            
+
             if ($i + $limit < $transactions->count()) {
                 $this->ask('Press Enter to continue...');
             }
@@ -71,7 +70,7 @@ trait TableConsolePagination
             $maxRows = max($maxRows, count($splittedRows[$column]));
         }
         $newRows = [];
-        for($i = 0; $i < $maxRows; $i++) {
+        for ($i = 0; $i < $maxRows; $i++) {
             foreach ($row->toArray() as $column => $value) {
                 $newRows[$i][] = $splittedRows[$column][$i] ?? '';
             }
