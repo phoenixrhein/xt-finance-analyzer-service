@@ -2,6 +2,7 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Report;
 
+use function \Laravel\Prompts\text;
 use Exception;
 use Illuminate\Support\Arr;
 use Webmozart\Assert\Assert;
@@ -83,6 +84,13 @@ class SimpleReport extends Command
      */
     public function handle()
     {
+        $d = text(
+            label: 'What is your name?',
+            default: 'E.g. Taylor Otwell', //Damit kann man vorhandene Text bearbeiten
+            hint: 'This will be displayed on your profile.'
+        );
+        echo '#'.$d;
+        return;
         try {
             Assert::numeric($this->argument('accountId'));
             $bankAccount = BankAccount::findOrFail($this->argument('accountId'));
