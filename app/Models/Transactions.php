@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transactions extends Model
 {
-    const UPDATED_AT = null;
+    public const UPDATED_AT = null;
 
     /**
      *

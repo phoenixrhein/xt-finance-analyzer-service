@@ -10,6 +10,10 @@ use Throwable;
 
 class RulesetAdd extends Command
 {
+    /**
+     * @param ExpressionSyntaxParser $expressionParser
+     * @param ExpressionService $expressionService
+     */
     public function __construct(
         private ExpressionSyntaxParser $expressionParser,
         private ExpressionService $expressionService
@@ -36,7 +40,6 @@ class RulesetAdd extends Command
      */
     public function handle(): void
     {
-        //gfdgsfg
         try {
             $rulesetData = $this->expressionParser->parse($this->argument('expression'));
             DB::beginTransaction();

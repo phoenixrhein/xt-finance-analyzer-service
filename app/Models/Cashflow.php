@@ -67,7 +67,7 @@ class Cashflow extends Model
 
         return static::create($attributes);
     }
-    
+
     /**
      *
      *
@@ -87,5 +87,4 @@ class Cashflow extends Model
             }
         });
     }
-    
 }
