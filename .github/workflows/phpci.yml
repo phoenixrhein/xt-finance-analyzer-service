@@ -1,0 +1,13 @@
+name: update changelog
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions: {}
+
+jobs:
+  php_test:
+    uses: phoenixrhein/xt-github-action/.github/workflows/phpci.yml@main
