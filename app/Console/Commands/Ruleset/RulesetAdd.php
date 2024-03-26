@@ -20,7 +20,7 @@ class RulesetAdd extends Command
     ) {
         parent::__construct();
     }
-    
+
     /**
      * The name and signature of the console command.
      *
@@ -55,5 +55,4 @@ class RulesetAdd extends Command
             $this->error($e->getMessage());
         }
     }
-
 }

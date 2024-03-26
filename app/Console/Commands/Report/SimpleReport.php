@@ -2,7 +2,6 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Report;
 
-use function \Laravel\Prompts\text;
 use Exception;
 use Illuminate\Support\Arr;
 use Webmozart\Assert\Assert;

@@ -42,7 +42,7 @@ class AccountAdd extends Command
             return;
         }
         $newEntry = BankAccount::create(['iban' => $iban, 'bic' => $bic]);
-        
+
         Cashflow::createWithCategories(['bank_account_id' => $newEntry->id]);
         $this->info("bamk account created with iban {$iban} and id {$newEntry->id}");
     }

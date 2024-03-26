@@ -10,7 +10,7 @@ class IgnoreList extends Model
     use SoftDeletes;
 
     protected $table = 'ignore_list';
-    
+
     protected $fillable = [
         'bank_account_id',
         'type',

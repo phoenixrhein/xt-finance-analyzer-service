@@ -36,7 +36,7 @@ class RulesetDelete extends Command
         } else {
             Ruleset::destroy($rulesetId);
         }
-        
+
         $this->info(("Deleted bank ruleset with id '{$rulesetId}'"));
     }
 }

@@ -39,7 +39,7 @@ class AccountList extends Command
         if ($accountId) {
             $this->table(
                 ['Id', 'Email'],
-                $accounts->first()->users->map(function($user) {
+                $accounts->first()->users->map(function ($user) {
                     return collect($user->toArray())
                             ->only('id', 'email')
                             ->all();

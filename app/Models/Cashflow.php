@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Cashflow extends Model
 {
     use SoftDeletes;
-    
+
     /**
      *
      * @var string

@@ -38,7 +38,7 @@ class CategoryList extends Command
         $this->info("\n");
         $this->displayCategoryWithSubcategories($outCategory, 0);
     }
-    
+
     /**
      * @return void
      */

@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Validator;
 
 class CategoryEdit extends Command
 {
-
     /**
      * The name and signature of the console command.
      *

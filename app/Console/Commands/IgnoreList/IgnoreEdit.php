@@ -35,7 +35,7 @@ class IgnoreEdit extends Command
         }
         $ignoreEntry->bank_account_id = $accountId;
         $ignoreEntry->type = 'iban';
-        $askIban = function() use ($ignoreEntry, &$askIban) {
+        $askIban = function () use ($ignoreEntry, &$askIban) {
             $iban = $this->ask('IBAN to ignore', $ignoreEntry->value);
             $ignoreEntry->value = $iban;
             if (strlen($iban) === 0) {

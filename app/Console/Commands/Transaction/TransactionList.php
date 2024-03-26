@@ -82,7 +82,7 @@ class TransactionList extends Command
      */
     private function getHeadlines(array $config): array
     {
-        return array_map(function($item) {
+        return array_map(function ($item) {
             if (is_array($item)) {
                 return $item['headline'];
             }
@@ -98,7 +98,7 @@ class TransactionList extends Command
      */
     private function getMaxWidth(array $config): array
     {
-        return array_filter(array_map(function($item) {
+        return array_filter(array_map(function ($item) {
             if (is_array($item)) {
                 return $item['maxWidth'];
             }
@@ -168,10 +168,10 @@ class TransactionList extends Command
             if (in_array(count($range), [1,2]) === false) {
                 throw new InvalidOptionException('Invalid range: ' . $this->option('range'));
             }
-            if(count($range) ==1) {
+            if (count($range) == 1) {
                 $range[1] = $range[0];
             }
-            
+
             $from = $this->parseDate($range[0]);
             $to = $this->parseDate($range[1], false);
         }
@@ -182,22 +182,22 @@ class TransactionList extends Command
             $transactions = $transactions->where('booking_date', '>=', $from)
                 ->where('booking_date', '<=', $to);
         }
-        
+
         $transactions = $transactions->select($this->getColumns($viewConfig))
                             ->orderBy('booking_date')
                             ->orderByDesc('id');
-        
+
         $this->tableConsolePagination(
             $transactions->get(),
             $this->getHeadlines($viewConfig),
             $this->option('noLimit') ? null : $this->option('limit'),
             $this->getMaxWidth($viewConfig)
         );
-        
+
         $sum = 0;
         $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
         $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
-        foreach(Arr::pluck($transactions->get()->toArray(), 'amount') as $amount) {
+        foreach (Arr::pluck($transactions->get()->toArray(), 'amount') as $amount) {
             $sum = round($sum + $amount, 2);
         }
         $totalAmount = number_format($sum, 2, ',', '');
