@@ -5,8 +5,9 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\User;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\User;
 use Illuminate\Support\Facades\Validator;
-use function \Laravel\Prompts\text;
-use function \Laravel\Prompts\confirm;
+
+use function Laravel\Prompts\text;
+use function Laravel\Prompts\confirm;
 
 class UserAdd extends FinCommand
 {
@@ -36,7 +37,7 @@ class UserAdd extends FinCommand
                 default: $email
             );
             $validator = Validator::make(['email' => $email], User::$rules);
-            
+
             $valid = true;
             if ($validator->fails()) {
                 $valid = false;
@@ -58,13 +59,13 @@ class UserAdd extends FinCommand
             ) {
                 return;
             }
-                
+
         } while (!$valid);
-        
+
         $newEntry = User::create([
             'email' => $email
         ]);
-        
+
         $this->info(__('cli.user.add.created', ['mail' => $email, 'id' => $newEntry->id]));
     }
 }

@@ -20,7 +20,7 @@ abstract class FinCommand extends Command
         }
         parent::__construct();
     }
-    
+
     /**
      * View header layout
      *
