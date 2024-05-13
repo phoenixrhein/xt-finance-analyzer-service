@@ -59,7 +59,6 @@ class UserAdd extends FinCommand
             ) {
                 return;
             }
-
         } while (!$valid);
 
         $newEntry = User::create([
