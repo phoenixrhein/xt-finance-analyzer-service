@@ -29,13 +29,12 @@ class UserList extends FinCommand
     {
         $userId = $this->option('userId');
         $users = User::all(['id', 'email']);
-        
+
         if ($userId) {
             $users = User::where('id', $userId)->select(['id', 'email'])->get();
             intro(__('cli.user.list.details_title'));
         }
 
- 
         $this->table(
             [
                 __('cli.user.list.table.columns.id'),
