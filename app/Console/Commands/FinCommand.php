@@ -54,5 +54,6 @@ abstract class FinCommand extends Command
     {
         $this->header();
         $this->process();
+        $this->line('');
     }
 }
