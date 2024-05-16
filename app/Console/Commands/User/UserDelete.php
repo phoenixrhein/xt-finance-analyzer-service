@@ -35,7 +35,7 @@ class UserDelete extends FinCommand
         if (confirm(__('cli.user.delete.confirm_question', ['mail' => $user->email])) === false) {
             return;
         }
-        
+
         User::destroy($userId);
         $this->info(__('cli.user.delete.deleted', ['userId' => $userId, 'mail' => $user->email]));
     }
