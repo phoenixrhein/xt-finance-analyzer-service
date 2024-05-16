@@ -30,6 +30,14 @@ return [
                     'mail' => 'E-Mail'
                 ]
             ]
+        ],
+        'delete' => [
+            'description' => 'Benutzer löschen',
+            'confirm_question' => 'Wollen Sie wirklich den User \':mail\' löschen?',
+            'error' => [
+                'not_found' => 'Der Benutzer mit der ID \':userId\' wurde nicht gefunden'
+            ],
+            'deleted' => 'Der Benutzer mit der ID \':userId\' (:mail) wurde gelöscht'
         ]
     ],
     'account' => [

@@ -2,35 +2,41 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\User;
 
+use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\User;
-use Illuminate\Console\Command;
 
-class UserDelete extends Command
+use function Laravel\Prompts\confirm;
+
+class UserDelete extends FinCommand
 {
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
+     * @inheritDoc
      */
     protected $signature = 'fin:user-delete {userId}';
 
     /**
-     * The console command description.
-     *
-     * @var string
+     * @inheritDoc
      */
-    protected $description = 'Delete a user';
+    protected $description = 'cli.user.delete.description';
 
     /**
-     * Execute the console command.
+     * @inheritDoc
      */
-    public function handle()
+    protected function process(): void
     {
-        if ($this->confirm('Do you want to delete?') === false) {
+        $userId = $this->argument('userId');
+        $user = User::find($userId);
+        if (!$user instanceof User) {
+            $this->emptyLn();
+            $this->error(__('cli.user.delete.error.not_found', ['userId' => $userId]));
             return;
         }
-        $userId = $this->argument('userId');
+
+        if (confirm(__('cli.user.delete.confirm_question', ['mail' => $user->email])) === false) {
+            return;
+        }
+
         User::destroy($userId);
-        $this->info("Deleted user with id '{$userId}'");
+        $this->info(__('cli.user.delete.deleted', ['userId' => $userId, 'mail' => $user->email]));
     }
 }
