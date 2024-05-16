@@ -50,10 +50,20 @@ abstract class FinCommand extends Command
      *
      * @return void
      */
-    final public function handle()
+    final public function handle(): void
     {
         $this->header();
         $this->process();
+        $this->emptyLn();
+    }
+
+    /**
+     * Write an empty line
+     *
+     * @return void
+     */
+    protected function emptyLn(): void
+    {
         $this->line('');
     }
 }
