@@ -8,6 +8,9 @@ return [
             'yes' => 'Ja',
             'no' => 'Nein',
             'ok' => 'Ok'
+        ],
+        'error' => [
+            'message' => 'Es ist ein technischer Fehler aufgetreten: :error'
         ]
     ],
     'user' => [
@@ -34,6 +37,7 @@ return [
         'delete' => [
             'description' => 'Benutzer löschen',
             'confirm_question' => 'Wollen Sie wirklich den User \':mail\' löschen?',
+            'question_delete_accounts' => 'Es wurden Bankkonten gefunden, mit denen kein anderer Benutzer verknüpft ist. Sollen diese auch gelöscht werden?',
             'error' => [
                 'not_found' => 'Der Benutzer mit der ID \':userId\' wurde nicht gefunden'
             ],
