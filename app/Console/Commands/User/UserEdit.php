@@ -2,12 +2,11 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\User;
 
-use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 
-class UserEdit extends FinCommand
+class UserEdit extends Command
 {
     /**
      * The name and signature of the console command.
@@ -26,7 +25,7 @@ class UserEdit extends FinCommand
     /**
      * Execute the console command.
      */
-    protected function process(): void
+    public function handle()
     {
         $userId = $this->argument('userId');
         $email = $this->option('email');
