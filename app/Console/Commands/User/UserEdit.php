@@ -2,41 +2,71 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\User;
 
+use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\User;
-use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 
-class UserEdit extends Command
+use function Laravel\Prompts\text;
+use function Laravel\Prompts\confirm;
+
+class UserEdit extends FinCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'fin:user-edit {userId} {email}';
+    protected $signature = 'fin:user-edit {userId}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Update a user';
+    protected $description = 'cli.user.edit.description';
 
     /**
      * Execute the console command.
      */
-    public function handle()
+    protected function process(): void
     {
         $userId = $this->argument('userId');
-        $email = $this->option('email');
-        $validator = Validator::make(['Email' => $email], User::$rules);
-        if ($validator->fails()) {
-            $this->error($validator->errors()->first());
+        $user = User::find($userId);
+
+        if (!$user instanceof User) {
+            $this->emptyLn();
+            $this->error(__('cli.user.edit.validate_error.not_fount', ['userId' => $userId]));
             return;
         }
-        $user = User::findOrFail($userId);
+
+        $email = $user->email;
+        do {
+            $email = text(
+                label: __('cli.user.edit.input_email'),
+                default: $email
+            );
+            $validator = Validator::make(['email' => $email], User::$rules);
+
+            $valid = true;
+            if ($validator->fails()) {
+                $valid = false;
+                $this->error($validator->errors()->first());
+            }
+
+            if (
+                $valid
+                && !confirm(
+                    label: __('cli.user.edit.confirm_save'),
+                    yes: __('cli.base.button.yes'),
+                    no: __('cli.base.button.no')
+                )
+            ) {
+                $valid = false;
+            }
+        } while (!$valid);
+
         $user->email = $email;
         $user->save();
-        $this->info("Updated user with id '{$userId}'");
+        $this->info(__('cli.user.edit.updated', ['mail' => $email, 'id' => $user->id]));
     }
 }

@@ -42,6 +42,15 @@ return [
                 'not_found' => 'Der Benutzer mit der ID \':userId\' wurde nicht gefunden'
             ],
             'deleted' => 'Der Benutzer mit der ID \':userId\' (:mail) wurde gelöscht'
+        ],
+        'edit' => [
+            'description' => 'Benutzer bearbeiten',
+            'input_email' => 'Bitte geben Sie eine E-Mail-Adresse ein',
+            'confirm_save' => 'Sie alle Daten korrekt?',
+            'validate_error' => [
+                'not_fount' => 'Der Benutzer mit der ID \':userId\' wurde nicht gefunden'
+            ],
+            'updated' => 'Benutzer erfolgreich aktualisiert. [Email: :mail / Id: :id]'
         ]
     ],
     'account' => [
