@@ -37,10 +37,10 @@ class UserDelete extends FinCommand
         if (confirm(__('cli.user.delete.confirm_question', ['mail' => $user->email])) === false) {
             return;
         }
-        
+
         $deletableAccounts = [];
         if ($user->bankAccounts()->count() > 0) {
-            foreach($user->bankAccounts as $account) {
+            foreach ($user->bankAccounts as $account) {
                 if ($account->users()->count() === 1) {
                     $deletableAccounts[] = $account;
                 }
@@ -52,7 +52,7 @@ class UserDelete extends FinCommand
                 !empty($deletableAccounts)
                 && confirm(__('cli.user.delete.question_delete_accounts', ['mail' => $user->email])) === false
             ) {
-                foreach($deletableAccounts as $deletableAccount) {
+                foreach ($deletableAccounts as $deletableAccount) {
                     $deletableAccount->delete();
                 }
             }
