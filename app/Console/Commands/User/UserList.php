@@ -3,10 +3,10 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\User;
 
 use Illuminate\Support\Facades\DB;
-use function Laravel\Prompts\intro;
-
 use de\xovatec\financeAnalyzer\Models\User;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+
+use function Laravel\Prompts\intro;
 
 class UserList extends FinCommand
 {

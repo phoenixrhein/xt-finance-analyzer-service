@@ -13,7 +13,8 @@ class UserAddAccount extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:user-add-account {userId : [:cli.base.param.user_id:]} {bankAccountid : [:cli.base.param.account_id:]}';
+    protected $signature = 'fin:user-add-account {userId : [:cli.base.param.user_id:]}' .
+                           ' {bankAccountid : [:cli.base.param.account_id:]}';
 
     /**
      * The console command description.
@@ -38,17 +39,26 @@ class UserAddAccount extends FinCommand
         $account = BankAccount::find((int)$this->argument('bankAccountid'));
 
         if (!$account instanceof BankAccount) {
-            $this->error(__('cli.base.error.not_found_account', ['accountId' => (int)$this->argument('bankAccountid')]));
+            $this->error(
+                __('cli.base.error.not_found_account', ['accountId' => (int)$this->argument('bankAccountid')])
+            );
             return;
         }
 
-        if($user->bankAccounts()->where('bank_account.id', (int)$this->argument('bankAccountid'))->count() > 0 ) {
-            $this->error(__('cli.user.addAccount.error.duplicate', ['accountId' => (int)$this->argument('bankAccountid')]));
+        if ($user->bankAccounts()->where('bank_account.id', (int)$this->argument('bankAccountid'))->count() > 0) {
+            $this->error(
+                __('cli.user.addAccount.error.duplicate', ['accountId' => (int)$this->argument('bankAccountid')])
+            );
             return;
         }
 
         $user->bankAccounts()->attach($this->argument('bankAccountid'));
 
-        $this->info(__('cli.user.addAccount.added', ['userId' => (int)$this->argument('userId'), 'accountId' => (int)$this->argument('bankAccountid')]));
+        $this->info(
+            __(
+                'cli.user.addAccount.added',
+                ['userId' => (int)$this->argument('userId'), 'accountId' => (int)$this->argument('bankAccountid')]
+            )
+        );
     }
 }

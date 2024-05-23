@@ -7,8 +7,6 @@ use de\xovatec\financeAnalyzer\Models\User;
 use Throwable;
 use Illuminate\Support\Facades\DB;
 
-use function Laravel\Prompts\confirm;
-
 class UserDelete extends FinCommand
 {
     /**
@@ -51,7 +49,7 @@ class UserDelete extends FinCommand
         try {
             if (
                 !empty($deletableAccounts)
-                && confirm(__('cli.user.delete.question_delete_accounts', ['mail' => $user->email])) === false
+                && $this->confirmPrompt(__('cli.user.delete.question_delete_accounts', ['mail' => $user->email])) === false
             ) {
                 foreach ($deletableAccounts as $deletableAccount) {
                     $deletableAccount->delete();
