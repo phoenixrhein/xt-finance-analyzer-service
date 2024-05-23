@@ -14,7 +14,7 @@ class UserDelete extends FinCommand
     /**
      * @inheritDoc
      */
-    protected $signature = 'fin:user-delete {userId}';
+    protected $signature = 'fin:user-delete {userId : [:cli.base.param.user_id:]}';
 
     /**
      * @inheritDoc
@@ -30,11 +30,11 @@ class UserDelete extends FinCommand
         $user = User::find($userId);
         if (!$user instanceof User) {
             $this->emptyLn();
-            $this->error(__('cli.user.delete.error.not_found', ['userId' => $userId]));
+            $this->error(__('cli.base.error.not_found_user', ['userId' => $userId]));
             return;
         }
 
-        if (confirm(__('cli.user.delete.confirm_question', ['mail' => $user->email])) === false) {
+        if ($this->confirmPrompt(__('cli.user.delete.confirm_question', ['mail' => $user->email])) === false) {
             return;
         }
 
@@ -45,6 +45,7 @@ class UserDelete extends FinCommand
                     $deletableAccounts[] = $account;
                 }
             }
+            $user->bankAccounts()->detach();
         }
         DB::beginTransaction();
         try {

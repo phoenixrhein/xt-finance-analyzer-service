@@ -6,21 +6,21 @@ use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\User;
 
-class UserAddAccount extends FinCommand
+class UserDetachAccount extends FinCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'fin:user-add-account {userId : [:cli.base.param.user_id:]} {bankAccountid : [:cli.base.param.account_id:]}';
+    protected $signature = 'fin:user-detach-account {userId : [:cli.base.param.user_id:]} {bankAccountid : [:cli.base.param.account_id:]}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'cli.user.addAccount.description';
+    protected $description = 'cli.user.detachAccount.description';
 
     /**
      * Execute the console command.
@@ -42,13 +42,13 @@ class UserAddAccount extends FinCommand
             return;
         }
 
-        if($user->bankAccounts()->where('bank_account.id', (int)$this->argument('bankAccountid'))->count() > 0 ) {
-            $this->error(__('cli.user.addAccount.error.duplicate', ['accountId' => (int)$this->argument('bankAccountid')]));
+        if($user->bankAccounts()->where('bank_account.id', (int)$this->argument('bankAccountid'))->count() == 0 ) {
+            $this->error(__('cli.user.detachAccount.error.not_found', ['accountId' => (int)$this->argument('bankAccountid')]));
             return;
         }
 
-        $user->bankAccounts()->attach($this->argument('bankAccountid'));
+        $user->bankAccounts()->detach($this->argument('bankAccountid'));
 
-        $this->info(__('cli.user.addAccount.added', ['userId' => (int)$this->argument('userId'), 'accountId' => (int)$this->argument('bankAccountid')]));
+        $this->info(__('cli.user.detachAccount.detached', ['userId' => (int)$this->argument('userId'), 'accountId' => (int)$this->argument('bankAccountid')]));
     }
 }
