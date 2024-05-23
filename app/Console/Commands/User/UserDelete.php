@@ -49,7 +49,9 @@ class UserDelete extends FinCommand
         try {
             if (
                 !empty($deletableAccounts)
-                && $this->confirmPrompt(__('cli.user.delete.question_delete_accounts', ['mail' => $user->email])) === false
+                && $this->confirmPrompt(
+                    __('cli.user.delete.question_delete_accounts', ['mail' => $user->email])
+                ) === false
             ) {
                 foreach ($deletableAccounts as $deletableAccount) {
                     $deletableAccount->delete();
