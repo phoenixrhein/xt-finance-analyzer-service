@@ -6,6 +6,8 @@ use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
 
+use function Laravel\Prompts\confirm;
+
 abstract class FinCommand extends Command
 {
     use TableConsolePagination;
@@ -15,6 +17,15 @@ abstract class FinCommand extends Command
      */
     public function __construct()
     {
+        if (Str::contains($this->signature, '[:')) {
+            $this->signature = Str::replaceMatches(
+                '/\[:([A-Za-z._])+:\]/',
+                function (array $matches) {
+                    return __(Str::replace(['[:', ':]'], '', $matches[0]));
+                },
+                $this->signature
+            );
+        }
         if (Str::startsWith($this->description, 'cli.')) {
             $this->description = __($this->description);
         }
@@ -65,5 +76,36 @@ abstract class FinCommand extends Command
     protected function emptyLn(): void
     {
         $this->line('');
+    }
+
+    /**
+     *
+     * @param string $label
+     * @param boolean $default
+     * @param string $yes
+     * @param string $no
+     * @param boolean $required
+     * @param mixed $validate
+     * @param string $hint
+     * @return boolean
+     */
+    protected function confirmPrompt(
+        string $label,
+        bool $default = true,
+        string $yes = '',
+        string $no = '',
+        bool|string $required = false,
+        mixed $validate = null,
+        string $hint = ''
+    ): bool {
+        return confirm(
+            $label,
+            $default,
+            Str::length($yes) ? $yes : __('cli.base.button.yes'),
+            Str::length($no) ? $no : __('cli.base.button.no'),
+            $required,
+            $validate,
+            $hint
+        );
     }
 }

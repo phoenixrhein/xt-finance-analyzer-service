@@ -2,8 +2,9 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\User;
 
-use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use Illuminate\Support\Facades\DB;
 use de\xovatec\financeAnalyzer\Models\User;
+use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 
 use function Laravel\Prompts\intro;
 
@@ -13,7 +14,7 @@ class UserList extends FinCommand
      *
      * @inheritDoc
      */
-    protected $signature = 'fin:user-list {--userId= : User id to show details}';
+    protected $signature = 'fin:user-list {userId : [:cli.user.list.param.user_id:]}';
 
     /**
      *
@@ -27,20 +28,23 @@ class UserList extends FinCommand
      */
     public function process(): void
     {
-        $userId = $this->option('userId');
-        $users = User::all(['id', 'email']);
+        $userId = $this->argument('userId');
+        $users = User::leftJoin('bank_account_user', 'user.id', '=', 'bank_account_user.user_id')
+            ->select('user.id', 'user.email', DB::raw('COUNT(bank_account_user.bank_account_id) as accounts_count'))
+            ->groupBy('user.id', 'user.email');
 
         if ($userId) {
-            $users = User::where('id', $userId)->select(['id', 'email'])->get();
+            $users->where('id', $userId);
             intro(__('cli.user.list.details_title'));
         }
 
         $this->table(
             [
                 __('cli.user.list.table.columns.id'),
-                __('cli.user.list.table.columns.mail')
+                __('cli.user.list.table.columns.mail'),
+                __('cli.user.list.table.columns.count_accounts')
             ],
-            $users->toArray()
+            $users->get()->toArray()
         );
 
         if ($userId) {

@@ -16,7 +16,7 @@ class UserEdit extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:user-edit {userId}';
+    protected $signature = 'fin:user-edit {userId : [:cli.base.param.user_id:]}';
 
     /**
      * The console command description.
@@ -35,7 +35,7 @@ class UserEdit extends FinCommand
 
         if (!$user instanceof User) {
             $this->emptyLn();
-            $this->error(__('cli.user.edit.validate_error.not_fount', ['userId' => $userId]));
+            $this->error(__('cli.base.error.not_found_user', ['userId' => $userId]));
             return;
         }
 
