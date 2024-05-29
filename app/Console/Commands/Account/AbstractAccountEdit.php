@@ -2,11 +2,11 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Account;
 
-use function Laravel\Prompts\text;
-
 use Illuminate\Support\Str;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+
+use function Laravel\Prompts\text;
 
 abstract class AbstractAccountEdit extends FinCommand
 {

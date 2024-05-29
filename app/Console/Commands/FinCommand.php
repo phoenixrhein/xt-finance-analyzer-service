@@ -5,10 +5,10 @@ namespace de\xovatec\financeAnalyzer\Console\Commands;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-use function Laravel\Prompts\confirm;
-
 use Illuminate\Support\Facades\Validator;
 use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
+
+use function Laravel\Prompts\confirm;
 
 abstract class FinCommand extends Command
 {

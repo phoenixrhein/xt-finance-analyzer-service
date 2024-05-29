@@ -2,9 +2,9 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Account;
 
-use function Laravel\Prompts\confirm;
-
 use de\xovatec\financeAnalyzer\Models\BankAccount;
+
+use function Laravel\Prompts\confirm;
 
 class AccountEdit extends AbstractAccountEdit
 {
