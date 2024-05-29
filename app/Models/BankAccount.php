@@ -2,6 +2,8 @@
 
 namespace de\xovatec\financeAnalyzer\Models;
 
+use de\xovatec\financeAnalyzer\Rules\Bic;
+use de\xovatec\financeAnalyzer\Rules\Iban;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -22,10 +24,13 @@ class BankAccount extends Model
      *
      * @var array
      */
-    public static $rules = [
-        'iban' => 'required|max:34',
-        'bic' => 'required|max:11'
-    ];
+    public static function getRules(): array
+    {
+        return [
+            'iban' => ['required', new Iban()],
+            'bic' => ['required', new Bic()]
+        ];
+    }
 
     /**
      * The attributes that are mass assignable.

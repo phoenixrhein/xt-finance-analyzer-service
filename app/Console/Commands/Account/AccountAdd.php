@@ -2,48 +2,49 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Account;
 
-use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Cashflow;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Validator;
+use de\xovatec\financeAnalyzer\Models\BankAccount;
 
-class AccountAdd extends Command
+use function Laravel\Prompts\confirm;
+
+class AccountAdd extends AbstractAccountEdit
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'fin:account-add {iban} {bic}';
+    protected $signature = 'fin:account-add';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Add a new bank account';
+    protected $description = 'cli.account.add.description';
+
 
     /**
-     * Execute the console command.
+     * @inheritDoc
      */
-    public function handle()
+    protected function process(): void
     {
-        $iban = $this->argument('iban');
-        $bic = $this->argument('bic');
-        $validator = Validator::make(
-            [
-                'iban' => $iban,
-                'bic' => $bic
-            ],
-            BankAccount::$rules
-        );
-        if ($validator->fails()) {
-            $this->error($validator->errors()->first());
+        $iban = $this->viewIbanInput();
+        $bic = $this->viewBicInput();
+
+        if (
+            !confirm(
+                label: __('cli.account.add.confirm'),
+                yes: __('cli.base.button.create'),
+                no: __('cli.base.button.abort')
+            )
+        ) {
             return;
         }
+
         $newEntry = BankAccount::create(['iban' => $iban, 'bic' => $bic]);
 
         Cashflow::createWithCategories(['bank_account_id' => $newEntry->id]);
-        $this->info("bamk account created with iban {$iban} and id {$newEntry->id}");
+        $this->info(__('cli.account.add.created', ['iban' => $iban, 'id' => $newEntry->id]));
     }
 }
