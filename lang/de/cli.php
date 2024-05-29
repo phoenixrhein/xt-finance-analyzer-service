@@ -74,6 +74,14 @@ return [
         ]
     ],
     'account' => [
+        'base' => [
+            'param' => [
+                'account_id' => 'ID des Bankkontos'
+            ],
+            'error'=> [
+                'not_found_account_id' => 'Das Bankkonto mit der ID \':accountId\' wurde nicht gefunden'
+            ]
+        ],
         'list' => [
             'table' => [
                 'columns' => [
@@ -82,6 +90,20 @@ return [
                     'bic' => 'BIC'
                 ]
             ]
+        ],
+        'add' => [
+            'description' => 'Bankkonto anlegen',
+            'input_iban' => 'Bitte geben Sie eine IBAN ein',
+            'input_bic' => 'Bitte geben Sie eine BIC ein',
+            'validate_error' => [
+                'duplicate_iban' => 'Die IBAN existiert bereits'
+            ],
+            'confirm' => 'Möchten Sie das Bankkonto anlegen?',
+            'created' => 'Bankkonto erfolgreich angelegt. [IBAN: :iban / Id: :id]'
+        ],
+        'edit' => [
+            'description' => 'Bankkonto bearbeiten',
+            'edited' => 'Das Bankkonto mit der ID \':accountId\' wurde aktualisiert'
         ]
     ]
 ];

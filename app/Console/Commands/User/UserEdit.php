@@ -30,7 +30,7 @@ class UserEdit extends FinCommand
      */
     protected function process(): void
     {
-        $userId = $this->argument('userId');
+        $userId = (int)$this->argument('userId');
         $user = User::find($userId);
 
         if (!$user instanceof User) {

@@ -2,11 +2,13 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
-
 use function Laravel\Prompts\confirm;
+
+use Illuminate\Support\Facades\Validator;
+use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
 
 abstract class FinCommand extends Command
 {
@@ -107,5 +109,27 @@ abstract class FinCommand extends Command
             $validate,
             $hint
         );
+    }
+
+    /**
+     *
+     * @param array $data
+     * @param array $rules
+     * @return boolean
+     */
+    protected function viewValidatorError(array $data, array $rules): bool
+    {
+        $validator = Validator::make(
+            $data,
+            Arr::only($rules, array_values($data))
+        );
+
+        $valid = true;
+        if ($validator->fails()) {
+            $valid = false;
+            $this->error($validator->errors()->first());
+        }
+
+        return $valid;
     }
 }

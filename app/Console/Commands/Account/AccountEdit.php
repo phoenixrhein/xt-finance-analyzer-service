@@ -2,50 +2,56 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Account;
 
-use de\xovatec\financeAnalyzer\Models\BankAccount;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Validator;
+use function Laravel\Prompts\confirm;
 
-class AccountEdit extends Command
+use de\xovatec\financeAnalyzer\Models\BankAccount;
+
+class AccountEdit extends AbstractAccountEdit
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'fin:account-edit {accountId} {--iban=} {--bic=}';
+    protected $signature = 'fin:account-edit {accountId : [:cli.account.base.param.account_id:]}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Edit bank account';
+    protected $description = 'cli.account.edit.description';
 
     /**
-     * Execute the console command.
+     * @inheritDoc
      */
-    public function handle()
+    protected function process(): void
     {
-        $accountId = $this->argument('accountId');
-        $account = BankAccount::findOrFail($accountId);
-        if (strlen(implode('', array_values($this->options()))) === 0) {
-            $this->info("No option for update");
-            exit();
-        }
-        $iban = $this->option('iban') ?? $account->iban;
-        $bic = $this->option('bic') ?? $account->bic;
-        $validator = Validator::make(
-            ['iban' => $iban, 'bic' => $bic],
-            BankAccount::$rules
-        );
-        if ($validator->fails()) {
-            $this->error($validator->errors()->first());
+        $accountId = (int)$this->argument('accountId');
+        $bankAccount = BankAccount::find($accountId);
+
+        if (!$bankAccount instanceof BankAccount) {
+            $this->emptyLn();
+            $this->error(__('cli.account.base.error.not_found_account_id', ['accountId' => $accountId]));
             return;
         }
-        $account->iban = $iban;
-        $account->bic = $bic;
-        $account->save();
-        $this->info("Updated account with id '{$accountId}'");
+
+        $iban = $this->viewIbanInput($bankAccount->iban);
+        $bic = $this->viewBicInput($bankAccount->bic);
+
+        if (
+            !confirm(
+                label: __('cli.user.edit.confirm_save'),
+                yes: __('cli.base.button.yes'),
+                no: __('cli.base.button.no')
+            )
+        ) {
+            return;
+        }
+
+        $bankAccount->iban = $iban;
+        $bankAccount->bic = $bic;
+        $bankAccount->save();
+        $this->info(__('cli.account.edit.edited', ['accountId' => $bankAccount->id]));
     }
 }
