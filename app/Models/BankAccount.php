@@ -82,7 +82,9 @@ class BankAccount extends Model
                 $bankAccount->cashflow->delete();
             }
             if ($bankAccount->ignoreList) {
-                $bankAccount->ignoreList->delete();
+                foreach($bankAccount->ignoreList as $ignoreList) {
+                    $ignoreList->delete();
+                }
             }
         });
     }

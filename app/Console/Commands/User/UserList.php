@@ -14,7 +14,7 @@ class UserList extends FinCommand
      *
      * @inheritDoc
      */
-    protected $signature = 'fin:user-list {userId : [:cli.user.list.param.user_id:]}';
+    protected $signature = 'fin:user-list {--userId= : [:cli.user.list.param.user_id:]}';
 
     /**
      *
@@ -28,7 +28,7 @@ class UserList extends FinCommand
      */
     public function process(): void
     {
-        $userId = $this->argument('userId');
+        $userId = $this->option('userId');
         $users = User::leftJoin('bank_account_user', 'user.id', '=', 'bank_account_user.user_id')
             ->select('user.id', 'user.email', DB::raw('COUNT(bank_account_user.bank_account_id) as accounts_count'))
             ->groupBy('user.id', 'user.email');

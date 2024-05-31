@@ -36,22 +36,23 @@ class UserDelete extends FinCommand
             return;
         }
 
-        $deletableAccounts = [];
-        if ($user->bankAccounts()->count() > 0) {
-            foreach ($user->bankAccounts as $account) {
-                if ($account->users()->count() === 1) {
-                    $deletableAccounts[] = $account;
-                }
-            }
-            $user->bankAccounts()->detach();
-        }
         DB::beginTransaction();
         try {
+            $deletableAccounts = [];
+            if ($user->bankAccounts()->count() > 0) {
+                foreach ($user->bankAccounts as $account) {
+                    if ($account->users()->count() === 1) {
+                        $deletableAccounts[] = $account;
+                    }
+                }
+                $user->bankAccounts()->detach();
+            }
+
             if (
                 !empty($deletableAccounts)
                 && $this->confirmPrompt(
                     __('cli.user.delete.question_delete_accounts', ['mail' => $user->email])
-                ) === false
+                ) === true
             ) {
                 foreach ($deletableAccounts as $deletableAccount) {
                     $deletableAccount->delete();
@@ -63,6 +64,7 @@ class UserDelete extends FinCommand
         } catch (Throwable $e) {
             DB::rollBack();
             $this->error(__('cli.base.error.message', ['error' => $e]));
+            return;
         }
         $this->info(__('cli.user.delete.deleted', ['userId' => $userId, 'mail' => $user->email]));
     }

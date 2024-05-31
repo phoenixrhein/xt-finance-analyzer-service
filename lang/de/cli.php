@@ -82,12 +82,22 @@ return [
                 'not_found_account_id' => 'Das Bankkonto mit der ID \':accountId\' wurde nicht gefunden'
             ]
         ],
+        'delete' => [
+            'description' => 'Bankkonto löschen',
+            'confirm_question' => 'Möchten Sie das Bankkonto mit der IBAN \':iban\' wirklich löschen?',
+            'question_delete_users' => 'Es wurden Benutzer gefunden, mit denen kein weiteres Bankkonto verknüpft ist. Sollen diese auch gelöscht werden?',
+            'deleted' => 'Das Bankkonto mit der ID \':accountId\' (:iban) wurde gelöscht'
+        ],
         'list' => [
+            'description' => 'Bankkonton anzeigen',
+            'details_title' => 'Bankkontodetails',
+            'linked_user_title' => 'Verknüpfte Benutzer',
             'table' => [
                 'columns' => [
                     'id' => 'ID',
                     'iban' => 'IBAN',
-                    'bic' => 'BIC'
+                    'bic' => 'BIC',
+                    'count_users' => 'Anzahl der Benutzer'
                 ]
             ]
         ],
