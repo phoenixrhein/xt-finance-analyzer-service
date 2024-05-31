@@ -38,7 +38,7 @@ class AccountList extends FinCommand
             'bank_account.id',
             'bank_account.iban',
             'bank_account.bic',
-             DB::raw('COUNT(bank_account_user.user_id) as accounts_count')
+            DB::raw('COUNT(bank_account_user.user_id) as accounts_count')
         )
         ->groupBy('bank_account.id', 'bank_account.iban', 'bank_account.bic');
         if ($accountId) {
