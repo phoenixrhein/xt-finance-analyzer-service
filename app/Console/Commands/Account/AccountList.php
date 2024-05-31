@@ -3,10 +3,10 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\Account;
 
 use Illuminate\Support\Facades\DB;
-use function Laravel\Prompts\intro;
-
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+
+use function Laravel\Prompts\intro;
 
 class AccountList extends FinCommand
 {
@@ -28,8 +28,18 @@ class AccountList extends FinCommand
     protected function process(): void
     {
         $accountId = $this->option('accountId');
-        $accounts = BankAccount::leftJoin('bank_account_user', 'bank_account.id', '=', 'bank_account_user.bank_account_id')
-        ->select('bank_account.id', 'bank_account.iban', 'bank_account.bic', DB::raw('COUNT(bank_account_user.user_id) as accounts_count'))
+        $accounts = BankAccount::leftJoin(
+            'bank_account_user',
+            'bank_account.id',
+            '=',
+            'bank_account_user.bank_account_id'
+        )
+        ->select(
+            'bank_account.id',
+            'bank_account.iban',
+            'bank_account.bic',
+             DB::raw('COUNT(bank_account_user.user_id) as accounts_count')
+        )
         ->groupBy('bank_account.id', 'bank_account.iban', 'bank_account.bic');
         if ($accountId) {
             $accounts->where('id', $accountId);
