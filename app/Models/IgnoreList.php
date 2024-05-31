@@ -3,6 +3,7 @@
 namespace de\xovatec\financeAnalyzer\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class IgnoreList extends Model
@@ -20,10 +21,10 @@ class IgnoreList extends Model
 
     /**
      *
-     * @return void
+     * @return BelongsTo
      */
-    public function bankAccount()
+    public function bankAccount(): BelongsTo
     {
-        return $this->belongsTo(BankAccount::class);
+        return $this->belongsTo(BankAccount::class)->withDefault();
     }
 }
