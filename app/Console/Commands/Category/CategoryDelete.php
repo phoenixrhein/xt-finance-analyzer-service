@@ -1,5 +1,4 @@
 <?php
-// vielleicht sollte nach einer Verändung (egal ob add, edit, delete) immer das aktualisierte Tree einmal angezeigt werden
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Category;
 

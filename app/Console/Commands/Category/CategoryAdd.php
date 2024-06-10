@@ -39,7 +39,7 @@ class CategoryAdd extends AbstractCategory
                 $this->error('Der Name ist in der übergeordneten Kategorie schon vorhanden');
                 $valid = false;
             }
-        } while(!$valid);
+        } while (!$valid);
 
         if (
             !confirm(

@@ -52,7 +52,7 @@ class CategoryEdit extends AbstractCategory
                 $this->error('Der Name ist in der übergeordneten Kategorie schon vorhanden');
                 $valid = false;
             }
-        } while(!$valid);
+        } while (!$valid);
 
         if (!$this->confirmPrompt(__('cli.base.confirm_save'))) {
             return;

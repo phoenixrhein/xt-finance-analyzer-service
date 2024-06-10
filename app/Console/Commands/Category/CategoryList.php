@@ -4,7 +4,6 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\Category;
 
 use de\xovatec\financeAnalyzer\Models\Cashflow;
 
-
 class CategoryList extends AbstractCategory
 {
     /**

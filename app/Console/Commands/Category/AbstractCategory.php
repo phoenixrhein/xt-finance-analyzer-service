@@ -116,7 +116,7 @@ abstract class AbstractCategory extends FinCommand
 
         foreach ($categories as $index => $category) {
             $isCurrentLast = $index == count($categories) - 1;
-            $tree .= $prefix . ($isCurrentLast ? '└── ' : '├── ') . $category->name . " [{$category->id}]". PHP_EOL;
+            $tree .= $prefix . ($isCurrentLast ? '└── ' : '├── ') . $category->name . " [{$category->id}]" . PHP_EOL;
             if ($category->subCategories->isNotEmpty()) {
                 $tree .= $this->buildTree(
                     $category->subCategories,
