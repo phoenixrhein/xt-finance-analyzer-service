@@ -55,11 +55,7 @@ class UserEdit extends FinCommand
 
             if (
                 $valid
-                && !confirm(
-                    label: __('cli.user.edit.confirm_save'),
-                    yes: __('cli.base.button.yes'),
-                    no: __('cli.base.button.no')
-                )
+                && !$this->confirmPrompt(__('cli.base.confirm_save'))
             ) {
                 $valid = false;
             }

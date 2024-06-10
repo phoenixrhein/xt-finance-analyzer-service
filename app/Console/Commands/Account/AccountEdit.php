@@ -39,13 +39,7 @@ class AccountEdit extends AbstractAccountEdit
         $iban = $this->viewIbanInput($bankAccount->iban);
         $bic = $this->viewBicInput($bankAccount->bic);
 
-        if (
-            !confirm(
-                label: __('cli.user.edit.confirm_save'),
-                yes: __('cli.base.button.yes'),
-                no: __('cli.base.button.no')
-            )
-        ) {
+        if (!$this->confirmPrompt(__('cli.base.confirm_save'))) {
             return;
         }
 

@@ -3,41 +3,56 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\Category;
 
 use de\xovatec\financeAnalyzer\Models\Category;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Validator;
 
-class CategoryAdd extends Command
+use function Laravel\Prompts\confirm;
+
+class CategoryAdd extends AbstractCategory
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'fin:cat-add {name} {parentId}';
+    protected $signature = 'fin:cat-add';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Add a new category';
+    protected $description = 'cli.category.add.description';
 
     /**
-     * Execute the console command.
+     * @inheritDoc
      */
-    public function handle()
+    protected function process(): void
     {
-        $name = $this->argument('name');
-        $parentId = $this->argument('parentId');
-        $validator = Validator::make(
-            ['name' => $name, 'parent_id' => $parentId],
-            Category::$rules
-        );
-        if ($validator->fails()) {
-            $this->error($validator->errors()->first());
+        do {
+            $valid = true;
+            $name = $this->viewNameInput($name ?? '');
+            $parentId = $this->viewParentIdInput($parentId ?? '');
+
+            $parentCategory = Category::find($parentId);
+            $this->viewCategoryPath($parentCategory, $name);
+
+            if (Category::where('name', $name)->where('parent_id', $parentId)->count() > 0) {
+                $this->error('Der Name ist in der übergeordneten Kategorie schon vorhanden');
+                $valid = false;
+            }
+        } while(!$valid);
+
+        if (
+            !confirm(
+                label: __('cli.category.add.confirm'),
+                yes: __('cli.base.button.create'),
+                no: __('cli.base.button.abort')
+            )
+        ) {
             return;
         }
+
         $newEntry = Category::create(['name' => $name, 'parent_id' => $parentId]);
-        $this->info("category created '{$name}' and id {$newEntry->id}");
+        $this->displayCashflowTrees($newEntry->getCashflow());
+        $this->info(__('cli.category.add.created', ['name' => $name, 'id' => $newEntry->id]));
     }
 }
