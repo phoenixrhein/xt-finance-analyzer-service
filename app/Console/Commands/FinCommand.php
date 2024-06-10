@@ -121,7 +121,7 @@ abstract class FinCommand extends Command
     {
         $validator = Validator::make(
             $data,
-            Arr::only($rules, array_values($data))
+            Arr::only($rules, array_keys($data)) //@todo inwiefern funktioniert dann noch anderes
         );
 
         $valid = true;

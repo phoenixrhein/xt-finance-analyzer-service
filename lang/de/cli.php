@@ -20,6 +20,7 @@ return [
             'user_id' => 'ID des Benutzers',
             'account_id' => 'ID des Bankkontos'
         ],
+        'confirm_save' => 'Sie alle Daten korrekt?',
     ],
     'user' => [
         'add' => [
@@ -55,7 +56,6 @@ return [
         'edit' => [
             'description' => 'Benutzer bearbeiten',
             'input_email' => 'Bitte geben Sie eine E-Mail-Adresse ein',
-            'confirm_save' => 'Sie alle Daten korrekt?',
             'updated' => 'Benutzer erfolgreich aktualisiert. [Email: :mail / Id: :id]'
         ],
         'addAccount' => [
@@ -114,6 +114,43 @@ return [
         'edit' => [
             'description' => 'Bankkonto bearbeiten',
             'edited' => 'Das Bankkonto mit der ID \':accountId\' wurde aktualisiert'
+        ]
+    ],
+    'category' => [
+        'base' => [
+            'param' => [
+                'category_id' => 'ID des Kategorie',
+                'cashflow_id' => 'ID des Zahlungsstroms'
+            ],
+            'error'=> [
+                'not_found_category_id' => 'Die Kategorie mit der ID \':categoryId\' wurde nicht gefunden',
+                'not_found_cashflow_id' => 'Der Zahlungsstrom mit der ID \':cashflowId\' wurde nicht gefunden'
+            ],
+            'category_path' => 'Kategoriepfad',
+            'input_name' => 'Bitte geben Sie einen Namen ein',
+            'input_parent_id' => 'Bitte geben Sie die ID der übergeordneten Kategorie ein',
+        ],
+        'add' => [
+            'description' => 'Neue Kategorie anlegen',
+            'confirm' => 'Möchten Sie die Kategorie anlegen?',
+            'created' => 'Kategorie erfolgreich angelegt [Name: :name / Id: :id]'
+        ],
+        'edit' => [
+            'description' => 'Kategorie bearbeiten',
+            'edited' => 'Die Kategorie mit der ID \':categoryId\' wurde aktualisiert'
+        ],
+        'list' => [
+            'description' => 'Liste der Kategorien des Zahlungsstroms',
+        ],
+        'delete' => [
+            'description' => 'Kategorie löschen',
+            'confirm_question' => 'Möchten Sie die Kategorie \':name\' wirklich löschen?',
+            'error' => [
+                'has_childs' => 'Die Kategorie hat mindestens eine Unterkategorie',
+                'category_is_cashflow' => 'Die Kategorie ist der Zahlungsstrom',
+                'has_rules' => 'Die Kategorie ist mindestens einer Regel zugewiesen',
+            ],
+            'deleted' => 'Die Kategorie mit der ID \':categoryId\' (:name) wurde gelöscht'
         ]
     ]
 ];

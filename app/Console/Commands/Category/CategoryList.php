@@ -3,51 +3,37 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\Category;
 
 use de\xovatec\financeAnalyzer\Models\Cashflow;
-use de\xovatec\financeAnalyzer\Models\Category;
-use Illuminate\Console\Command;
 
-class CategoryList extends Command
+class CategoryList extends AbstractCategory
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'fin:cat-list {cashflowId}';
+    protected $signature = 'fin:cat-list {cashflowId : [:cli.category.base.param.cashflow_id:]}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get a category tree for a cashflow';
+    protected $description = 'cli.category.list.description';
 
     /**
-     * Execute the console command.
+     * @inheritDoc
      */
-    public function handle()
+    protected function process(): void
     {
         $cashflowId = $this->argument('cashflowId');
-        $cashflow = Cashflow::findOrFail($cashflowId);
-
-        $inCategory = Category::with('subCategories')->findOrFail($cashflow->in_category_id);
-        $outCategory = Category::with('subCategories')->findOrFail($cashflow->out_category_id);
-
-        $this->displayCategoryWithSubcategories($inCategory, 0);
-
-        $this->info("\n");
-        $this->displayCategoryWithSubcategories($outCategory, 0);
-    }
-
-    /**
-     * @return void
-     */
-    private function displayCategoryWithSubcategories($category, $indent): void
-    {
-        $this->info(str_repeat('-', $indent) . $category->name . " [" . $category->id . "]");
-
-        foreach ($category->subCategories as $subCategory) {
-            $this->displayCategoryWithSubcategories($subCategory, $indent + 2);
+        $cashflow = Cashflow::find($cashflowId);
+        if (!$cashflow instanceof Cashflow) {
+            $this->emptyLn();
+            $this->error(__('cli.category.base.error.not_found_cashflow_id', ['cashflowId' => $cashflowId]));
+            return;
         }
+
+        $this->emptyLn();
+        $this->displayCashflowTrees($cashflow);
     }
 }
