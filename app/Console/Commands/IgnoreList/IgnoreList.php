@@ -2,40 +2,27 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\IgnoreList;
 
-use Illuminate\Console\Command;
-use de\xovatec\financeAnalyzer\Models\IgnoreList as IgnoreListModel;
-
-class IgnoreList extends Command
+class IgnoreList extends AbstractIgnoreList
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'fin:ignore-list {accountId}';
+    protected $signature = 'fin:ignore-list  {accountId : [:cli.base.param.account_id:]}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'List of ignore data';
+    protected $description = 'cli.ignore_list.list.description';
 
     /**
-     * Execute the console command.
+     * @inheritDoc
      */
-    public function handle()
+    protected function process(): void
     {
-        $accountId = $this->argument('accountId');
-        if (!is_numeric($accountId)) {
-            $this->error('bank account expected');
-            exit();
-        }
-        $accounts = IgnoreListModel::where('bank_account_id', $accountId)
-                ->select(['id', 'type', 'value', 'comment'])->get();
-        $this->table(
-            ['Id', 'Type', 'Wert', 'Kommentar'],
-            $accounts->toArray()
-        );
+        $this->displayIgnoreList((int)$this->argument('accountId'));
     }
 }

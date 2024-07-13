@@ -2,9 +2,8 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Account;
 
-use Illuminate\Support\Facades\DB;
-use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 
 use function Laravel\Prompts\intro;
 
@@ -23,24 +22,22 @@ class AccountList extends FinCommand
     protected $description = 'cli.account.list.description';
 
     /**
+     *
+     * @param AccountListQuery $listQuery
+     */
+    public function __construct(
+        private AccountListQuery $listQuery
+    ) {
+        parent::__construct();
+    }
+
+    /**
      * @inheritDoc
      */
     protected function process(): void
     {
         $accountId = $this->option('accountId');
-        $accounts = BankAccount::leftJoin(
-            'bank_account_user',
-            'bank_account.id',
-            '=',
-            'bank_account_user.bank_account_id'
-        )
-        ->select(
-            'bank_account.id',
-            'bank_account.iban',
-            'bank_account.bic',
-            DB::raw('COUNT(bank_account_user.user_id) as accounts_count')
-        )
-        ->groupBy('bank_account.id', 'bank_account.iban', 'bank_account.bic');
+        $accounts = $this->listQuery->createList();
         if ($accountId) {
             $accounts->where('id', $accountId);
             intro(__('cli.account.list.details_title'));

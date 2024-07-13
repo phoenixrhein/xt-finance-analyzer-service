@@ -2,43 +2,15 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Account;
 
-use Illuminate\Support\Str;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Traits\Command\View\IbanInput;
 
 use function Laravel\Prompts\text;
 
 abstract class AbstractAccountEdit extends FinCommand
 {
-    /**
-     *
-     * @param string $rawIban
-     * @return string
-     */
-    protected function viewIbanInput(string $rawIban = ''): string
-    {
-        $iban = $rawIban;
-        do {
-            $iban = text(
-                label: __('cli.account.add.input_iban'),
-                default: $iban
-            );
-
-            $valid = $this->viewValidatorError(
-                [
-                    'iban' => $iban
-                ],
-                ['iban' => BankAccount::getRules()['iban']]
-            );
-
-            if (Str::length($rawIban) == 0 && $valid && BankAccount::where('iban', $iban)->count()) {
-                $valid = false;
-                $this->error(__('cli.account.add.validate_error.duplicate_iban'));
-            }
-        } while (!$valid);
-
-        return $iban;
-    }
+    use IbanInput;
 
     /**
      *

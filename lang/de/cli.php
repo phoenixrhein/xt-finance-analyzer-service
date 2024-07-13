@@ -21,6 +21,17 @@ return [
             'account_id' => 'ID des Bankkontos'
         ],
         'confirm_save' => 'Sie alle Daten korrekt?',
+        'created' => 'Eintrag erfolgreich angelegt [Id: :id]',
+        'edited' => 'Der Eintrag mit der ID \':id\' wurde aktualisiert',
+        'deleted' => 'Der Eintrag mit der ID \':id\' wurde gelöscht'
+    ],
+    'view' => [
+        'input' => [
+            'iban' => 'Bitte geben Sie eine IBAN ein',
+        ],
+        'validate_error' => [
+            'duplicate_iban' => 'Die IBAN existiert bereits'
+        ],
     ],
     'user' => [
         'add' => [
@@ -103,11 +114,7 @@ return [
         ],
         'add' => [
             'description' => 'Bankkonto anlegen',
-            'input_iban' => 'Bitte geben Sie eine IBAN ein',
             'input_bic' => 'Bitte geben Sie eine BIC ein',
-            'validate_error' => [
-                'duplicate_iban' => 'Die IBAN existiert bereits'
-            ],
             'confirm' => 'Möchten Sie das Bankkonto anlegen?',
             'created' => 'Bankkonto erfolgreich angelegt. [IBAN: :iban / Id: :id]'
         ],
@@ -151,6 +158,29 @@ return [
                 'has_rules' => 'Die Kategorie ist mindestens einer Regel zugewiesen',
             ],
             'deleted' => 'Die Kategorie mit der ID \':categoryId\' (:name) wurde gelöscht'
+        ]
+    ],
+    'ignore_list' => [
+        'base' => [
+            'param' => [
+                'ignore_id' => 'ID des Ignore-Eintrags'
+            ]
+        ],
+        'list' => [
+            'description' => 'Ignorierliste anzeigen'
+        ],
+        'upsert' => [
+            'description' => 'Ignorierliste bearbeiten',
+            'hint_add' => 'Es wurde keine ID übergeben. Der Eintrag wird daher neu angelegt',
+            'error' => [
+                'not_found' => 'Der Eintrag mit der ID \':ignoreId\' wurde nicht gefunden'
+            ],
+            'edit_bank_account_id' => 'Bitte geben Sie die ID des Bankkontos ein',
+            'comment' => 'Kommentar'
+        ],
+        'delete' => [
+            'description' => 'Ignorierliste-Eintrag löschen',
+            'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
         ]
     ]
 ];
