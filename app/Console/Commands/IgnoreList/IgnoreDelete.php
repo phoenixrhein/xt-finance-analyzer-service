@@ -2,35 +2,43 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\IgnoreList;
 
+use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
-use Illuminate\Console\Command;
 
-class IgnoreDelete extends Command
+class IgnoreDelete extends FinCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'fin:ignore-delete {ignoreId}';
+    protected $signature = 'fin:ignore-delete {ignoreId : [:cli.ignore_list.base.param.ignore_list:]}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Delete ignore list entry';
+    protected $description = 'cli.ignore_list.delete.description';
 
     /**
-     * Execute the console command.
+     * @inheritDoc
      */
-    public function handle()
+    protected function process(): void
     {
-        if ($this->confirm('Do you want to delete?') === false) {
+        $ignoreId = $this->argument('ignoreId');
+        $ignoreEntry = IgnoreList::find($ignoreId);
+        if (!$ignoreEntry instanceof IgnoreList) {
+            $this->emptyLn();
+            $this->error(__('cli.ignore_list.upsert.error.not_found', ['ignoreId' => $ignoreId]));
             return;
         }
-        $ignoreEntry = IgnoreList::findOrFail($this->argument('ignoreId'));
+
+        if ($this->confirmPrompt(__('cli.ignore_list.delete.confirm', ['id' => $ignoreId, 'comment' => $ignoreEntry->comment])) === false) {
+            return;
+        }
+
         $ignoreEntry->delete();
-        $this->info('Ingore list entry deleted');
+        $this->info(__('cli.base.deleted', ['id' => $ignoreId]));
     }
 }
