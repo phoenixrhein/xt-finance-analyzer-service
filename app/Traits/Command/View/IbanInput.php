@@ -30,7 +30,12 @@ trait IbanInput
                 ['iban' => BankAccount::getRules()['iban']]
             );
 
-            if ($uniqueInBankAccount && Str::length($rawIban) == 0 && $valid && BankAccount::where('iban', $iban)->count()) {
+            if (
+                $uniqueInBankAccount
+                && Str::length($rawIban) == 0
+                && $valid
+                && BankAccount::where('iban', $iban)->count()
+            ) {
                 $valid = false;
                 $this->error(__('cli.view.validate_error.duplicate_iban'));
             }

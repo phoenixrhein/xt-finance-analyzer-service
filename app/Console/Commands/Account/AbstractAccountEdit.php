@@ -11,7 +11,7 @@ use function Laravel\Prompts\text;
 abstract class AbstractAccountEdit extends FinCommand
 {
     use IbanInput;
-    
+
     /**
      *
      * @param string $rawBic

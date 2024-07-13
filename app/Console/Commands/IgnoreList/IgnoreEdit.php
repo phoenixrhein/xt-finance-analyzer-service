@@ -2,12 +2,12 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\IgnoreList;
 
-use function Laravel\Prompts\text;
-use function Laravel\Prompts\warning;
-
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\View\IbanInput;
+
+use function Laravel\Prompts\text;
+use function Laravel\Prompts\warning;
 
 class IgnoreEdit extends AbstractIgnoreList
 {
@@ -36,7 +36,7 @@ class IgnoreEdit extends AbstractIgnoreList
     ) {
         parent::__construct();
     }
-    
+
     /**
      *
      * @param integer|null $rawAccountId

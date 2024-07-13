@@ -9,7 +9,6 @@ use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
 
 use function Laravel\Prompts\confirm;
 
-
 abstract class FinCommand extends Command
 {
     use TableConsolePagination;

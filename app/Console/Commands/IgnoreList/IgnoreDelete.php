@@ -34,7 +34,9 @@ class IgnoreDelete extends FinCommand
             return;
         }
 
-        if ($this->confirmPrompt(__('cli.ignore_list.delete.confirm', ['id' => $ignoreId, 'comment' => $ignoreEntry->comment])) === false) {
+        if ($this->confirmPrompt(
+            __('cli.ignore_list.delete.confirm', ['id' => $ignoreId, 'comment' => $ignoreEntry->comment])
+            ) === false) {
             return;
         }
 

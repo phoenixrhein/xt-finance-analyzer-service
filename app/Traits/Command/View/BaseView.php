@@ -9,7 +9,7 @@ use Illuminate\Console\Concerns\InteractsWithIO;
 trait BaseView
 {
     use InteractsWithIO;
-    
+
     /**
      *
      * @param array $data
@@ -32,7 +32,6 @@ trait BaseView
         return $valid;
     }
 
-    
     /**
      * Write an empty line
      *
