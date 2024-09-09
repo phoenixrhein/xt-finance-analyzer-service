@@ -38,10 +38,12 @@ class CommentEdit extends FinCommand
                         ->first();
         if (!$transaction instanceof Transactions) {
             $this->emptyLn();
-            $this->error(__('cli.transaction.base.error.not_found_transaction_id', ['transactionId' => $transactionId]));
+            $this->error(
+                __('cli.transaction.base.error.not_found_transaction_id', ['transactionId' => $transactionId])
+            );
             return;
         }
-     
+
         $this->tableConsolePagination(
             new Collection([$transaction]),
             array_map(
