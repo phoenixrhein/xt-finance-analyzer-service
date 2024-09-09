@@ -2,11 +2,14 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Transaction;
 
-use Illuminate\Console\Command;
+use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
+use Illuminate\Database\Eloquent\Collection;
 
-class CommentEdit extends Command
+use function Laravel\Prompts\text;
+
+class CommentEdit extends FinCommand
 {
     use TableConsolePagination;
 
@@ -15,26 +18,32 @@ class CommentEdit extends Command
      *
      * @var string
      */
-    protected $signature = 'fin:comment-edit {transactionId}';
+    protected $signature = 'fin:comment-edit {transactionId : [:cli.transaction.base.param.transaction_id:]}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Edit a comment of transaction';
+    protected $description = 'cli.transaction.comment.description';
 
     /**
-     * Execute the console command.
+     * @inheritDoc
      */
-    public function handle()
+    protected function process(): void
     {
-        $transaction = Transactions::findOrFail($this->argument('transactionId'));
-        $transactions = Transactions::where('id', $this->argument('transactionId'))
-                            ->select(array_keys(TransactionList::$compactView))
-                            ->get();
+        $transactionId = $this->argument('transactionId');
+        $transaction = Transactions::where('id', $this->argument('transactionId'))
+                        ->select(array_keys(TransactionList::$compactView))
+                        ->first();
+        if (!$transaction instanceof Transactions) {
+            $this->emptyLn();
+            $this->error(__('cli.transaction.base.error.not_found_transaction_id', ['transactionId' => $transactionId]));
+            return;
+        }
+     
         $this->tableConsolePagination(
-            $transactions,
+            new Collection([$transaction]),
             array_map(
                 function ($item) {
                     if (is_array($item)) {
@@ -53,24 +62,13 @@ class CommentEdit extends Command
             },
             TransactionList::$compactView))
         );
-        if (!empty($transaction->note)) {
-            $this->info('Current comment: ' . $transaction->note);
-        }
-        $note = $this->ask('Comment');
 
-        if (strlen($transaction->note) > 0 && strlen($note) === 0) {
-            if ($this->confirm('Do you want to delete the current comment?') === false) {
-                return;
-            }
-        } elseif (
-            strlen($transaction->note) !== strlen($note)
-            && $this->confirm('Do you want to overwrite the current comment?') === false
-        ) {
-            return;
-        }
+        $transaction->note = text(
+            label: __('cli.transaction.comment.input_note'),
+            default: $transaction->note
+        );
 
-        $transaction->note = $note ?? '';
         $transaction->save();
-        $this->info('The comment was changed.');
+        $this->info(__('cli.transaction.comment.edited'));
     }
 }
