@@ -182,5 +182,20 @@ return [
             'description' => 'Ignorierliste-Eintrag löschen',
             'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
         ]
-    ]
+        ],
+        'transaction' => [
+            'base' => [
+                'param' => [
+                    'transaction_id' => 'ID der Buchung'
+                ],
+                'error'=> [
+                    'not_found_transaction_id' => 'Die Buchung mit der ID \':transactionId\' wurde nicht gefunden'
+                ],
+            ],
+            'comment' => [
+                'description' => 'Kommentar bearbeiten',
+                'input_note' => 'Bitte geben Sie einen Kommentar an',
+                'edited' => 'Der Kommentar wurde geändert'
+            ]
+        ]
 ];
