@@ -42,7 +42,6 @@ trait SimpleInput
                     'Wert' => $rules
                 ]
             );
-
         } while (!$valid);
 
         return $type != self::VALUE_TYPE_DECIMAL ? $input : Str::replace(',', '.', $input);
