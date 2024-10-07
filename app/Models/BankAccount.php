@@ -69,6 +69,15 @@ class BankAccount extends Model
         return $this->hasMany(IgnoreList::class);
     }
 
+        /**
+     *
+     * @return HasMany
+     */
+    public function cashDeposit(): HasMany
+    {
+        return $this->hasMany(CashDeposit::class);
+    }
+
     /**
      *
      * @return void
