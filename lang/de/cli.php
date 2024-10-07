@@ -1,7 +1,5 @@
 <?php
 
-use function PHPSTORM_META\map;
-
 return [
     'base' => [
         'button' => [
@@ -15,6 +13,7 @@ return [
             'message' => 'Es ist ein technischer Fehler aufgetreten: :error',
             'not_found_user' => 'Der Benutzer mit der ID \':userId\' wurde nicht gefunden',
             'not_found_account' => 'Das Bankkonto mit der ID \':accountId\' wurde nicht gefunden',
+            'not_found' => 'Der Eintrag mit der ID \':id\' wurde nicht gefunden'
         ],
         'param' => [
             'user_id' => 'ID des Benutzers',
@@ -23,7 +22,9 @@ return [
         'confirm_save' => 'Sie alle Daten korrekt?',
         'created' => 'Eintrag erfolgreich angelegt [Id: :id]',
         'edited' => 'Der Eintrag mit der ID \':id\' wurde aktualisiert',
-        'deleted' => 'Der Eintrag mit der ID \':id\' wurde gelöscht'
+        'deleted' => 'Der Eintrag mit der ID \':id\' wurde gelöscht',
+        'iban' => 'IBAN',
+        'upsert_hint_add' => 'Es wurde keine ID übergeben. Der Eintrag wird daher neu angelegt',
     ],
     'view' => [
         'input' => [
@@ -31,6 +32,35 @@ return [
         ],
         'validate_error' => [
             'duplicate_iban' => 'Die IBAN existiert bereits'
+        ],
+    ],
+    'cash_deposit' => [
+        'base' => [
+            'param' => [
+                'cash_deposit_id' => 'ID des Bargeldeinzahlungseintrag'
+            ]
+        ],
+        'upsert' => [
+            'description' => 'Bargeldeinzahlung hinzufügen/bearbeiten',
+            'amount' => 'Bitte geben Sie den Bareinzahlungsbetrag ein',
+            'currency' => 'Bitte geben Sie die Währung ein',
+            'deposit_date' => 'Bitte geben Sie die Einzahlungsdatum ein [dd.mm.jjjj]',
+            'note' => 'Bitte geben Sie einen Kommentar ein',
+        ],
+        'delete' => [
+            'description' => 'Bargeldeinzahlungseintrag-Eintrag löschen',
+            'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
+        ],
+        'list' => [
+            'description' => 'Bargeldeinzahlungsliste anzeigen',
+            'table_header' => [
+                'id' => 'ID',
+                'iban' => 'IBAN',
+                'cash_deposit_date' => 'Annahmedatum',
+                'amount' => 'Betrag',
+                'currency' => 'Währung',
+                'note' => 'Kommentar'
+            ]
         ],
     ],
     'user' => [
@@ -167,14 +197,16 @@ return [
             ]
         ],
         'list' => [
-            'description' => 'Ignorierliste anzeigen'
+            'description' => 'Ignorierliste anzeigen',
+            'table_header' => [
+                'id' => 'ID',
+                'type' => 'Typ',
+                'value' => 'Wert',
+                'comment' => 'Kommentar'
+            ]
         ],
         'upsert' => [
             'description' => 'Ignorierliste bearbeiten',
-            'hint_add' => 'Es wurde keine ID übergeben. Der Eintrag wird daher neu angelegt',
-            'error' => [
-                'not_found' => 'Der Eintrag mit der ID \':ignoreId\' wurde nicht gefunden'
-            ],
             'edit_bank_account_id' => 'Bitte geben Sie die ID des Bankkontos ein',
             'comment' => 'Kommentar'
         ],

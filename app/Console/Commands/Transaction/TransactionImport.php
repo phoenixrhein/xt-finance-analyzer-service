@@ -63,6 +63,8 @@ class TransactionImport extends Command
         try {
             $this->importTransactionService->setIgnoreAlreadyExists($this->option('ignoreAlreadyExists'));
             $this->importTransactionService->import($transactionFile);
+
+            //Hinweis: Wenn nichts importiert wurde, da alles duplicate sind
         } catch (Exception $e) {
             $this->error($e->getMessage());
         } finally {

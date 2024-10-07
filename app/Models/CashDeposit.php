@@ -3,23 +3,18 @@
 namespace de\xovatec\financeAnalyzer\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class IgnoreList extends Model
+class CashDeposit extends Model
 {
     use SoftDeletes;
 
-    public const TYPE_IBAN = 'iban';
-
-    protected $table = 'ignore_list';
-
-    protected $fillable = [
-        'bank_account_id',
-        'type',
-        'value',
-        'comment'
-    ];
+    /**
+     *
+     * @var string
+     */
+    protected $table = 'cash_deposit';
 
     /**
      *

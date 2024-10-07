@@ -9,6 +9,8 @@ use function Laravel\Prompts\text;
 
 trait IbanInput
 {
+    use BaseView;
+
     /**
      *
      * @param string $rawIban

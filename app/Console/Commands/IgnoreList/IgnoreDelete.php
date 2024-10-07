@@ -12,7 +12,7 @@ class IgnoreDelete extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:ignore-delete {ignoreId : [:cli.ignore_list.base.param.ignore_list:]}';
+    protected $signature = 'fin:ignore-delete {ignoreId : [:cli.ignore_list.base.param.ignore_id:]}';
 
     /**
      * The console command description.
@@ -30,7 +30,7 @@ class IgnoreDelete extends FinCommand
         $ignoreEntry = IgnoreList::find($ignoreId);
         if (!$ignoreEntry instanceof IgnoreList) {
             $this->emptyLn();
-            $this->error(__('cli.ignore_list.upsert.error.not_found', ['ignoreId' => $ignoreId]));
+            $this->error(__('cli.base.error.not_found', ['id' => $ignoreId]));
             return;
         }
 
