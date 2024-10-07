@@ -69,7 +69,10 @@ class CashDepositUpsert extends FinCommand
                     $cashDepositEntry->deposit_date = Carbon::now();
                 } else {
                     $cashDepositEntry = CashDeposit::find($cashDepositId);
-                    $cashDepositEntry->deposit_date = Carbon::createFromFormat('Y-m-d', $cashDepositEntry->deposit_date);
+                    $cashDepositEntry->deposit_date = Carbon::createFromFormat(
+                        'Y-m-d',
+                        $cashDepositEntry->deposit_date
+                    );
                     if (!$cashDepositEntry instanceof CashDeposit) {
                         $this->emptyLn();
                         $this->error(__('cli.base.error.not_found', ['id' => $cashDepositId]));

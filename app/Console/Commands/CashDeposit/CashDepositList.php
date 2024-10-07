@@ -28,7 +28,7 @@ class CashDepositList extends FinCommand
     protected function process(): void
     {
         $accountId = (int)$this->argument('accountId');
-        
+
         $cashDepositList = CashDeposit::where('bank_account_id', $accountId)
         ->with('bankAccount')
         ->select(['id', 'bank_account_id', 'deposit_date', 'amount', 'currency', 'note'])
@@ -37,7 +37,7 @@ class CashDepositList extends FinCommand
             return [
                 'id' => $deposit->id,
                 'iban' => $deposit->bankAccount->iban,
-                'deposit_date' => \Carbon\Carbon::parse($deposit->deposit_date)->format('d.m.Y'), // Datumsformat umwandeln
+                'deposit_date' => \Carbon\Carbon::parse($deposit->deposit_date)->format('d.m.Y'),
                 'amount' => $deposit->amount,
                 'currency' => $deposit->currency,
                 'note' => $deposit->note,

@@ -3,6 +3,7 @@
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
 use Illuminate\Support\Str;
+
 use function Laravel\Prompts\text;
 
 trait SimpleInput
@@ -14,11 +15,18 @@ trait SimpleInput
 
     /**
      *
-     * @param mixed|null $rawInput
-     * @return integer
+     * @param string $label
+     * @param string|array $rules
+     * @param mixed $rawInput
+     * @param [type] $type
+     * @return integer|float|string
      */
-    protected function viewInput(string $label, string|array $rules, mixed $rawInput = null, string $type = self::VALUE_TYPE_TEXT): int|float|string
-    {
+    protected function viewInput(
+        string $label,
+        string|array $rules,
+        mixed $rawInput = null,
+        string $type = self::VALUE_TYPE_TEXT
+    ): int|float|string {
         $input = $rawInput;
         do {
             $input = text(
@@ -34,7 +42,6 @@ trait SimpleInput
                     'Wert' => $rules
                 ]
             );
-
 
         } while (!$valid);
 
