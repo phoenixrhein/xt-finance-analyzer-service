@@ -21,9 +21,9 @@ class Transactions extends Model
      */
     protected $fillable = [
         'bank_account_iban',
-        'booking_date',
+        'transaction_date',
         'exchange_date',
-        'booking_type',
+        'transaction_type',
         'reason_for_payment',
         'creditor_id',
         'mandate_ reference',

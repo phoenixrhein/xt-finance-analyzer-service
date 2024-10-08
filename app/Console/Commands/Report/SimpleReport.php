@@ -106,7 +106,7 @@ class SimpleReport extends Command
         $maxTo = Carbon::parse($ranges[0][1]);
 
         $countOfLast = Transactions::whereBetween(
-            'booking_date',
+            'transaction_date',
             [
                 $maxTo->clone()->subDays(5)->format('Y-m-d'),
                 $maxTo->format('Y-m-d')
@@ -125,7 +125,7 @@ class SimpleReport extends Command
         $totalSaldo = 0;
         foreach ($ranges as $range) {
             $transactions = Transactions::whereBetween(
-                'booking_date',
+                'transaction_date',
                 [
                     Carbon::parse($range[0])->format('Y-m-d'),
                     Carbon::parse($range[1])->format('Y-m-d')
