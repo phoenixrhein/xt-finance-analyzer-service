@@ -21,9 +21,9 @@ class TransactionList extends Command
      */
     private static $viewConfig = [
         'id' => 'Id',
-        'booking_date' => 'Buchungstag',
+        'transaction_date' => 'Buchungstag',
         'exchange_date' => 'Valutadatum',
-        'booking_type' => 'Buchungstext',
+        'transaction_type' => 'Umsatzart',
         'reason_for_payment' => 'Verwendungszweck',
         'creditor_id' => 'Glaeubiger ID',
         'mandate_ reference' => 'Mandatsreferenz',
@@ -45,8 +45,8 @@ class TransactionList extends Command
      */
     public static $compactView = [
         'id' => 'Id',
-        'booking_date' => 'Buchungstag',
-        'booking_type' => 'Buchungstext',
+        'transaction_date' => 'Buchungstag',
+        'transaction_type' => 'Umsatzart',
         'reason_for_payment' => [
             'headline' => 'Verwendungszweck',
             'maxWidth' => 28
@@ -179,12 +179,12 @@ class TransactionList extends Command
         $transactions = Transactions::where('bank_account_iban', $bankAccount->iban);
 
         if ($from !== null) {
-            $transactions = $transactions->where('booking_date', '>=', $from)
-                ->where('booking_date', '<=', $to);
+            $transactions = $transactions->where('transaction_date', '>=', $from)
+                ->where('transaction_date', '<=', $to);
         }
 
         $transactions = $transactions->select($this->getColumns($viewConfig))
-                            ->orderBy('booking_date')
+                            ->orderBy('transaction_date')
                             ->orderByDesc('id');
 
         $this->tableConsolePagination(

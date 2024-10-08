@@ -97,9 +97,9 @@ class ImportTransactionService
         BankAccount::where('iban', '=', $row['Auftragskonto'])->firstOrFail();
         Transactions::create([
             'bank_account_iban' => $row['Auftragskonto'],
-            'booking_date' => Carbon::createFromFormat('d.m.y', $row['Buchungstag'])->format('Y-m-d'),
+            'transaction_date' => Carbon::createFromFormat('d.m.y', $row['Buchungstag'])->format('Y-m-d'),
             'exchange_date' => Carbon::createFromFormat('d.m.y', $row['Valutadatum'])->format('Y-m-d'),
-            'booking_type' => $row['Buchungstext'],
+            'transaction_type' => $row['Buchungstext'],
             'reason_for_payment' => utf8_encode($row['Verwendungszweck']),
             'creditor_id' => $row['Glaeubiger ID'],
             'mandate_ reference' => $row['Mandatsreferenz'],
