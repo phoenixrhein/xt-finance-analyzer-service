@@ -26,14 +26,14 @@ trait FindAndSelectTransaction
         do {
             $month = $this->viewInput(
                 __('cli.view.find_and_select_transaction.month_input'),
-                ['required', new ValidMonthYear],
+                ['required', new ValidMonthYear()],
                 $month
             );
 
             $searchByTextPrefix = 'TEXT:';
             $searchBy = search(
                 label: __('cli.view.find_and_select_transaction.search'),
-                options: function($value) use($iban, $month, $searchByTextPrefix) {
+                options: function ($value) use ($iban, $month, $searchByTextPrefix) {
                     if (strlen($value) < 3) {
                         return [];
                     }
@@ -48,18 +48,25 @@ trait FindAndSelectTransaction
                         ->pluck('beneficiary_payee', 'creditor_iban')
                         ->all();
                     return [
-                        $searchByTextPrefix . $value => __('cli.view.find_and_select_transaction.search_by_text') . ': ' . $value
+                        $searchByTextPrefix . $value =>
+                        __('cli.view.find_and_select_transaction.search_by_text') . ': ' . $value
                     ] + $result;
-                    
                 }
             );
 
             $query = Transactions::select(array_keys(TransactionList::$compactView))
                 ->where('bank_account_iban', $iban)
-                ->whereRaw("DATE_FORMAT(transaction_date, '%Y-%m') = ?", [substr($month, 2, 4) . '-' . substr($month, 0, 2)]);
+                ->whereRaw(
+                    "DATE_FORMAT(transaction_date, '%Y-%m') = ?",
+                    [substr($month, 2, 4) . '-' . substr($month, 0, 2)]
+                );
 
             if (Str::startsWith($searchBy, $searchByTextPrefix)) {
-                $query->where("beneficiary_payee", 'like', '%' . Str::replace($searchByTextPrefix, '', $searchBy) . '%');
+                $query->where(
+                    "beneficiary_payee",
+                    'like',
+                    '%' . Str::replace($searchByTextPrefix, '', $searchBy) . '%'
+                );
             } else {
                 $query->where("creditor_iban", $searchBy);
             }

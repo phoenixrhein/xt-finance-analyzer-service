@@ -28,7 +28,8 @@ class AdjustmentUpsert extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:adjust-upsert {adjustmentId? : [:cli.transaction_adjustment.base.param.transaction_adjustment_id:]}';
+    protected $signature = 'fin:adjust-upsert {adjustmentId? : ' .
+        '[:cli.transaction_adjustment.base.param.transaction_adjustment_id:]}';
 
     /**
      * The console command description.
@@ -98,7 +99,10 @@ class AdjustmentUpsert extends FinCommand
                     $query = TransactionAdjustment::where('transaction_id', $adjustmentEntry->transaction_id);
                     if ($query->count() !== 0) {
                         $this->emptyLn();
-                        $this->error(__('cli.transaction_adjustment.upsert.validate_error.duplicate', ['id' => $query->first()->id]));
+                        $this->error(
+                            __('cli.transaction_adjustment.upsert.validate_error.duplicate',
+                            ['id' => $query->first()->id])
+                        );
                         $valid = false;
                     }
                 } while (!$valid);

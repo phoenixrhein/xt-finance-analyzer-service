@@ -17,8 +17,12 @@ trait TableView
      * @param TableStyle|string $tableStyle
      * @return void
      */
-    private function viewTable(array $headers, array $rows, array $columnsWidth, TableStyle|string $tableStyle = 'default'): void
-    {
+    private function viewTable(
+        array $headers,
+        array $rows,
+        array $columnsWidth,
+        TableStyle|string $tableStyle = 'default'
+    ): void {
         $table = new Table($this->getOutput());
 
         if ($rows instanceof Arrayable) {

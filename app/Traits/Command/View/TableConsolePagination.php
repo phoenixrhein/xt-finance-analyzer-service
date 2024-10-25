@@ -24,7 +24,7 @@ trait TableConsolePagination
     private function tableConsolePagination(
         Collection $transactions,
         array $columnsConfig,
-        int $limit = null ,
+        int $limit = null,
         string $headlinePrefix = null
     ): void {
         $limit = $limit ?? $transactions->count();
@@ -85,7 +85,6 @@ trait TableConsolePagination
         return $newRows;
     }
 
-    
     /**
      *
      * @param array $config
@@ -113,7 +112,7 @@ trait TableConsolePagination
         $fixedWidths = 0;
         $percentageWidths = [];
         $totalWidth = exec('tput cols') - (count($config) * 3) - 7;
-        
+
         // First iteration: Sum fixed widths and collect percentage values
         foreach ($config as $column) {
             if (isset($column['width'])) {
@@ -124,19 +123,19 @@ trait TableConsolePagination
                 }
             }
         }
-        
+
         // Check if percentage values sum up to 100%
-        $totalPercentage = array_sum(array_map(function($item) {
+        $totalPercentage = array_sum(array_map(function ($item) {
             return (int) rtrim($item, '%');
         }, $percentageWidths));
-        
+
         if ($totalPercentage > 100) {
             throw new RuntimeException("Percentages exceed 100%");
         }
 
         // Calculate remaining width for percentage columns
         $remainingWidth = $totalWidth - $fixedWidths;
-        
+
         if ($remainingWidth < 0) {
             throw new RuntimeException("Fixed column widths exceed the total width");
         }
@@ -155,7 +154,7 @@ trait TableConsolePagination
                 }
             }
         }
-        
+
         return $calculatedWidths;
     }
 
