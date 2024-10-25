@@ -100,8 +100,10 @@ class AdjustmentUpsert extends FinCommand
                     if ($query->count() !== 0) {
                         $this->emptyLn();
                         $this->error(
-                            __('cli.transaction_adjustment.upsert.validate_error.duplicate',
-                            ['id' => $query->first()->id])
+                            __(
+                                'cli.transaction_adjustment.upsert.validate_error.duplicate',
+                                ['id' => $query->first()->id]
+                            )
                         );
                         $valid = false;
                     }
