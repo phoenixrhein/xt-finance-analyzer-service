@@ -13,7 +13,8 @@ return [
             'message' => 'Es ist ein technischer Fehler aufgetreten: :error',
             'not_found_user' => 'Der Benutzer mit der ID \':userId\' wurde nicht gefunden',
             'not_found_account' => 'Das Bankkonto mit der ID \':accountId\' wurde nicht gefunden',
-            'not_found' => 'Der Eintrag mit der ID \':id\' wurde nicht gefunden'
+            'not_found' => 'Der Eintrag mit der ID \':id\' wurde nicht gefunden',
+            'not_rows_found' => 'Es wurden keine Einträge gefunden'
         ],
         'param' => [
             'user_id' => 'ID des Benutzers',
@@ -55,6 +56,18 @@ return [
             'validate_error' => [
                 'duplicate' => 'Für diese Tranaktion besteht bereits ein Eintrag [Id: :id]'
             ],
+        ],
+        'list' => [
+            'description' => 'Buchungsverschiebungen anzeigen',
+            'table_header' => [
+                'id' => 'ID',
+                'note' => 'Kommentar',
+                'new_date' => 'Neues Buchungsdatum'
+            ]
+        ],
+        'delete' => [
+            'description' => 'Bargeldeinzahlungseintrag-Eintrag löschen',
+            'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
         ],
     ],
     'cash_deposit' => [
