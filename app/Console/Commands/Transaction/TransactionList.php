@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
-use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
+use de\xovatec\financeAnalyzer\Traits\Command\View\TableConsolePagination;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 
 class TransactionList extends Command
@@ -20,23 +20,23 @@ class TransactionList extends Command
      * @var array
      */
     private static $viewConfig = [
-        'id' => 'Id',
-        'transaction_date' => 'Buchungstag',
-        'exchange_date' => 'Valutadatum',
-        'transaction_type' => 'Umsatzart',
-        'reason_for_payment' => 'Verwendungszweck',
-        'creditor_id' => 'Glaeubiger ID',
-        'mandate_ reference' => 'Mandatsreferenz',
-        'customer_reference' => 'Kundenreferenz (End-to-End)',
-        'collector_reference' => 'Sammlerreferenz',
-        'debit_original_amount' => 'Lastschrift Ursprungsbetrag',
-        'reimbursement_of_expenses_return_debit' => 'Auslagenersatz Ruecklastschrift',
-        'beneficiary_payee' => 'Beguenstigter/Zahlungspflichtiger',
-        'creditor_iban' => 'Kontonummer/IBAN',
-        'creditor_bic' => 'BIC (SWIFT-Code)',
-        'amount' => 'Betrag',
-        'currency' => 'Waehrung',
-        'note' => 'Anmerkung'
+        'id' => null,
+        'transaction_date' => null,
+        'exchange_date' => null,
+        'transaction_type' => null,
+        'reason_for_payment' => null,
+        'creditor_id' => null,
+        'mandate_ reference' => null,
+        'customer_reference' => null,
+        'collector_reference' => null,
+        'debit_original_amount' => null,
+        'reimbursement_of_expenses_return_debit' => null,
+        'beneficiary_payee' => null,
+        'creditor_iban' => null,
+        'creditor_bic' => null,
+        'amount' => null,
+        'currency' => null,
+        'note' => null
     ];
 
     /**
@@ -44,21 +44,33 @@ class TransactionList extends Command
      * @var array
      */
     public static $compactView = [
-        'id' => 'Id',
-        'transaction_date' => 'Buchungstag',
-        'transaction_type' => 'Umsatzart',
+        'id' => [
+            'width' => 7
+        ],
+        'transaction_date' => [
+            'width' => 10
+        ],
+        'transaction_type' => [
+            'width' => 35
+        ],
         'reason_for_payment' => [
-            'headline' => 'Verwendungszweck',
-            'maxWidth' => 28
+            'width' => '50%'
         ],
         'beneficiary_payee' => [
-            'headline' => 'Beguenstigter/Zahlungspflichtiger',
-            'maxWidth' => 24
+            'width' => '50%'
         ],
-        'creditor_iban' => 'Kontonummer/IBAN',
-        'amount' => 'Betrag',
-        'currency' => 'Waehrung',
-        'note' => 'Anmerkung'
+        'creditor_iban' => [
+            'width' => 27
+        ],
+        'amount' => [
+            'width' => 8
+        ],
+        'currency' => [
+            'width' => 7
+        ],
+        'note' => [
+            'width' => 9
+        ]
     ];
 
     /**
@@ -74,38 +86,6 @@ class TransactionList extends Command
      * @var string
      */
     protected $description = 'transaction list ';
-
-    /**
-     *
-     * @param array $config
-     * @return array
-     */
-    private function getHeadlines(array $config): array
-    {
-        return array_map(function ($item) {
-            if (is_array($item)) {
-                return $item['headline'];
-            }
-            return $item;
-        },
-        $config);
-    }
-
-    /**
-     *
-     * @param array $config
-     * @return array
-     */
-    private function getMaxWidth(array $config): array
-    {
-        return array_filter(array_map(function ($item) {
-            if (is_array($item)) {
-                return $item['maxWidth'];
-            }
-            return null;
-        },
-        $config));
-    }
 
     /**
      *
@@ -189,9 +169,9 @@ class TransactionList extends Command
 
         $this->tableConsolePagination(
             $transactions->get(),
-            $this->getHeadlines($viewConfig),
+            $viewConfig,
             $this->option('noLimit') ? null : $this->option('limit'),
-            $this->getMaxWidth($viewConfig)
+            'cli.transaction.base.table.header.'
         );
 
         $sum = 0;

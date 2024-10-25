@@ -19,19 +19,22 @@ trait SimpleInput
      * @param string|array $rules
      * @param mixed $rawInput
      * @param [type] $type
+     * @param string $hint
      * @return integer|float|string
      */
     protected function viewInput(
         string $label,
         string|array $rules,
         mixed $rawInput = null,
-        string $type = self::VALUE_TYPE_TEXT
+        string $type = self::VALUE_TYPE_TEXT,
+        string $hint = null,
     ): int|float|string {
         $input = $rawInput;
         do {
             $input = text(
                 label: $label,
-                default: $input ?? ''
+                default: $input ?? '',
+                hint: $hint ?? ''
             );
 
             $valid = $this->viewValidatorError(

@@ -3,6 +3,8 @@
 namespace de\xovatec\financeAnalyzer\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Transactions extends Model
 {
@@ -39,4 +41,37 @@ class Transactions extends Model
         'hash_identifier',
         'comment'
     ];
+
+    /**
+     *
+     * @return BelongsTo
+     */
+    public function bankAccount(): BelongsTo
+    {
+        return $this->belongsTo(BankAccount::class, 'bank_account_iban', 'iban');
+    }
+
+    /**
+     *
+     * @return HasOne
+     */
+    public function transactionAdjustment(): HasOne
+    {
+        return $this->hasOne(TransactionAdjustment::class, 'transaction_id', 'id');
+    }
+
+    /**
+     *
+     * @return void
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::deleting(function ($transaction) {
+            if ($transaction->transactionAdjustment) {
+                $transaction->cashflow->delete();
+            }
+        });
+    }
 }

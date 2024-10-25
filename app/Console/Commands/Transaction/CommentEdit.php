@@ -4,7 +4,7 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\Transaction;
 
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\Transactions;
-use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
+use de\xovatec\financeAnalyzer\Traits\Command\View\TableConsolePagination;
 use Illuminate\Database\Eloquent\Collection;
 
 use function Laravel\Prompts\text;
@@ -46,23 +46,9 @@ class CommentEdit extends FinCommand
 
         $this->tableConsolePagination(
             new Collection([$transaction]),
-            array_map(
-                function ($item) {
-                    if (is_array($item)) {
-                        return $item['headline'];
-                    }
-                    return $item;
-                },
-                TransactionList::$compactView
-            ),
+            TransactionList::$compactView,
             null,
-            array_filter(array_map(function ($item) {
-                if (is_array($item)) {
-                    return $item['maxWidth'];
-                }
-                return null;
-            },
-            TransactionList::$compactView))
+            'cli.transaction.base.table.header.'
         );
 
         $transaction->note = text(

@@ -25,6 +25,7 @@ return [
         'deleted' => 'Der Eintrag mit der ID \':id\' wurde gelöscht',
         'iban' => 'IBAN',
         'upsert_hint_add' => 'Es wurde keine ID übergeben. Der Eintrag wird daher neu angelegt',
+        'halt' => 'Drücken Sie die Eingabetaste, um fortzufahren....'
     ],
     'view' => [
         'input' => [
@@ -32,6 +33,28 @@ return [
         ],
         'validate_error' => [
             'duplicate_iban' => 'Die IBAN existiert bereits'
+        ],
+        'find_and_select_transaction' => [
+            'month_input' => 'Bitte geben Sie einen Monat ein [MMJJJJ]',
+            'search' => 'Sucheingabe [mind. 3 Zeichen]',
+            'search_by_text' => 'Mit diesem Text suchen',
+            'transaction_id_input' => 'Bitte geben Sie die Transactions-Id an',
+            'transaction_id_input_hint' => 'Sofern Sie die Suche erneut starten möchten, lassen Sie dieses Feld leer',
+        ]
+    ],
+    'transaction_adjustment' => [
+        'base' => [
+            'param' => [
+                'transaction_adjustment_id' => 'ID des Buchungsverschiebung'
+            ]
+        ],
+        'upsert' => [
+            'description' => 'Buchungsverschiebung hinzufügen/bearbeiten',
+            'new_date' => 'Bitte geben Sie das Buchungsdatum ein [dd.mm.jjjj]',
+            'note' => 'Bitte geben Sie einen Kommentar ein',
+            'validate_error' => [
+                'duplicate' => 'Für diese Tranaktion besteht bereits ein Eintrag [Id: :id]'
+            ],
         ],
     ],
     'cash_deposit' => [
@@ -223,6 +246,29 @@ return [
                 'error'=> [
                     'not_found_transaction_id' => 'Die Buchung mit der ID \':transactionId\' wurde nicht gefunden'
                 ],
+                'table' => [
+                    'header' => [
+                        'id' => 'Id',
+                        'created_at' => 'Importiert am',
+                        'bank_account_iban' => 'Auftragskonto',
+                        'transaction_date' => 'Buchungstag',
+                        'exchange_date' => 'Valutadatum',
+                        'transaction_type' => 'Buchungstext',
+                        'reason_for_payment' => 'Verwendungszweck',
+                        'creditor_id' => 'Glaeubiger ID',
+                        'mandate_ reference' => 'Mandatsreferenz',
+                        'customer_reference' => 'Kundenreferenz (End-to-End)',
+                        'collector_reference' => 'Sammlerreferenz',
+                        'debit_original_amount' => 'Lastschrift Ursprungsbetrag',
+                        'reimbursement_of_expenses_return_debit' => 'Auslagenersatz Ruecklastschrift',
+                        'beneficiary_payee' => 'Beguenstigter/Zahlungspflichtiger',
+                        'creditor_iban' => 'Kontonummer/IBAN',
+                        'creditor_bic' => 'BIC (SWIFT-Code)',
+                        'amount' => 'Betrag',
+                        'currency' => 'Währung',
+                        'note' => 'Anmerkung'
+                    ]
+                ]
             ],
             'comment' => [
                 'description' => 'Kommentar bearbeiten',
