@@ -69,13 +69,22 @@ class BankAccount extends Model
         return $this->hasMany(IgnoreList::class);
     }
 
-        /**
+    /**
      *
      * @return HasMany
      */
     public function cashDeposit(): HasMany
     {
         return $this->hasMany(CashDeposit::class);
+    }
+
+    /**
+     *
+     * @return HasMany
+     */
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transactions::class, 'bank_account_iban', 'iban');
     }
 
     /**
@@ -93,6 +102,16 @@ class BankAccount extends Model
             if ($bankAccount->ignoreList) {
                 foreach ($bankAccount->ignoreList as $ignoreList) {
                     $ignoreList->delete();
+                }
+            }
+            if ($bankAccount->cashDeposit) {
+                foreach ($bankAccount->cashDeposit as $cashDeposit) {
+                    $cashDeposit->delete();
+                }
+            }
+            if ($bankAccount->transactions) {
+                foreach ($bankAccount->transactions as $transactions) {
+                    $transactions->delete();
                 }
             }
         });

@@ -104,6 +104,11 @@ return [
     'missing_unless' => 'Das Feld :attribute muss fehlen, es sei denn, :other ist :value.',
     'missing_with' => 'Das Feld :attribute muss fehlen, wenn :values vorhanden ist.',
     'missing_with_all' => 'Das Feld :attribute muss fehlen, wenn :values vorhanden sind.',
+    'month_year' => [
+        'invalid_length' => 'Die Zeitangabe muss genau 6 Zeichen lang sein [MMJJJJ].',
+        'not_numeric' => 'Das Zeitangabeformat ist ungültig. Es muss numerisch sein.',
+        'no_month' => 'Die Monatsangabe ist ungültig. Der Monat muss zwischen 01 und 12 liegen.'
+    ],
     'multiple_of' => ':Attribute muss ein Vielfaches von :value sein.',
     'next' => 'Weiter &raquo;',
     'not_in' => 'Der gewählte Wert für :attribute ist ungültig.',

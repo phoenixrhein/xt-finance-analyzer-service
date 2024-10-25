@@ -132,7 +132,9 @@ class SimpleReport extends Command
                 ]
             )->where('bank_account_iban', $bankAccount->iban);
             $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
-
+            // Wenn es in den letzten 5 Tagen des Monats keine Buchungen gab, dann ist dieser noch nicht abgeschlossen
+            // Denn wenn ich den Import&Report in einem laufenden Monat ausfuehre, dann wird dieser unfertige Monat
+            // schon mit kalkuliert
             $debit = 0;
             $credit = 0;
             foreach (Arr::pluck($transactions->get()->toArray(), 'amount') as $amount) {

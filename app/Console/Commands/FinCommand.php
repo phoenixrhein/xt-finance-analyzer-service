@@ -5,7 +5,7 @@ namespace de\xovatec\financeAnalyzer\Console\Commands;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use de\xovatec\financeAnalyzer\Traits\Command\View\BaseView;
-use de\xovatec\financeAnalyzer\Traits\TableConsolePagination;
+use de\xovatec\financeAnalyzer\Traits\Command\View\TableConsolePagination;
 
 use function Laravel\Prompts\confirm;
 
