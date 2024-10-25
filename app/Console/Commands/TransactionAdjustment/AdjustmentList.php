@@ -50,7 +50,8 @@ class AdjustmentList extends FinCommand
             ])
             ->map(function ($adjustment) {
                 $adjustment->transaction_date = Carbon::parse($adjustment->transaction_date)->format('d.m.Y');
-                $adjustment->transactions_transaction_date = Carbon::parse($adjustment->transactions_transaction_date)->format('d.m.Y');
+                $adjustment->transactions_transaction_date = Carbon::parse($adjustment->transactions_transaction_date)
+                    ->format('d.m.Y');
                 return $adjustment;
             });
 

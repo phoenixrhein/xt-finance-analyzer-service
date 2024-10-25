@@ -12,7 +12,8 @@ class AdjustmentDelete extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:adjust-delete {adjustId : [:cli.transaction_adjustment.base.param.transaction_adjustment_id:]}';
+    protected $signature = 'fin:adjust-delete {adjustId : ' .
+        '[:cli.transaction_adjustment.base.param.transaction_adjustment_id:]}';
 
     /**
      * The console command description.
