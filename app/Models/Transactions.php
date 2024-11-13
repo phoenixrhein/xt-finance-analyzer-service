@@ -4,6 +4,7 @@ namespace de\xovatec\financeAnalyzer\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Transactions extends Model
@@ -62,6 +63,14 @@ class Transactions extends Model
 
     /**
      *
+     * @return HasOne
+     */
+    public function transactionSplit(): HasMany
+    {
+        return $this->hasMany(TransactionSplit::class, 'transaction_id', 'id');
+    }
+    /**
+     *
      * @return void
      */
     protected static function boot(): void
@@ -70,7 +79,10 @@ class Transactions extends Model
 
         static::deleting(function ($transaction) {
             if ($transaction->transactionAdjustment) {
-                $transaction->cashflow->delete();
+                $transaction->transactionAdjustment->delete();
+            }
+            if ($transaction->transactionSplit) {
+                $transaction->transactionSplit->delete();
             }
         });
     }
