@@ -1,0 +1,26 @@
+<?php
+
+namespace de\xovatec\financeAnalyzer\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class TransactionSplit extends Model
+{
+    use SoftDeletes;
+
+    /**
+     *
+     * @var string
+     */
+    protected $table = 'transaction_split';
+
+    /**
+     *
+     * @return BelongsTo
+     */
+    public function transaction()
+    {
+        return $this->belongsTo(Transactions::class, 'transaction_id', 'id');
+    }
+}

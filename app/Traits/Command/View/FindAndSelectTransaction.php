@@ -22,6 +22,7 @@ trait FindAndSelectTransaction
      */
     protected function viewTransactionId(string $iban): int
     {
+        $this->info('> ' . __('cli.view.find_and_select_transaction.description'));
         $month = '';
         do {
             $month = $this->viewInput(

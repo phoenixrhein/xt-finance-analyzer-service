@@ -36,12 +36,43 @@ return [
             'duplicate_iban' => 'Die IBAN existiert bereits'
         ],
         'find_and_select_transaction' => [
-            'month_input' => 'Bitte geben Sie einen Monat ein [MMJJJJ]',
+            'description' => 'Suche und Auswahl einer Buchung',
+            'month_input' => 'Bitte geben Sie dazu einen Monat ein [MMJJJJ]',
             'search' => 'Sucheingabe [mind. 3 Zeichen]',
             'search_by_text' => 'Mit diesem Text suchen',
             'transaction_id_input' => 'Bitte geben Sie die Transactions-Id an',
             'transaction_id_input_hint' => 'Sofern Sie die Suche erneut starten möchten, lassen Sie dieses Feld leer',
         ]
+    ],
+    'transaction_split' => [
+        'base' => [
+            'param' => [
+                'transaction_split_id' => 'ID des Buchungsaufteilung'
+            ]
+        ],
+        'upsert' => [
+            'description' => 'Buchungsaufteilung hinzufügen/bearbeiten',
+            'note' => 'Bitte geben Sie einen Kommentar ein',
+            'new_amount' => 'Bitte geben Sie den Betrag an',
+            'validate_error' => [
+                'no_more_split_allowed' => 'Der Restbetrag kann nicht mehr aufgeteilt werden',
+                'total_amount_exceeded' => 'Der Restbetrag von :rest wurde überschritten'
+            ],
+            'available_remaining_amount' => 'Verfübarer Restbetrag: :rest'
+        ],
+        'list' => [
+            'description' => 'Buchungsaufteilungen anzeigen',
+            'table_header' => [
+                'id' => 'ID',
+                'note' => 'Grund',
+                'split_amount' => 'Aufgeteilter Betrag',
+                'total_amount' => 'Gesamtbetrag'
+            ]
+        ],
+        'delete' => [
+            'description' => 'Buchungsaufteilung-Eintrag löschen',
+            'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
+        ],
     ],
     'transaction_adjustment' => [
         'base' => [
@@ -66,7 +97,7 @@ return [
             ]
         ],
         'delete' => [
-            'description' => 'Bargeldeinzahlungseintrag-Eintrag löschen',
+            'description' => 'Bargeldeinzahlungs-Eintrag löschen',
             'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
         ],
     ],
