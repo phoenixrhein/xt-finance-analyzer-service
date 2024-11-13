@@ -70,16 +70,25 @@ class SplitUpsert extends FinCommand
                 if ($splitEntry === null) {
                     return;
                 }
-                $bankAccount =$this->inputBankAccount($splitEntry, $isAdd);
+                $bankAccount = $this->inputBankAccount($splitEntry, $isAdd);
             }
 
             $valid = true;
             $transaction = $this->inputTransaction($splitEntry, $bankAccount, $isAdd);
             $totalSplittedAmount = TransactionSplit::where('transaction_id', $transaction->id)->sum('amount');
 
+            $rest = number_format(
+                (abs($transaction->amount) - ($isAdd ?
+                    $totalSplittedAmount :
+                    ($totalSplittedAmount - $splitEntry->amount
+                ))),
+                2,
+                ',',
+                ''
+            );
             $this->info(__(
                 'cli.transaction_split.upsert.available_remaining_amount',
-                ['rest' => number_format((abs($transaction->amount) - ($isAdd ? $totalSplittedAmount : ($totalSplittedAmount - $splitEntry->amount))), 2, ',', '') . ' ' . $transaction->currency]
+                ['rest' => $rest . ' ' . $transaction->currency]
             ));
 
             $splitEntry->amount = $this->inputAmount($transaction, $totalSplittedAmount, $splitEntry->amount, $isAdd);
@@ -102,7 +111,7 @@ class SplitUpsert extends FinCommand
         if (!$isAdd) {
             $labelKey = 'cli.base.edited';
         }
-        
+
         $splitEntry->save();
         $this->info(__($labelKey, ['id' => $splitEntry->id]));
     }
@@ -188,8 +197,12 @@ class SplitUpsert extends FinCommand
      * @param boolean $isAdd
      * @return float|null
      */
-    private function inputAmount(Transactions $transaction, float $totalSplittedAmount, ?float $rawAmount, bool $isAdd): ?float
-    {
+    private function inputAmount(
+        Transactions $transaction,
+        float $totalSplittedAmount,
+        ?float $rawAmount,
+        bool $isAdd
+    ): ?float {
         do {
             $valid = true;
 
@@ -212,14 +225,18 @@ class SplitUpsert extends FinCommand
                 $amount
             );
 
-            if(!$isValidTotalAmountExceeded) {
+            if (!$isValidTotalAmountExceeded) {
                 $valid = false;
                 $this->emptyLn();
                 $this->error(
-                    __('cli.transaction_split.upsert.validate_error.total_amount_exceeded',
-                    ['rest' => (abs($transaction->amount) - ($isAdd ? $totalSplittedAmount : ($totalSplittedAmount - $rawAmount + $amount)))]));
+                    __(
+                        'cli.transaction_split.upsert.validate_error.total_amount_exceeded',
+                        [
+                            'rest' => (abs($transaction->amount) - ($isAdd ? $totalSplittedAmount : ($totalSplittedAmount - $rawAmount + $amount)))
+                        ]
+                    )
+                );
             }
-
         } while (!$valid);
 
         return $amount;
@@ -232,8 +249,11 @@ class SplitUpsert extends FinCommand
      * @param integer $newAmount
      * @return boolean
      */
-    private function validateTotalAmountExceeded(float $totalAmount, float $totalSplittedAmount, float $newAmount = 0): bool
-    {
+    private function validateTotalAmountExceeded(
+        float $totalAmount,
+        float $totalSplittedAmount,
+        float $newAmount = 0
+    ): bool {
         return (abs($totalAmount) - $totalSplittedAmount - $newAmount) > 0;
     }
 }
