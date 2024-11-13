@@ -227,12 +227,17 @@ class SplitUpsert extends FinCommand
 
             if (!$isValidTotalAmountExceeded) {
                 $valid = false;
+                $rest = (abs($transaction->amount) - ($isAdd ?
+                        $totalSplittedAmount :
+                        ($totalSplittedAmount - $rawAmount + $amount)
+                    )
+                );
                 $this->emptyLn();
                 $this->error(
                     __(
                         'cli.transaction_split.upsert.validate_error.total_amount_exceeded',
                         [
-                            'rest' => (abs($transaction->amount) - ($isAdd ? $totalSplittedAmount : ($totalSplittedAmount - $rawAmount + $amount)))
+                            'rest' => $rest
                         ]
                     )
                 );
