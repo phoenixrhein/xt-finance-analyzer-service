@@ -10,7 +10,7 @@ return [
             'ok' => 'Ok'
         ],
         'error' => [
-            'message' => 'Es ist ein technischer Fehler aufgetreten: :error',
+            'message' => 'Es ist ein technischer Fehler aufgetreten [Msg-Id: :msgId]',
             'not_found_user' => 'Der Benutzer mit der ID \':userId\' wurde nicht gefunden',
             'not_found_account' => 'Das Bankkonto mit der ID \':accountId\' wurde nicht gefunden',
             'not_found' => 'Der Eintrag mit der ID \':id\' wurde nicht gefunden',
@@ -26,7 +26,8 @@ return [
         'deleted' => 'Der Eintrag mit der ID \':id\' wurde gelöscht',
         'iban' => 'IBAN',
         'upsert_hint_add' => 'Es wurde keine ID übergeben. Der Eintrag wird daher neu angelegt',
-        'halt' => 'Drücken Sie die Eingabetaste, um fortzufahren....'
+        'halt' => 'Drücken Sie die Eingabetaste, um fortzufahren....',
+        'payee' => 'Zahlungsempfänger'
     ],
     'view' => [
         'input' => [
@@ -42,6 +43,15 @@ return [
             'search_by_text' => 'Mit diesem Text suchen',
             'transaction_id_input' => 'Bitte geben Sie die Transactions-Id an',
             'transaction_id_input_hint' => 'Sofern Sie die Suche erneut starten möchten, lassen Sie dieses Feld leer',
+        ],
+    ],
+    'param' => [
+        'date_range' => [
+            'description' => 'Zeitraum: JJJJ-JJJJ, JJJJMM-JJJJMM, JJJJMMDD-JJJJMMDD, JJJJ, JJJJMM, JJJJMMDD',
+            'error' => [
+                'time_period_invalid' => 'Zeitraum: Das Format des Zeitraums ist ungültig [JJJJ-JJJJ, JJJJMM-JJJJMM, JJJJMMDD-JJJJMMDD, JJJJ, JJJJMM, JJJJMMDD]',
+                'not_start_before_end' => 'Zeitraum: Das Enddatum darf nicht vor dem Startdatum liegen'
+            ]
         ]
     ],
     'transaction_split' => [
@@ -73,6 +83,13 @@ return [
             'description' => 'Buchungsaufteilung-Eintrag löschen',
             'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
         ],
+        'cash_detector' => [
+            'description' => 'Bargeldauszahlung bei Kartenzahlung ermitteln',
+            'amount' => 'Bargeldauszahlungsbetrag',
+            'amount_note' => 'Das Feld leer lassen, wenn keine Bargeldauszahlung übernommen werden soll',
+            'confirm' => 'Der Wert weicht vom ermittelten Wert ab. Dennoch speichern?',
+            'note' => 'Automatische Ermittlung der Bargeldauszahlung'
+        ]
     ],
     'transaction_adjustment' => [
         'base' => [

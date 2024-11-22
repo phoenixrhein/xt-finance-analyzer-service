@@ -63,8 +63,7 @@ class UserDelete extends FinCommand
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
-            $this->error(__('cli.base.error.message', ['error' => $e]));
-            return;
+            throw $e;
         }
         $this->info(__('cli.user.delete.deleted', ['userId' => $userId, 'mail' => $user->email]));
     }

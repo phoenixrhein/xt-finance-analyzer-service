@@ -57,6 +57,10 @@ class RulesetEdit extends Command
             if ($this->option('expression')) {
                 DB::beginTransaction();
                 $ruleset->forceDelete();
+                // in parse koennen Exception geworfen werden
+                // wie soll damit umgegangen werden
+                // benutzerfreundliche Meldungen
+                // suche mit 'Exception(' in app/**
                 $rulesetData = $this->expressionParser->parse($this->option('expression'));
                 $this->expressionService->saveRulesetExpression(
                     $name,

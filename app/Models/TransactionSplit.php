@@ -17,6 +17,12 @@ class TransactionSplit extends Model
 
     /**
      *
+     * @var array
+     */
+    protected $fillable = ['transaction_id', 'amount', 'note'];
+
+    /**
+     *
      * @return BelongsTo
      */
     public function transaction()

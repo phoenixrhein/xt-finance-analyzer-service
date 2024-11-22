@@ -62,11 +62,15 @@ class TransactionImport extends Command
 
         try {
             $this->importTransactionService->setIgnoreAlreadyExists($this->option('ignoreAlreadyExists'));
+            // in import gibt es Datei-Validierungen mit Exception
+            // die Datei muesste vorab auf ihre korrektheit geprueft werden
+            // vielleicht schon etwas vorbereiten, dass es zukuenftig unterschiedliche Formate geben kann
             $this->importTransactionService->import($transactionFile);
 
             //Hinweis: Wenn nichts importiert wurde, da alles duplicate sind
         } catch (Exception $e) {
             $this->error($e->getMessage());
+            //hier muesste eigentlich ein throws stehe. Aber wie verhaelt es sich dann mit finally
         } finally {
             $this->info(
                 "Imported {$this->importTransactionService->getNumberOfImported()} rows /" .
