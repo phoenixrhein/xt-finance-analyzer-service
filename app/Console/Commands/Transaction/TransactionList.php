@@ -2,18 +2,19 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Transaction;
 
+use de\xovatec\financeAnalyzer\Helpers\DateRangeHelper;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
+use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
 use de\xovatec\financeAnalyzer\Traits\Command\View\TableConsolePagination;
-use Symfony\Component\Console\Exception\InvalidOptionException;
 
 class TransactionList extends Command
 {
     use TableConsolePagination;
+    use DateRangeParameter;
 
     /**
      *
@@ -78,7 +79,8 @@ class TransactionList extends Command
      *
      * @var string
      */
-    protected $signature = 'fin:transaction-list {accountId} {--full} {--noLimit} {--range=} {--limit=25}';
+    protected $signature = 'fin:transaction-list {accountId} {--full} {--noLimit}' .
+        ' {--range= : [:cli.param.date_range.description:]} {--limit=25}';
 
     /**
      * The console command description.
@@ -98,39 +100,6 @@ class TransactionList extends Command
     }
 
     /**
-     *
-     * @param string $date
-     * @param boolean $start
-     * @return string
-     */
-    private function parseDate(string $date, bool $start = true): string
-    {
-        $length = strlen($date);
-        if (in_array($length, [0,4,6,8]) === false) {
-            throw new InvalidOptionException("Invalid date {$date}");
-        }
-
-        if ($length == 6) {
-            $date = Carbon::createFromFormat('mY', $date);
-        } elseif ($length == 8) {
-            $date = Carbon::createFromFormat('dmY', $date);
-        } else {
-            $date = Carbon::create($date);
-        }
-
-        if ($start && $length == 4) {
-            $date = $date->startOfYear();
-        } elseif ($start && $length == 6) {
-            $date = $date->startOfMonth();
-        } elseif ($start === false && $length == 4) {
-            $date = $date->endOfYear();
-        } elseif ($start === false && $length == 6) {
-            $date = $date->endOfMonth();
-        }
-        return $date->format('Y-m-d');
-    }
-
-    /**
      * Execute the console command.
      */
     public function handle()
@@ -144,16 +113,13 @@ class TransactionList extends Command
         $from = null;
         $to = null;
         if (strlen($this->option('range')) > 0) {
-            $range = explode('-', $this->option('range'));
-            if (in_array(count($range), [1,2]) === false) {
-                throw new InvalidOptionException('Invalid range: ' . $this->option('range'));
-            }
-            if (count($range) == 1) {
-                $range[1] = $range[0];
+            $range = $this->prepareRangeParam($this->option('range'));
+            if ($range === null) {
+                return null;
             }
 
-            $from = $this->parseDate($range[0]);
-            $to = $this->parseDate($range[1], false);
+            $from = $range[DateRangeHelper::FROM];
+            $to = $range[DateRangeHelper::TO];
         }
 
         $transactions = Transactions::where('bank_account_iban', $bankAccount->iban);

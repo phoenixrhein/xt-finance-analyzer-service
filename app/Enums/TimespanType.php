@@ -2,7 +2,7 @@
 
 namespace de\xovatec\financeAnalyzer\Enums;
 
-enum ReportType
+enum TimespanType
 {
     case year;
     case month;

@@ -7,12 +7,12 @@ use Illuminate\Support\Arr;
 use Webmozart\Assert\Assert;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
-use de\xovatec\financeAnalyzer\Enums\ReportType;
+use de\xovatec\financeAnalyzer\Enums\TimespanType;
+use de\xovatec\financeAnalyzer\Helpers\TimespanRangeHelper;
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use Symfony\Component\Console\Exception\RuntimeException;
-use Symfony\Component\Console\Exception\InvalidOptionException;
 
 class SimpleReport extends Command
 {
@@ -34,48 +34,13 @@ class SimpleReport extends Command
      *
      * @param string $to
      * @param integer $span
-     * @param ReportType $type
+     * @param TimespanType $type
      * @return array
      */
-    private function calculateTimeRanges(string $to, int $span, ReportType $type): array
+    private function calculateTimeRanges(string $to, int $span, TimespanType $type): array
     {
-        $length = strlen($to);
-        if (in_array($length, [4, 6, 8]) === false) {
-            throw new InvalidOptionException("Invalid date {$to}");
-        }
-
-        if ($length == 4) {
-            $to = Carbon::createFromFormat('Y', $to)->endOfYear();
-        } elseif ($length == 6) {
-            $to = Carbon::createFromFormat('mY', $to)->endOfMonth();
-        } elseif ($length == 8) {
-            $to = Carbon::createFromFormat('dmY', $to);
-        }
-
-        $ranges = [];
-
-        for ($i = 1; $i <= $span; $i++) {
-            $from = clone $to;
-            if ($type == ReportType::year) {
-                $from = $from->startOfYear();
-            } elseif ($type == ReportType::month) {
-                $from = $from->startOfMonth();
-            }
-
-            $ranges[] = [$from->format('Y-m-d'), $to->format('Y-m-d')];
-
-            if ($length == 8) {
-                if ($type == ReportType::year) {
-                    $to = $to->subYear();
-                } elseif ($type == ReportType::month) {
-                    $to = $to->subMonth();
-                }
-            } else {
-                $to = $from->subDay();
-            }
-        }
-
-        return $ranges;
+        //todo validate with DateRangeHelper::validFormat()
+        return TimespanRangeHelper::calculateRange($to, $span, $type);
     }
 
     /**
@@ -95,7 +60,7 @@ class SimpleReport extends Command
             $this->error($e->getMessage());
         }
 
-        $type = substr(strtolower($this->argument('type')), 0, 1) === 'y' ? ReportType::year : ReportType::month;
+        $type = substr(strtolower($this->argument('type')), 0, 1) === 'y' ? TimespanType::year : TimespanType::month;
         $to = $this->option('to') ?? Carbon::now()->format('dmY');
         $ranges = $this->calculateTimeRanges($to, $this->option('timespan'), $type);
 
@@ -146,12 +111,12 @@ class SimpleReport extends Command
             }
             $saldo = round($credit + $debit, 2);
             if (strlen($to) === 8) {
-                if ($type === ReportType::year) {
+                if ($type === TimespanType::year) {
                     $name = Carbon::parse($range[1])->format('d. F Y');
                 } else {
                     $name = Carbon::parse($range[1])->format('d. F');
                 }
-            } elseif ($type === ReportType::year) {
+            } elseif ($type === TimespanType::year) {
                 $name = Carbon::parse($range[1])->format('Y');
             } else {
                 $name = Carbon::parse($range[1])->format('F');
@@ -178,5 +143,7 @@ class SimpleReport extends Command
         ];
 
         $this->table(['', 'Einnahmen', 'Ausgaben', 'Saldo', 'Range'], $rows);
+
+        //todo call CashDector with determine timespan
     }
 }

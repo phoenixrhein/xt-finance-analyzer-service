@@ -33,7 +33,7 @@ trait SimpleInput
         do {
             $input = text(
                 label: $label,
-                default: $input ?? '',
+                default: ($type != self::VALUE_TYPE_DECIMAL ? $input : Str::replace('.', ',', $input)) ?? '',
                 hint: $hint ?? ''
             );
 
