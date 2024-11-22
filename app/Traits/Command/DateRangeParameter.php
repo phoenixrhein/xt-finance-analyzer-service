@@ -8,7 +8,7 @@ use de\xovatec\financeAnalyzer\Traits\Command\View\BaseView;
 trait DateRangeParameter
 {
     use BaseView;
-    
+
     private function prepareRangeParam(string $rangeStr): array|null
     {
         if (!DateRangeHelper::validFormat($rangeStr)) {
@@ -22,7 +22,7 @@ trait DateRangeParameter
             $this->error(__('cli.param.date_range.error.not_start_before_end'));
             return null;
         }
-        
+
         return $range;
     }
 }

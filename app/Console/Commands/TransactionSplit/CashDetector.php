@@ -19,13 +19,14 @@ class CashDetector extends FinCommand
 {
     use SimpleInput;
     use DateRangeParameter;
-    
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'fin:cash-detector {accountId : [:cli.base.param.account_id:]} {--range= : [:cli.param.date_range.description:]}';
+    protected $signature = 'fin:cash-detector {accountId : [:cli.base.param.account_id:]}' .
+        ' {--range= : [:cli.param.date_range.description:]}';
 
     /**
      * The console command description.
@@ -63,10 +64,9 @@ class CashDetector extends FinCommand
 
         $this->emptyLn();
         foreach ($transactions as $transaction) {
-
             $this->viewTransaction($transaction);
             $amount = $this->viewAmountInput($transaction);
-            
+
             if ($amount != '') {
                 TransactionSplit::create([
                     'transaction_id' => $transaction['id'],
@@ -107,7 +107,7 @@ class CashDetector extends FinCommand
             ) {
                 $valid = false;
             }
-        } while(!$valid);
+        } while (!$valid);
 
         return $amount;
     }
@@ -151,7 +151,7 @@ class CashDetector extends FinCommand
             $transactions->where('transaction_date', '>=', $range['from'])
             ->where('transaction_date', '<=', $range['to']);
         }
-        
+
         $transactions = $transactions->get([
             'id',
             'reason_for_payment',

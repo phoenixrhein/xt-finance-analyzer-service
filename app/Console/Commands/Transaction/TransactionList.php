@@ -79,7 +79,8 @@ class TransactionList extends Command
      *
      * @var string
      */
-    protected $signature = 'fin:transaction-list {accountId} {--full} {--noLimit} {--range= : [:cli.param.date_range.description:]} {--limit=25}';
+    protected $signature = 'fin:transaction-list {accountId} {--full} {--noLimit}' .
+        ' {--range= : [:cli.param.date_range.description:]} {--limit=25}';
 
     /**
      * The console command description.

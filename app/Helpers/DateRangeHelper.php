@@ -82,7 +82,10 @@ class DateRangeHelper
         }
 
         if (preg_match('/^\d{8}$/', $input)) {
-            return Carbon::createFromFormat('Y-m-d', substr($input, 0, 4) . '-' . substr($input, 4, 2) . '-' . substr($input, 6, 2))->toDateString();
+            return Carbon::createFromFormat(
+                'Y-m-d',
+                substr($input, 0, 4) . '-' . substr($input, 4, 2) . '-' . substr($input, 6, 2)
+            )->toDateString();
         }
 
         throw new InvalidArgumentException('The date is invalid');

@@ -37,9 +37,9 @@ class Handler extends ExceptionHandler
         if (!config('app.debug')) {
             $output->writeln('');
             $logMsgId = 'FIN-' . Carbon::now()->format('YmdHisv');
-            $output->writeln(' <error> '.__('cli.base.error.message', ['msgId' => $logMsgId]).' </error>');
+            $output->writeln(' <error> ' . __('cli.base.error.message', ['msgId' => $logMsgId]) . ' </error>');
             $output->writeln('');
-            Log::error('Error with log-message-id: ' . $logMsgId . PHP_EOL .$exception);
+            Log::error('Error with log-message-id: ' . $logMsgId . PHP_EOL . $exception);
         } else {
             $this->collisionHandler->renderForConsole($output, $exception);
         }
