@@ -10,7 +10,7 @@ use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 abstract class AbstractIgnoreList extends FinCommand
 {
     use BankAccountIdParameter;
-    
+
     /**
      *
      * @param integer $accountId

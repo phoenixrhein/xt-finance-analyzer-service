@@ -11,6 +11,7 @@ use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 class AdjustmentList extends FinCommand
 {
     use BankAccountIdParameter;
+    
     /**
      * The name and signature of the console command.
      *

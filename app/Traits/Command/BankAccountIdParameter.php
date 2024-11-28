@@ -1,4 +1,5 @@
 <?php
+
 namespace de\xovatec\financeAnalyzer\Traits\Command;
 
 use de\xovatec\financeAnalyzer\Models\BankAccount;
