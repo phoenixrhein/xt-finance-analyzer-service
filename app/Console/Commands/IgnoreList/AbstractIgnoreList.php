@@ -5,9 +5,12 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\IgnoreList as IgnoreListModel;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 
 abstract class AbstractIgnoreList extends FinCommand
 {
+    use BankAccountIdParameter;
+
     /**
      *
      * @param integer $accountId
@@ -18,9 +21,8 @@ abstract class AbstractIgnoreList extends FinCommand
         $ignoreList = IgnoreListModel::where('bank_account_id', $accountId)
                         ->select(['id', 'type', 'value', 'comment']);
         if ($ignoreList->count() === 0) {
-            $account = BankAccount::find($accountId);
-            if (!$account instanceof BankAccount) {
-                $this->error(__('cli.base.error.not_found', ['id' => $accountId]));
+            $bankAccount = $this->getBankAccount($accountId);
+            if (!$bankAccount instanceof BankAccount) {
                 return;
             }
         }

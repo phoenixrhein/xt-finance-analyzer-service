@@ -6,9 +6,12 @@ use Carbon\Carbon;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\TransactionAdjustment;
+use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 
 class AdjustmentList extends FinCommand
 {
+    use BankAccountIdParameter;
+
     /**
      * The name and signature of the console command.
      *
@@ -28,12 +31,8 @@ class AdjustmentList extends FinCommand
      */
     protected function process(): void
     {
-        $accountId = (int)$this->argument('accountId');
-
-        $bankAccount = BankAccount::find($accountId);
+        $bankAccount = $this->getBankAccount((int)$this->argument('accountId'));
         if (!$bankAccount instanceof BankAccount) {
-            $this->emptyLn();
-            $this->error(__('cli.base.error.not_found', ['id' => $accountId]));
             return;
         }
 
