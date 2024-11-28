@@ -4,21 +4,23 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\TransactionSplit;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Collection;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use Symfony\Component\Console\Helper\TableSeparator;
 use de\xovatec\financeAnalyzer\Enums\TransactionType;
 use de\xovatec\financeAnalyzer\Models\TransactionSplit;
-use de\xovatec\financeAnalyzer\Enums\TransactionCheckCode as CheckCode;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
-use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
-use Illuminate\Database\Eloquent\Collection;
+use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
+use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
+use de\xovatec\financeAnalyzer\Enums\TransactionCheckCode as CheckCode;
 
 class CashDetector extends FinCommand
 {
     use SimpleInput;
     use DateRangeParameter;
+    use BankAccountIdParameter;
 
     /**
      * The name and signature of the console command.
@@ -40,7 +42,6 @@ class CashDetector extends FinCommand
      */
     protected function process(): void
     {
-        $accountId = (int)$this->argument('accountId');
         $range = [];
         if (strlen($this->option('range')) > 0) {
             $range = $this->prepareRangeParam($this->option('range'));
@@ -49,10 +50,8 @@ class CashDetector extends FinCommand
             }
         }
 
-        $bankAccount = BankAccount::find($accountId);
+        $bankAccount = $this->getBankAccount((int)$this->argument('accountId'));
         if (!$bankAccount instanceof BankAccount) {
-            $this->emptyLn();
-            $this->error(__('cli.base.error.not_found', ['id' => $accountId]));
             return;
         }
 

@@ -5,9 +5,12 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\CashDeposit;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\CashDeposit;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 
 class CashDepositList extends FinCommand
 {
+    use BankAccountIdParameter;
+
     /**
      * The name and signature of the console command.
      *
@@ -44,9 +47,8 @@ class CashDepositList extends FinCommand
             ];
         });
         if ($cashDepositList->isEmpty()) {
-            $account = BankAccount::find($accountId);
-            if (!$account instanceof BankAccount) {
-                $this->error(__('cli.base.error.not_found', ['id' => $accountId]));
+            $bankAccount = $this->getBankAccount($accountId);
+            if (!$bankAccount instanceof BankAccount) {
                 return;
             }
         }
