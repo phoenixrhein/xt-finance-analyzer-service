@@ -9,7 +9,7 @@ use de\xovatec\financeAnalyzer\Models\Transactions;
 use Symfony\Component\Console\Helper\TableSeparator;
 use de\xovatec\financeAnalyzer\Enums\TransactionType;
 use de\xovatec\financeAnalyzer\Models\TransactionSplit;
-use de\xovatec\financeAnalyzer\Enums\TransactionCheckCode;
+use de\xovatec\financeAnalyzer\Enums\TransactionCheckCode as CheckCode;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
@@ -77,7 +77,7 @@ class CashDetector extends FinCommand
 
             Transactions::where('id', $transaction['id'])
                 ->update([
-                    'checks_code' => DB::raw('checks_code | ' . TransactionCheckCode::DETECTED_CASH_PAYMENT->value)
+                    'checks_code' => DB::raw('checks_code | ' . CheckCode::DETECTED_CASH_PAYMENT->value)
                 ]);
         }
     }
@@ -145,7 +145,7 @@ class CashDetector extends FinCommand
     {
         $transactions = Transactions::where('transactions.bank_account_iban', $bankAccount->iban)
         ->where('transaction_type', TransactionType::CARD_PAYMENT_WITH_CASH_PAYMENT->value)
-        ->whereRaw('checks_code & ' . TransactionCheckCode::DETECTED_CASH_PAYMENT->value . ' = 0');
+        ->whereRaw('checks_code & ' . CheckCode::DETECTED_CASH_PAYMENT->value . ' = ' . CheckCode::NONE->value);
 
         if (count($range)) {
             $transactions->where('transaction_date', '>=', $range['from'])
