@@ -8,6 +8,7 @@ use BadMethodCallException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use NunoMaduro\Collision\Adapters\Laravel\ExceptionHandler as CollisionHandler;
+use Symfony\Component\Console\Exception\ExceptionInterface as SymfonyConsoleExceptionInterface;
 
 class Handler extends ExceptionHandler
 {
@@ -41,7 +42,11 @@ class Handler extends ExceptionHandler
             $output->writeln('');
             Log::error('Error with log-message-id: ' . $logMsgId . PHP_EOL . $exception);
         } else {
-            $this->collisionHandler->renderForConsole($output, $exception);
+            if ($exception instanceof SymfonyConsoleExceptionInterface) {
+                parent::renderForConsole($output, $exception);
+            } else {
+                $this->collisionHandler->renderForConsole($output, $exception);
+            }
         }
     }
 
