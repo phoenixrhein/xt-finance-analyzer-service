@@ -35,13 +35,13 @@ class ExceptionMessageHelper
 
         $text = trim($msg);
 
-        return new class($text ?: null, $key ?: null, $json) {
+        return new class ($text ?: null, $key ?: null, $json) {
             public function __construct(
                 public ?string $text,
                 public ?string $key,
                 public array $json
-            ) {
-
+            ) 
+            {
             }
         };
     }
