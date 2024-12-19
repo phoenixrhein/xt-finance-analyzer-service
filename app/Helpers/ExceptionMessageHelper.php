@@ -40,7 +40,7 @@ class ExceptionMessageHelper
                 public ?string $text,
                 public ?string $key,
                 public array $json
-            ) 
+            )
             {
             }
         };
