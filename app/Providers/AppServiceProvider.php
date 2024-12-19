@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->bind(ConsoleProgressDisplay::class, function (Application $app) {
+        $this->app->bind(ConsoleProgressDisplay::class, function () {
             return new ConsoleProgressDisplay(
                 new SymfonyStyle(
                     new \Symfony\Component\Console\Input\ArgvInput(),

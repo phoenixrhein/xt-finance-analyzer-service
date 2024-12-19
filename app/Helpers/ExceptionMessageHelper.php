@@ -41,8 +41,7 @@ class ExceptionMessageHelper
                 public ?string $key,
                 public array $json
             )
-            {
-            }
+            { }
         };
     }
 
