@@ -53,7 +53,7 @@ class ImportTransactionService
 
         $accountId = null;
 
-        foreach($records as $record) {
+        foreach ($records as $record) {
             /** @var TransactionRecord $record */
             if (!$record instanceof TransactionRecord) {
                 throw new InvalidArgumentException('No supported transaction record: ' . get_class($record));

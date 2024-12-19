@@ -54,7 +54,10 @@ class Handler extends ExceptionHandler
             $output->writeln('');
             if ($msg->key !== null) {
                 $logMsgId = 'FIN-' . Carbon::now()->format('YmdHisv');
-                Log::error('Error with log-message-id: ' . $logMsgId . PHP_EOL . ExceptionMessageHelper::cleanException($exception));
+                Log::error(
+                    'Error with log-message-id: ' . $logMsgId . PHP_EOL .
+                    ExceptionMessageHelper::cleanException($exception)
+                );
             }
             return;
         }

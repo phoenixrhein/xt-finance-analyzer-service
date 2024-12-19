@@ -17,11 +17,11 @@ class ExceptionMessageHelper
         $text = '';
         $key = '';
         $json = array();
-    
+
         if (preg_match('/\[:(.*?):\]/', $msg, $matches)) {
             $fullMatch = $matches[0];
             $keyJsonPart = $matches[1];
-            
+
             if (strpos($keyJsonPart, '{') !== false) {
                 $startJson = strpos($keyJsonPart, '{');
                 $key = substr($keyJsonPart, 0, $startJson);
@@ -29,10 +29,10 @@ class ExceptionMessageHelper
             } else {
                 $key = $keyJsonPart;
             }
-    
+
             $msg = str_replace($fullMatch, '', $msg);
         }
-    
+
         $text = trim($msg);
 
         return new class($text ?: null, $key ?: null, $json) {
@@ -40,7 +40,9 @@ class ExceptionMessageHelper
                 public ?string $text,
                 public ?string $key,
                 public array $json
-            ) {}
+            ) {
+
+            }
         };
     }
 
@@ -57,7 +59,7 @@ class ExceptionMessageHelper
             subject: $exception->__toString()
         );
     }
-    
+
     /**
      *
      * @param string $text
@@ -67,6 +69,6 @@ class ExceptionMessageHelper
      */
     public static function generateMessageString(string $text = '', string $key = '', array $replaceParams = []): string
     {
-        return $text . '[:' . $key . json_encode($replaceParams).  ':]';
+        return $text . '[:' . $key . json_encode($replaceParams) . ':]';
     }
 }

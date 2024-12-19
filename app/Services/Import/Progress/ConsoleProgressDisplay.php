@@ -69,5 +69,3 @@ class ConsoleProgressDisplay implements ProgressDisplayInterface
         $this->io->write("           \r");
     }
 }
-
-

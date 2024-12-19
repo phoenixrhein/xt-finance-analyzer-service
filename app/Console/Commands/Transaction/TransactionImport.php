@@ -10,6 +10,7 @@ use de\xovatec\financeAnalyzer\Services\Import\ImportTransactionService;
 class TransactionImport extends FinCommand
 {
     use SimpleInput;
+    
     /**
      *
      * @param ImportTransactionService $importTransactionService

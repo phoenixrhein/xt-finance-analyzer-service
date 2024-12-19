@@ -68,7 +68,7 @@ class Camt52V8CsvParser implements CsvParserInterface
         $csv->setDelimiter(';');
 
         $records = [];
-        foreach($csv->getRecordsAsObject(Camt52V8CsvSetter::class) as $row) {
+        foreach ($csv->getRecordsAsObject(Camt52V8CsvSetter::class) as $row) {
             if ($row->getStatus() === self::TRANSACTION_STATUS_PREPARED) {
                 continue;
             }
@@ -133,14 +133,15 @@ class Camt52V8CsvParser implements CsvParserInterface
     /**
      *
      * @param array $transactions
-     * @param integer $lastMonths
+     * @param int $lastMonths
      * @return array
      */
-    private function filterTransactionsByLastMonths(array $transactions, int $lastMonths): array {
+    private function filterTransactionsByLastMonths(array $transactions, int $lastMonths): array
+    {
         if ($lastMonths === 0) {
             return $transactions;
         }
-    
+
         $startDate = Carbon::now()->startOfMonth()->subMonths($lastMonths);
 
         return array_filter($transactions, function ($transaction) use ($startDate) {

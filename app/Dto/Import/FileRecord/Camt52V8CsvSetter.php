@@ -131,7 +131,11 @@ class Camt52V8CsvSetter extends TransactionRecord
      * @param float|null $reimbursementOfExpensesReturnDebit
      * @return self
      */
-    #[Serializer\MapCell(column: 'Auslagenersatz Ruecklastschrift', cast: '@replace_comma', convertEmptyStringToNull: true)]
+    #[Serializer\MapCell(
+        column: 'Auslagenersatz Ruecklastschrift',
+        cast: '@replace_comma',
+        convertEmptyStringToNull: true
+    )]
     public function setReimbursementOfExpensesReturnDebit(?float $reimbursementOfExpensesReturnDebit): self
     {
         $this->reimbursementOfExpensesReturnDebit = $reimbursementOfExpensesReturnDebit;

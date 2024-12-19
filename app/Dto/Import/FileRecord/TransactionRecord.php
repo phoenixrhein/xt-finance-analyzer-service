@@ -93,7 +93,7 @@ class TransactionRecord
      * @var float|null
      */
     protected ?float $amount = null;
-    
+
     /**
      *
      * @var string|null

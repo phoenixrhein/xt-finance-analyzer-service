@@ -20,7 +20,7 @@ class FileValidatorService
                 ['file' => $filepath]
             );
         }
-        
+
         if (!is_file($filepath)) {
             throw new FinErrorException(
                 'Is no file: ' . $filepath,

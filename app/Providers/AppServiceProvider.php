@@ -49,9 +49,8 @@ class AppServiceProvider extends ServiceProvider
             if ($app->runningInConsole()) {
                 return $app->make(ConsoleProgressDisplay::class);
             }
-         
-         
+
             return new NullProgressDisplay();
-         });
-     }
+        });
+    }
 }
