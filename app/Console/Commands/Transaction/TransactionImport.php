@@ -2,13 +2,15 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Transaction;
 
-use League\Csv\Reader;
-use Illuminate\Console\Command;
-use de\xovatec\financeAnalyzer\Services\ImportTransactionService;
-use Exception;
+use Illuminate\Support\Facades\Validator;
+use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
+use de\xovatec\financeAnalyzer\Services\Import\ImportTransactionService;
 
-class TransactionImport extends Command
+class TransactionImport extends FinCommand
 {
+    use SimpleInput;
+
     /**
      *
      * @param ImportTransactionService $importTransactionService
@@ -23,58 +25,70 @@ class TransactionImport extends Command
      *
      * @var string
      */
-    protected $signature = 'fin:import {file : The file path to the CSV file} {--ignoreAlreadyExists}';
+    protected $signature = 'fin:import {file : [:cli.transaction.import.param.file:]}' .
+        ' {--lastMonths= : [:cli.transaction.import.param.lastMonths:]}' .
+        ' {--ignoreAlreadyExists : [:cli.transaction.import.param.ignoreAlreadyExists:]}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import SPK camt52v8 csv transaction file';
+    protected $description = 'cli.transaction.import.description';
 
     /**
-     * Execute the console command.
+     * @inheritDoc
      */
-    public function handle()
+    protected function process(): void
     {
-        $filePath = $this->argument('file');
+        $lastMonths = $this->option('lastMonths');
+        if (empty($lastMonths)) {
+            $lastMonths = $this->viewInput(
+                __('cli.transaction.import.input.lastmonths.text'),
+                'required|numeric|min:0',
+                1,
+                self::VALUE_TYPE_TEXT,
+                __('cli.transaction.import.input.lastmonths.hint')
+            );
+        } else {
+            $validator = Validator::make(
+                ['lastMonths' => $lastMonths],
+                ['lastMonths' => 'required|numeric|min:0'],
+            );
 
-        // Check if the parameter was passed
-        if (!$filePath) {
-            $this->error('No file path was provided.');
-            exit();
+            if ($validator->fails()) {
+                $this->emptyLn();
+                $this->error($validator->errors()->first());
+            }
         }
 
-        // Check if the file exists
-        if (!file_exists($filePath)) {
-            $this->error('The specified file does not exist.');
-            exit();
+        $ignoreAlreadyExists = $this->option('ignoreAlreadyExists');
+        if (empty($ignoreAlreadyExists)) {
+            $ignoreAlreadyExists = $this->confirmPrompt(
+                label: __('cli.transaction.import.input.ignoreAlreadyExists'),
+                hint: __('cli.transaction.import.input.ignoreAlreadyExists_hint')
+            );
         }
-
-        // Check if it is a CSV file
-        $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
-        if (strtolower($fileExtension) !== 'csv') {
-            $this->error('The specified file is not a CSV file.');
-            exit();
-        }
-
-        $transactionFile = Reader::createFromPath($filePath, 'r');
 
         try {
-            $this->importTransactionService->setIgnoreAlreadyExists($this->option('ignoreAlreadyExists'));
-            // in import gibt es Datei-Validierungen mit Exception
-            // die Datei muesste vorab auf ihre korrektheit geprueft werden
-            // vielleicht schon etwas vorbereiten, dass es zukuenftig unterschiedliche Formate geben kann
-            $this->importTransactionService->import($transactionFile);
-
-            //Hinweis: Wenn nichts importiert wurde, da alles duplicate sind
-        } catch (Exception $e) {
-            $this->error($e->getMessage());
-            //hier muesste eigentlich ein throws stehe. Aber wie verhaelt es sich dann mit finally
+            $accountId = $this->importTransactionService->import(
+                $this->argument('file'),
+                $lastMonths,
+                $ignoreAlreadyExists
+            );
         } finally {
             $this->info(
-                "Imported {$this->importTransactionService->getNumberOfImported()} rows /" .
-                " duplicates {$this->importTransactionService->getNumberOfDuplicates()} row"
+                "Imported {$this->importTransactionService->getReport()->getImported()} rows /" .
+                " duplicates {$this->importTransactionService->getReport()->getDuplicates()} row"
+            );
+        }
+
+        if ($accountId !== null) {
+            $this->call(
+                'fin:cash-detector',
+                [
+                    'accountId' => 1
+                ]
             );
         }
     }

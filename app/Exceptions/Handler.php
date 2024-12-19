@@ -5,7 +5,10 @@ namespace de\xovatec\financeAnalyzer\Exceptions;
 use Throwable;
 use Carbon\Carbon;
 use BadMethodCallException;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use de\xovatec\financeAnalyzer\Helpers\ExceptionMessageHelper;
+use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use NunoMaduro\Collision\Adapters\Laravel\ExceptionHandler as CollisionHandler;
 use Symfony\Component\Console\Exception\ExceptionInterface as SymfonyConsoleExceptionInterface;
@@ -29,12 +32,36 @@ class Handler extends ExceptionHandler
 
     /**
      *
+     * @param Throwable $e
+     * @return void
+     */
+    public function report(Throwable $e): void
+    {
+        //do not log separat. Logging part of renderForConsole(), because there will be generated a msg log id
+    }
+
+    /**
+     *
      * @param mixed $output
      * @param Throwable $exception
      * @return void
      */
     public function renderForConsole($output, Throwable $exception): void
     {
+        $msg = ExceptionMessageHelper::parse($exception->getMessage());
+        if ($msg->key !== null) {
+            $output->writeln(' <error> ' . __(Str::replace('msgctx.', 'cli.', $msg->key), $msg->json) . ' </error>');
+            $output->writeln('');
+            if ($msg->key !== null) {
+                $logMsgId = 'FIN-' . Carbon::now()->format('YmdHisv');
+                Log::error(
+                    'Error with log-message-id: ' . $logMsgId . PHP_EOL .
+                    ExceptionMessageHelper::cleanException($exception)
+                );
+            }
+            return;
+        }
+
         if (!config('app.debug')) {
             $output->writeln('');
             $logMsgId = 'FIN-' . Carbon::now()->format('YmdHisv');

@@ -298,43 +298,67 @@ return [
             'description' => 'Ignorierliste-Eintrag löschen',
             'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
         ]
-        ],
-        'transaction' => [
-            'base' => [
-                'param' => [
-                    'transaction_id' => 'ID der Buchung'
-                ],
-                'error'=> [
-                    'not_found_transaction_id' => 'Die Buchung mit der ID \':transactionId\' wurde nicht gefunden'
-                ],
-                'table' => [
-                    'header' => [
-                        'id' => 'Id',
-                        'created_at' => 'Importiert am',
-                        'bank_account_iban' => 'Auftragskonto',
-                        'transaction_date' => 'Buchungstag',
-                        'exchange_date' => 'Valutadatum',
-                        'transaction_type' => 'Buchungstext',
-                        'reason_for_payment' => 'Verwendungszweck',
-                        'creditor_id' => 'Glaeubiger ID',
-                        'mandate_ reference' => 'Mandatsreferenz',
-                        'customer_reference' => 'Kundenreferenz (End-to-End)',
-                        'collector_reference' => 'Sammlerreferenz',
-                        'debit_original_amount' => 'Lastschrift Ursprungsbetrag',
-                        'reimbursement_of_expenses_return_debit' => 'Auslagenersatz Ruecklastschrift',
-                        'beneficiary_payee' => 'Beguenstigter/Zahlungspflichtiger',
-                        'creditor_iban' => 'Kontonummer/IBAN',
-                        'creditor_bic' => 'BIC (SWIFT-Code)',
-                        'amount' => 'Betrag',
-                        'currency' => 'Währung',
-                        'note' => 'Anmerkung'
-                    ]
-                ]
+    ],
+    'transaction' => [
+        'base' => [
+            'param' => [
+                'transaction_id' => 'ID der Buchung'
             ],
-            'comment' => [
-                'description' => 'Kommentar bearbeiten',
-                'input_note' => 'Bitte geben Sie einen Kommentar an',
-                'edited' => 'Der Kommentar wurde geändert'
+            'error'=> [
+                'not_found_transaction_id' => 'Die Buchung mit der ID \':transactionId\' wurde nicht gefunden'
+            ],
+            'table' => [
+                'header' => [
+                    'id' => 'Id',
+                    'created_at' => 'Importiert am',
+                    'bank_account_iban' => 'Auftragskonto',
+                    'transaction_date' => 'Buchungstag',
+                    'exchange_date' => 'Valutadatum',
+                    'transaction_type' => 'Buchungstext',
+                    'reason_for_payment' => 'Verwendungszweck',
+                    'creditor_id' => 'Glaeubiger ID',
+                    'mandate_ reference' => 'Mandatsreferenz',
+                    'customer_reference' => 'Kundenreferenz (End-to-End)',
+                    'collector_reference' => 'Sammlerreferenz',
+                    'debit_original_amount' => 'Lastschrift Ursprungsbetrag',
+                    'reimbursement_of_expenses_return_debit' => 'Auslagenersatz Ruecklastschrift',
+                    'beneficiary_payee' => 'Beguenstigter/Zahlungspflichtiger',
+                    'creditor_iban' => 'Kontonummer/IBAN',
+                    'creditor_bic' => 'BIC (SWIFT-Code)',
+                    'amount' => 'Betrag',
+                    'currency' => 'Währung',
+                    'note' => 'Anmerkung'
+                ]
+            ]
+        ],
+        'comment' => [
+            'description' => 'Kommentar bearbeiten',
+            'input_note' => 'Bitte geben Sie einen Kommentar an',
+            'edited' => 'Der Kommentar wurde geändert'
+        ],
+        'import' => [
+            'param' => [
+                'file' => 'Zu importierende Datei',
+                'lastMonths' => 'Anzahl der letzten zu importierenden Monate. 0 bedeutet uneingeschränkt alles',
+                'ignoreAlreadyExists' => 'Ignoriert bereits vorhandene Einträge. Ansonsten wird der Import abgebrochen'
+            ],
+            'description' => 'Buchungen importieren',
+            'input' => [
+                'lastmonths' => [
+                    'text' => 'Anzahl der letzten zu importierenden Monate',
+                    'hint' => '0 bedeutet uneingeschränkt alles. Z.B. 1 bedeutet nur den letzten Monat'
+                ],
+                'ignoreAlreadyExists' => 'Sollen Duplikate igoriert werden?',
+                'ignoreAlreadyExists_hint' => 'Ansonsten bricht das Skript beim ersten Duplikat ab'
+            ],
+            'validate' => [
+                'file_not_found' => 'Die Datei wurde nicht gefunden: :file',
+                'is_no_file' => 'Pfad ist keine Datei: :file',
+                'file_not_readable' => 'Keine Leserechte für die Datei: :file',
+            ],
+            'error' => [
+                'different_accounts' => 'Unterschiedliche Konten in der Importdatei. Erwartet: :expected / Erhalten: :get'
             ]
         ]
+    ]
 ];
