@@ -45,7 +45,7 @@ trait ConditionByManualCreator
     private function viewConditionByManualCreator(
         BankAccount $bankAccount,
         ?Collection $ignoreIbans = null
-    ): ConditionList{
+    ): ConditionList {
         $conditions = new ConditionList();
         $condition = null;
         $logicalOperator = '';
@@ -177,13 +177,15 @@ trait ConditionByManualCreator
                 array_map(fn($operator) => (new $operator())->getId(), $field->getOperators()),
                 array_map(
                     fn($operator) => __('cli.base.operator.' . (new $operator())->getId()) .
-                        ' (' . (new $operator())->getFinQueryOperator() . ')', $field->getOperators()
+                        ' (' . (new $operator())->getFinQueryOperator() . ')',
+                    $field->getOperators()
                 )
             ),
             $default instanceof BaseOperator ? $default->getId() : null
         );
 
-        $className = collect($field->getOperators())->first(fn($operator) => (new $operator())->getId() === $operatorId);
+        $className = collect($field->getOperators())
+            ->first(fn($operator) => (new $operator())->getId() === $operatorId);
         return new $className();
     }
 
