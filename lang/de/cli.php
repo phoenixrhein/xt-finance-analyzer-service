@@ -27,7 +27,24 @@ return [
         'iban' => 'IBAN',
         'upsert_hint_add' => 'Es wurde keine ID übergeben. Der Eintrag wird daher neu angelegt',
         'halt' => 'Drücken Sie die Eingabetaste, um fortzufahren....',
-        'payee' => 'Zahlungsempfänger'
+        'payee' => 'Zahlungsempfänger',
+        'operator' => [ // todo vielleicht eher was für trans list oder für trait
+            'equal' => 'Gleich',
+            'not_equal' => 'Ungleich',
+            'greater_than' => 'Größer als',
+            'less_than' => 'Kleiner als',
+            'contains' => 'Enthält',
+            'starts_with' => 'Beginnt mit',
+            'ends_with' => 'Endet mit',
+            'not_contains' => 'Enthält nicht',
+            'not_starts_with' => 'Beginnt nicht mit',
+            'not_ends_with' => 'Endet nicht mit'
+        ],
+        'logical_operator' => [
+            'AND' => 'UND',
+            'OR' => 'ODER'
+        ],
+        'value' => 'Wert'
     ],
     'view' => [
         'input' => [
@@ -44,6 +61,18 @@ return [
             'transaction_id_input' => 'Bitte geben Sie die Transactions-Id an',
             'transaction_id_input_hint' => 'Sofern Sie die Suche erneut starten möchten, lassen Sie dieses Feld leer',
         ],
+        'condition_creator' => [
+            'option_and_link' => 'Weitere Bedingung mit UND-Verknüpfung',
+            'option_or_link' => 'Weitere Bedingung mit ODER-Verknüpfung',
+            'option_no_more_condition' => 'Keine weitere Bedingung',
+            'select_field' => 'Feld für die Bedingung auswählen',
+            'select_operator' => 'Vergleichs-Operator auswählen',
+            'value_input' => 'Wert eingeben',
+            'value_select' => 'Wert auswählen',
+            'more_matches_found' => 'weitere(r) Treffer gefunden',
+            'confirm_condition' => 'Ist die Bedingung korrekt?',
+            'further_condition' => 'Weitere Bedingung hinzufügen?',
+        ]
     ],
     'param' => [
         'date_range' => [
@@ -358,6 +387,17 @@ return [
             ],
             'error' => [
                 'different_accounts' => 'Unterschiedliche Konten in der Importdatei. Erwartet: :expected / Erhalten: :get'
+            ]
+        ],
+        'list' => [
+            'description' => 'Buchungen anzeigen',
+            'query_type' => [
+                'title' => 'Abfrage-Typ für den Zeitraum',
+                'options' => [
+                    'all' => 'Alle anzeigen',
+                    'manual' => 'Auswahl manuell einschränken',
+                    'fin_query' => 'Auswahl mit FinQuery einschränken'
+                ]
             ]
         ]
     ]
