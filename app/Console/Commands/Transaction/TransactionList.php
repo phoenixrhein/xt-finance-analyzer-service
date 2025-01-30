@@ -2,25 +2,53 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Transaction;
 
-use de\xovatec\financeAnalyzer\Helpers\DateRangeHelper;
 use Illuminate\Support\Arr;
-use Illuminate\Console\Command;
-use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
+use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Transactions;
+use de\xovatec\financeAnalyzer\Helpers\DateRangeHelper;
+use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
+use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
+use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
+use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByFinQueryCreator;
+use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByManualCreator;
 use de\xovatec\financeAnalyzer\Traits\Command\View\TableConsolePagination;
 
-class TransactionList extends Command
+use function Laravel\Prompts\select;
+
+class TransactionList extends FinCommand
 {
     use TableConsolePagination;
     use DateRangeParameter;
+    use BankAccountIdParameter;
+    use ConditionByManualCreator;
+    use ConditionByFinQueryCreator;
+
+        /**
+     * @inheritDoc
+     */
+    public function __construct(private FinQueryBuilder $finQueryBuilder, private SqlQueryBuilder $sqlQueryBuilder)
+    {
+        parent::__construct();
+    }
+
+    private function getFinQueryBuilder(): FinQueryBuilder
+    {
+        return $this->finQueryBuilder;
+    }
+
+    private function getSqlQueryBuilder(): SqlQueryBuilder
+    {
+        return $this->sqlQueryBuilder;
+    }
 
     /**
      *
      * @var array
      */
-    private static $viewConfig = [
+    private static $fullView = [
         'id' => null,
         'transaction_date' => null,
         'exchange_date' => null,
@@ -79,7 +107,7 @@ class TransactionList extends Command
      *
      * @var string
      */
-    protected $signature = 'fin:transaction-list {accountId} {--full} {--noLimit}' .
+    protected $signature = 'fin:transaction-list {accountId : [:cli.base.param.account_id:]} {--full} {--noLimit}' .
         ' {--range= : [:cli.param.date_range.description:]} {--limit=25}';
 
     /**
@@ -87,7 +115,7 @@ class TransactionList extends Command
      *
      * @var string
      */
-    protected $description = 'transaction list ';
+    protected $description = 'cli.transaction.list.description';
 
     /**
      *
@@ -100,14 +128,35 @@ class TransactionList extends Command
     }
 
     /**
-     * Execute the console command.
+     * @inheritDoc
      */
-    public function handle()
+    protected function process(): void
     {
-        $bankAccount = BankAccount::findOrFail($this->argument('accountId'));
+        $bankAccount = $this->getBankAccount((int)$this->argument('accountId'));
+        if (!$bankAccount instanceof BankAccount) {
+            return;
+        }
+
         $viewConfig = static::$compactView;
         if ($this->option('full')) {
-            $viewConfig = static::$viewConfig;
+            $viewConfig = static::$fullView;
+        }
+
+        $queryType = select(
+            __('cli.transaction.list.query_type.title'),
+            [
+                'all' => __('cli.transaction.list.query_type.options.all'),
+                'manual' => __('cli.transaction.list.query_type.options.manual'),
+                'finQuery' => __('cli.transaction.list.query_type.options.fin_query')
+            ]
+        );
+
+        $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
+        $conditions = null;
+        if ($queryType === 'manual') {
+            $conditions = $this->viewConditionByManualCreator($bankAccount, $ignoreIbans);
+        } elseif ($queryType === 'finQuery') {
+            $this->viewConditionByFinQueryCreator();
         }
 
         $from = null;
@@ -115,7 +164,7 @@ class TransactionList extends Command
         if (strlen($this->option('range')) > 0) {
             $range = $this->prepareRangeParam($this->option('range'));
             if ($range === null) {
-                return null;
+                return;
             }
 
             $from = $range[DateRangeHelper::FROM];
@@ -123,6 +172,10 @@ class TransactionList extends Command
         }
 
         $transactions = Transactions::where('bank_account_iban', $bankAccount->iban);
+
+        if ($conditions !== null) {
+            $this->getSqlQueryBuilder()->build($transactions, $conditions);
+        }
 
         if ($from !== null) {
             $transactions = $transactions->where('transaction_date', '>=', $from)
@@ -141,8 +194,9 @@ class TransactionList extends Command
         );
 
         $sum = 0;
-        $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
-        $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        if ($ignoreIbans->isNotEmpty()) {
+            $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        }
         foreach (Arr::pluck($transactions->get()->toArray(), 'amount') as $amount) {
             $sum = round($sum + $amount, 2);
         }

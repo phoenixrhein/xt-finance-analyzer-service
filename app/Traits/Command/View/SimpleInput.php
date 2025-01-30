@@ -39,10 +39,10 @@ trait SimpleInput
 
             $valid = $this->viewValidatorError(
                 [
-                    'Wert' => $type != self::VALUE_TYPE_DECIMAL ? $input : Str::replace(',', '.', $input)
+                    __('cli.base.value') => $type != self::VALUE_TYPE_DECIMAL ? $input : Str::replace(',', '.', $input)
                 ],
                 [
-                    'Wert' => $rules
+                    __('cli.base.value') => $rules
                 ]
             );
         } while (!$valid);
