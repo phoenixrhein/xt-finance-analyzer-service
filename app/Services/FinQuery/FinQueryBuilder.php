@@ -16,7 +16,8 @@ class FinQueryBuilder
         $query = '';
         foreach ($conditions as $condition) {
             /** @var Condition $condition */
-            $query .= $condition->getLogicalOperator() . ' ' . $condition->getField()->getColumn() . ' ' . $condition->getOperator()->getFinQueryOperator() . " '" . $condition->getValue() . "' ";
+            $query .= $condition->getLogicalOperator() . ' ' . $condition->getField()->getColumn() . ' '
+                . $condition->getOperator()->getFinQueryOperator() . " '" . $condition->getValue() . "' ";
         }
         return trim($query);
     }

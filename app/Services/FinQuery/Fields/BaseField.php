@@ -10,7 +10,7 @@ abstract class BaseField
      * @var string
      */
     protected string $error = '';
-    
+
     /**
      * constructor.
      *

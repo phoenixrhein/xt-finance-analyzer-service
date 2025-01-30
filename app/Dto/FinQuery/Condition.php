@@ -13,8 +13,12 @@ class Condition
      * @param string $value
      * @param string $logicalOperator
      */
-    public function __construct(private BaseField $field, private BaseOperator $operator, private string $value, private string $logicalOperator)
-    {
+    public function __construct(
+        private BaseField $field,
+        private BaseOperator $operator,
+        private string $value,
+        private string $logicalOperator
+    ) {
     }
 
     /**

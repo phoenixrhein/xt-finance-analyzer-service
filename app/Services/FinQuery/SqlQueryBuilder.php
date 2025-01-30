@@ -18,9 +18,17 @@ class SqlQueryBuilder
         foreach ($conditions as $condition) {
             /** @var Condition $condition */
             if ($condition->getLogicalOperator() !== 'OR') {
-                $query->where($condition->getField()->getColumn(), $condition->getOperator()->getSqlOperator(), $condition->getOperator()->getSqlValue($condition->getValue()));
+                $query->where(
+                    $condition->getField()->getColumn(),
+                    $condition->getOperator()->getSqlOperator(),
+                    $condition->getOperator()->getSqlValue($condition->getValue())
+                );
             } else {
-                $query->orWhere($condition->getField()->getColumn(), $condition->getOperator()->getSqlOperator(), $condition->getValue());
+                $query->orWhere(
+                    $condition->getField()->getColumn(),
+                    $condition->getOperator()->getSqlOperator(),
+                    $condition->getValue()
+                );
             }
         }
 

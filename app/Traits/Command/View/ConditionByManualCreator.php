@@ -42,8 +42,10 @@ trait ConditionByManualCreator
      * @param Collection|null $ignoreIbans
      * @return ConditionList
      */
-    private function viewConditionByManualCreator(BankAccount $bankAccount, ?Collection $ignoreIbans = null): ConditionList
-    {
+    private function viewConditionByManualCreator(
+        BankAccount $bankAccount,
+        ?Collection $ignoreIbans = null
+    ): ConditionList{
         $conditions = new ConditionList();
         $condition = null;
         $logicalOperator = '';
@@ -92,8 +94,12 @@ trait ConditionByManualCreator
      * @param Collection|null $ignoreIbans
      * @return void
      */
-    private function displayInterimResult(BankAccount $bankAccount, ConditionList $conditions, Condition $condition, ?Collection $ignoreIbans): void
-    {
+    private function displayInterimResult(
+        BankAccount $bankAccount,
+        ConditionList $conditions,
+        Condition $condition,
+        ?Collection $ignoreIbans
+    ): void {
         $query = Transactions::where('bank_account_iban', $bankAccount->iban);
 
         if ($ignoreIbans instanceof Collection && $ignoreIbans->isNotEmpty()) {
@@ -128,7 +134,8 @@ trait ConditionByManualCreator
      * @param string $logicalOperator
      * @return Condition
      */
-    private function inputCondition(?Condition $condition, string $logicalOperator): Condition {
+    private function inputCondition(?Condition $condition, string $logicalOperator): Condition
+    {
         $field = $this->selectField($condition ? $condition->getField() : null);
         $operator = $this->selectOperator($field, $condition ? $condition->getOperator() : null);
         $value = $this->getValue($field, $condition ? $condition->getValue() : null);
@@ -167,14 +174,17 @@ trait ConditionByManualCreator
         $operatorId = select(
             __('cli.view.condition_creator.select_operator'),
             array_combine(
-                array_map(fn($operator) => (new $operator)->getId(), $field->getOperators()),
-                array_map(fn($operator) => __('cli.base.operator.' . (new $operator)->getId()) . ' (' . (new $operator)->getFinQueryOperator() . ')', $field->getOperators())
+                array_map(fn($operator) => (new $operator())->getId(), $field->getOperators()),
+                array_map(
+                    fn($operator) => __('cli.base.operator.' . (new $operator())->getId()) .
+                        ' (' . (new $operator())->getFinQueryOperator() . ')', $field->getOperators()
+                )
             ),
             $default instanceof BaseOperator ? $default->getId() : null
         );
 
-        $className = collect($field->getOperators())->first(fn($operator) => (new $operator)->getId() === $operatorId);
-        return new $className;
+        $className = collect($field->getOperators())->first(fn($operator) => (new $operator())->getId() === $operatorId);
+        return new $className();
     }
 
     /**
