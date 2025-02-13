@@ -16,7 +16,7 @@ use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
 use de\xovatec\financeAnalyzer\Services\RuleToConditionTransformer;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
-use de\xovatec\financeAnalyzer\Services\Expression\CLiErrorHighlighter;
+use de\xovatec\financeAnalyzer\Services\Expression\CliErrorHighlighter;
 use de\xovatec\financeAnalyzer\Services\Expression\ExpressionSyntaxParser;
 use de\xovatec\financeAnalyzer\Traits\Command\View\TableConsolePagination;
 use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByManualCreator;
@@ -37,14 +37,14 @@ class TransactionList extends FinCommand
      * @param FinQueryBuilder $finQueryBuilder
      * @param SqlQueryBuilder $sqlQueryBuilder
      * @param ExpressionSyntaxParser $parser
-     * @param CLiErrorHighlighter $errorHighlighter
+     * @param CliErrorHighlighter $errorHighlighter
      * @param RuleToConditionTransformer $transformer
      */
     public function __construct(
         private FinQueryBuilder $finQueryBuilder,
         private SqlQueryBuilder $sqlQueryBuilder,
         private ExpressionSyntaxParser $parser,
-        private CLiErrorHighlighter $errorHighlighter,
+        private CliErrorHighlighter $errorHighlighter,
         private RuleToConditionTransformer $transformer
     ) {
         parent::__construct();
