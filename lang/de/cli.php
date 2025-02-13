@@ -28,24 +28,32 @@ return [
         'upsert_hint_add' => 'Es wurde keine ID übergeben. Der Eintrag wird daher neu angelegt',
         'halt' => 'Drücken Sie die Eingabetaste, um fortzufahren....',
         'payee' => 'Zahlungsempfänger',
-        'operator' => [ // todo vielleicht eher was für trans list oder für trait
-            'equal' => 'Gleich',
-            'not_equal' => 'Ungleich',
-            'greater_than' => 'Größer als',
-            'less_than' => 'Kleiner als',
-            'contains' => 'Enthält',
-            'starts_with' => 'Beginnt mit',
-            'ends_with' => 'Endet mit',
-            'not_contains' => 'Enthält nicht',
-            'not_starts_with' => 'Beginnt nicht mit',
-            'not_ends_with' => 'Endet nicht mit'
-        ],
-        'logical_operator' => [
-            'AND' => 'UND',
-            'OR' => 'ODER'
-        ],
-        'value' => 'Wert'
+        'value' => 'Wert',
+        'count' => 'Anzahl',
+        'amount' => 'Betrag'
     ],
+    'service' => [
+        'cli_error_highlighter' => [
+            'no_error_found' => 'Kein Fehler gefunden',
+            'error_report_title' => 'Fehlerhafte Expression',
+            'details' => 'Details'
+        ]
+    ],
+    'fin_query' => [
+        'parser' => [
+            'error' => [
+                'invalid_field' => 'Ungültiges Feld. Gültige Felder sind: :fields',
+                'invalid_operator' => 'Ungültiger Operator. Gültige Operatoren sind: :operators',
+                'invalid_value' => 'Ungültiger Wert: :error_message',
+                'invalid_syntax' => 'Ungültige Syntax: :trimmedCondition',
+                'invalid_option' => 'Ungültige Option. Gültige Optionen sind: :options',
+                'close_bracket_missing' => 'Schließende Klammer fehlt',
+                'invalid_bracket' => 'Nicht alle Klammern sind korrekt',
+                'invalid_single_quote' => 'Ungültige Anzahl von Hochkommas',
+                'invalid_logical_operator' => 'Ungültiger logischer Operator. Gültige Operatoren sind: :operators',
+            ]
+        ]
+            ],
     'view' => [
         'input' => [
             'iban' => 'Bitte geben Sie eine IBAN ein',
@@ -69,9 +77,27 @@ return [
             'select_operator' => 'Vergleichs-Operator auswählen',
             'value_input' => 'Wert eingeben',
             'value_select' => 'Wert auswählen',
-            'more_matches_found' => 'weitere(r) Treffer gefunden',
             'confirm_condition' => 'Ist die Bedingung korrekt?',
             'further_condition' => 'Weitere Bedingung hinzufügen?',
+            'operator' => [
+                'equal' => 'Gleich',
+                'not_equal' => 'Ungleich',
+                'greater_than' => 'Größer als',
+                'less_than' => 'Kleiner als',
+                'contains' => 'Enthält',
+                'starts_with' => 'Beginnt mit',
+                'ends_with' => 'Endet mit',
+                'not_contains' => 'Enthält nicht',
+                'not_starts_with' => 'Beginnt nicht mit',
+                'not_ends_with' => 'Endet nicht mit'
+            ],
+        ],
+        'fin_query_creator' => [
+            'input' => 'FinQuery eingeben',
+            'confirm_condition' => 'Ist die FinQuery-Bedingung korrekt?',
+        ],
+        'display_interim_results' => [
+            'more_matches_found' => 'weitere(r) Treffer gefunden',
         ]
     ],
     'param' => [

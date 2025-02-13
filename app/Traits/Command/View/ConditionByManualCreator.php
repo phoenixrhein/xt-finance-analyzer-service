@@ -2,40 +2,33 @@
 
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
+use Illuminate\Database\Eloquent\Collection;
+use de\xovatec\financeAnalyzer\Models\BankAccount;
+use de\xovatec\financeAnalyzer\Enums\LogicalOperator;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Condition;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FieldConfig;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
-use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\BaseField;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Operators\BaseOperator;
-use de\xovatec\financeAnalyzer\Console\Commands\Transaction\TransactionList;
-use de\xovatec\financeAnalyzer\Models\BankAccount;
-use de\xovatec\financeAnalyzer\Models\Transactions;
-use de\xovatec\financeAnalyzer\Services\FinQuery\LogicalOperator;
-use Illuminate\Database\Eloquent\Collection;
+use de\xovatec\financeAnalyzer\Traits\Command\DisplayInterimTransactionResult;
 
 use function Laravel\Prompts\select;
 
 trait ConditionByManualCreator
 {
     use SimpleInput;
-    use TableConsolePagination;
+    use DisplayInterimTransactionResult;
 
     /**
-     * @var int
+     * @var string
      */
-    private const DISPLAY_LIMIT = 5;
+    private const LOGICAL_OPERATOR_NONE = 'none';
 
     /**
      * @return FinQueryBuilder
      */
     abstract private function getFinQueryBuilder(): FinQueryBuilder;
-
-    /**
-     * @return SqlQueryBuilder
-     */
-    abstract private function getSqlQueryBuilder(): SqlQueryBuilder;
 
     /**
      * @param BankAccount $bankAccount
@@ -53,7 +46,11 @@ trait ConditionByManualCreator
             $condition = $this->inputCondition($condition, $logicalOperator);
 
             $this->displayFinQuery($conditions, $condition);
-            $this->displayInterimResult($bankAccount, $conditions, $condition, $ignoreIbans);
+            $this->displayInterimResult(
+                $bankAccount,
+                (new ConditionList())->addMany($conditions->all())->add($condition),
+                $ignoreIbans
+            );
 
             if (!$this->confirmPrompt(__('cli.view.condition_creator.confirm_condition'))) {
                 continue;
@@ -62,15 +59,15 @@ trait ConditionByManualCreator
             $logicalOperator = select(
                 __('cli.view.condition_creator.further_condition'),
                 [
-                    LogicalOperator::AND => __('cli.view.condition_creator.option_and_link'),
-                    LogicalOperator::OR => __('cli.view.condition_creator.option_or_link'),
-                    LogicalOperator::NONE => __('cli.view.condition_creator.option_no_more_condition')
+                    LogicalOperator::AND->value => __('cli.view.condition_creator.option_and_link'),
+                    LogicalOperator::OR->value => __('cli.view.condition_creator.option_or_link'),
+                    self::LOGICAL_OPERATOR_NONE => __('cli.view.condition_creator.option_no_more_condition')
                 ]
             );
             $conditions->add($condition);
 
             $condition = null;
-        } while ($logicalOperator !== LogicalOperator::NONE);
+        } while ($logicalOperator !== self::LOGICAL_OPERATOR_NONE);
 
         return $conditions;
     }
@@ -85,47 +82,6 @@ trait ConditionByManualCreator
         $newfinQuery = $this->getFinQueryBuilder()->build((new ConditionList())->add($condition));
         $finQuery = $this->getFinQueryBuilder()->build($conditions);
         $this->line('<bg=cyan>FinQuery:</> ' . $finQuery . '<fg=yellow;options=bold> ' . $newfinQuery . '</>');
-    }
-
-    /**
-     * @param BankAccount $bankAccount
-     * @param ConditionList $conditions
-     * @param Condition $condition
-     * @param Collection|null $ignoreIbans
-     * @return void
-     */
-    private function displayInterimResult(
-        BankAccount $bankAccount,
-        ConditionList $conditions,
-        Condition $condition,
-        ?Collection $ignoreIbans
-    ): void {
-        $query = Transactions::where('bank_account_iban', $bankAccount->iban);
-
-        if ($ignoreIbans instanceof Collection && $ignoreIbans->isNotEmpty()) {
-            $query->whereNotIn('creditor_iban', $ignoreIbans->toArray());
-        }
-
-        $this->getSqlQueryBuilder()->build(
-            $query,
-            (new ConditionList())->addMany($conditions->all())->add($condition)
-        );
-
-        $query->select(array_keys(TransactionList::$compactView))
-            ->limit(self::DISPLAY_LIMIT);
-
-        $this->tableConsolePagination(
-            $query->get(),
-            TransactionList::$compactView,
-            null,
-            'cli.transaction.base.table.header.'
-        );
-
-        if ($query->count() > self::DISPLAY_LIMIT) {
-            $this->line(
-                ($query->count() - self::DISPLAY_LIMIT) . ' ' . __('cli.view.condition_creator.more_matches_found')
-            );
-        }
     }
 
     /**
@@ -176,7 +132,7 @@ trait ConditionByManualCreator
             array_combine(
                 array_map(fn($operator) => (new $operator())->getId(), $field->getOperators()),
                 array_map(
-                    fn($operator) => __('cli.base.operator.' . (new $operator())->getId()) .
+                    fn($operator) => __('cli.view.condition_creator.operator.' . (new $operator())->getId()) .
                         ' (' . (new $operator())->getFinQueryOperator() . ')',
                     $field->getOperators()
                 )
