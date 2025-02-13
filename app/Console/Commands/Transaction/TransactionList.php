@@ -3,18 +3,24 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\Transaction;
 
 use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Helpers\DateRangeHelper;
+use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
+use de\xovatec\financeAnalyzer\Services\RuleToConditionTransformer;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
-use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByFinQueryCreator;
-use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByManualCreator;
+use de\xovatec\financeAnalyzer\Services\Expression\CLiErrorHighlighter;
+use de\xovatec\financeAnalyzer\Services\Expression\ExpressionSyntaxParser;
 use de\xovatec\financeAnalyzer\Traits\Command\View\TableConsolePagination;
+use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByManualCreator;
+use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByFinQueryCreator;
 
 use function Laravel\Prompts\select;
 
@@ -26,22 +32,62 @@ class TransactionList extends FinCommand
     use ConditionByManualCreator;
     use ConditionByFinQueryCreator;
 
-        /**
-     * @inheritDoc
+    /**
+     *
+     * @param FinQueryBuilder $finQueryBuilder
+     * @param SqlQueryBuilder $sqlQueryBuilder
+     * @param ExpressionSyntaxParser $parser
+     * @param CLiErrorHighlighter $errorHighlighter
+     * @param RuleToConditionTransformer $transformer
      */
-    public function __construct(private FinQueryBuilder $finQueryBuilder, private SqlQueryBuilder $sqlQueryBuilder)
-    {
+    public function __construct(
+        private FinQueryBuilder $finQueryBuilder,
+        private SqlQueryBuilder $sqlQueryBuilder,
+        private ExpressionSyntaxParser $parser,
+        private CLiErrorHighlighter $errorHighlighter,
+        private RuleToConditionTransformer $transformer
+    ) {
         parent::__construct();
     }
 
+    /**
+     * @inheritDoc
+     */
     private function getFinQueryBuilder(): FinQueryBuilder
     {
         return $this->finQueryBuilder;
     }
 
+    /**
+     * @inheritDoc
+     */
     private function getSqlQueryBuilder(): SqlQueryBuilder
     {
         return $this->sqlQueryBuilder;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    private function getExpressionSyntaxParser(): ExpressionSyntaxParser
+    {
+        return $this->parser;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    private function getCliErrorHighlighter(): CliErrorHighlighter
+    {
+        return $this->errorHighlighter;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    private function getTransformer(): RuleToConditionTransformer
+    {
+        return $this->transformer;
     }
 
     /**
@@ -142,6 +188,75 @@ class TransactionList extends FinCommand
             $viewConfig = static::$fullView;
         }
 
+        $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
+
+        $conditions = $this->determineCondition($bankAccount, $ignoreIbans);
+        $transactions = Transactions::where('bank_account_iban', $bankAccount->iban);
+
+        if ($conditions !== null) {
+            $this->getSqlQueryBuilder()->build($transactions, $conditions);
+        }
+
+        if (strlen($this->option('range')) > 0) {
+            $this->filterDuration($transactions);
+        }
+
+        $this->displayList($transactions, $viewConfig);
+        $this->displayListFooter($transactions, $ignoreIbans);
+    }
+
+    /**
+     *
+     * @param Builder $transactions
+     * @param array $viewConfig
+     * @return void
+     */
+    private function displayList(Builder $transactions, array $viewConfig): void
+    {
+        $transactions->select($this->getColumns($viewConfig))
+            ->orderBy('transaction_date')
+            ->orderByDesc('id');
+
+        $this->tableConsolePagination(
+            $transactions->get(),
+            $viewConfig,
+            $this->option('noLimit') ? null : $this->option('limit'),
+            'cli.transaction.base.table.header.'
+        );
+    }
+
+    /**
+     *
+     * @param Builder $transactions
+     * @param Collection $ignoreIbans
+     * @return void
+     */
+    private function displayListFooter(Builder $transactions, Collection $ignoreIbans): void
+    {
+        $sum = 0;
+        if ($ignoreIbans->isNotEmpty()) {
+            $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        }
+        foreach (Arr::pluck($transactions->get()->toArray(), 'amount') as $amount) {
+            $sum = round($sum + $amount, 2);
+        }
+        $totalAmount = number_format($sum, 2, ',', '');
+        $this->info(
+            __('cli.base.count') . ': ' . count($transactions->get()->toArray())
+                . ' / ' . __('cli.base.amount') . ': ' . $totalAmount
+        );
+    }
+
+    /**
+     *
+     * @param BankAccount $bankAccount
+     * @param Collection|null $ignoreIbans
+     * @return ConditionList|null
+     */
+    private function determineCondition(
+        BankAccount $bankAccount,
+        ?Collection $ignoreIbans = null
+    ): ?ConditionList {
         $queryType = select(
             __('cli.transaction.list.query_type.title'),
             [
@@ -151,56 +266,32 @@ class TransactionList extends FinCommand
             ]
         );
 
-        $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
         $conditions = null;
         if ($queryType === 'manual') {
             $conditions = $this->viewConditionByManualCreator($bankAccount, $ignoreIbans);
         } elseif ($queryType === 'finQuery') {
-            $this->viewConditionByFinQueryCreator();
+            $conditions = $this->viewConditionByFinQueryCreator($bankAccount, $ignoreIbans);
         }
 
-        $from = null;
-        $to = null;
-        if (strlen($this->option('range')) > 0) {
-            $range = $this->prepareRangeParam($this->option('range'));
-            if ($range === null) {
-                return;
-            }
+        return $conditions;
+    }
 
-            $from = $range[DateRangeHelper::FROM];
-            $to = $range[DateRangeHelper::TO];
+    /**
+     *
+     * @param Transactions $transactions
+     * @return void
+     */
+    private function filterDuration(Transactions $transactions): void
+    {
+        $range = $this->prepareRangeParam($this->option('range'));
+        if ($range === null) {
+            return;
         }
 
-        $transactions = Transactions::where('bank_account_iban', $bankAccount->iban);
+        $from = $range[DateRangeHelper::FROM];
+        $to = $range[DateRangeHelper::TO];
 
-        if ($conditions !== null) {
-            $this->getSqlQueryBuilder()->build($transactions, $conditions);
-        }
-
-        if ($from !== null) {
-            $transactions = $transactions->where('transaction_date', '>=', $from)
-                ->where('transaction_date', '<=', $to);
-        }
-
-        $transactions = $transactions->select($this->getColumns($viewConfig))
-                            ->orderBy('transaction_date')
-                            ->orderByDesc('id');
-
-        $this->tableConsolePagination(
-            $transactions->get(),
-            $viewConfig,
-            $this->option('noLimit') ? null : $this->option('limit'),
-            'cli.transaction.base.table.header.'
-        );
-
-        $sum = 0;
-        if ($ignoreIbans->isNotEmpty()) {
-            $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
-        }
-        foreach (Arr::pluck($transactions->get()->toArray(), 'amount') as $amount) {
-            $sum = round($sum + $amount, 2);
-        }
-        $totalAmount = number_format($sum, 2, ',', '');
-        $this->info('Anzahl: ' . count($transactions->get()->toArray()) . ' / Betrag: ' . $totalAmount);
+        $transactions = $transactions->where('transaction_date', '>=', $from)
+            ->where('transaction_date', '<=', $to);
     }
 }
