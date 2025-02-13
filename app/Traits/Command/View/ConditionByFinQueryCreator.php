@@ -50,7 +50,9 @@ trait ConditionByFinQueryCreator
         ?Collection $ignoreIbans = null
     ): ConditionList {
         do {
-            $conditions = $this->inputFinQuery($this->getFinQueryBuilder()->build($conditionList ?? new ConditionList()));
+            $conditions = $this->inputFinQuery(
+                $this->getFinQueryBuilder()->build($conditionList ?? new ConditionList())
+            );
             $conditionList = $this->getTransformer()->transform($conditions);
             $this->displayInterimResult(
                 $bankAccount,
@@ -71,9 +73,11 @@ trait ConditionByFinQueryCreator
     {
         do {
             $isValid = true;
-        
+
             $expression = $this->viewInput(
-                __('cli.view.fin_query_creator.input'), 'required', $expression
+                __('cli.view.fin_query_creator.input'),
+                'required',
+                $expression
             );
 
             $conditions = $this->getExpressionSyntaxParser()->parse($expression);

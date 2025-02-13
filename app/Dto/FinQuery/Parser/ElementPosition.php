@@ -12,8 +12,11 @@ class ElementPosition
      * @param integer $position
      * @param string|null $element
      */
-    public function __construct(private string $sectionExpression, private int $position, private ?string $element = null)
-    {
+    public function __construct(
+        private string $sectionExpression,
+        private int $position,
+        private ?string $element = null
+    ) {
         if ($element === null) {
             $this->element = $sectionExpression;
         }

@@ -15,8 +15,10 @@ class ExpressionSyntaxParser
      *
      * @param ExpressionBaseValidator $expressionBaseValidator
      */
-    public function __construct(private ExpressionBaseValidator $expressionBaseValidator, private ErrorReport $errorReport)
-    {
+    public function __construct(
+        private ExpressionBaseValidator $expressionBaseValidator,
+        private ErrorReport $errorReport
+    ) {
     }
 
     public function getErrorReport(): ErrorReport
@@ -81,12 +83,11 @@ class ExpressionSyntaxParser
         //remove outer parentheses
         $innerExpression = substr($innerExpression, 1, strlen($innerExpression) - 2);
 
-        
         $ruleset = $this->parseExpression(
             $innerExpression,
-             $sectionPositionFrom + 1 + $countLeadingSpaces // 1 = open bracket
+            $sectionPositionFrom + 1 + $countLeadingSpaces // 1 = open bracket
         );
-        
+
         if ($logicOperator !== null) {
             $followingExpression = substr($followingExpression, strlen($logicOperator . ' '));
             $linkTo = $this->parseExpression(
@@ -109,8 +110,11 @@ class ExpressionSyntaxParser
      * @param string $expressionTail
      * @return string|null
      */
-    private function parseLogicOperator(string $expressionTail, bool $isFollowing = false, int $sectionPositionFrom = 0): ?string
-    {
+    private function parseLogicOperator(
+        string $expressionTail,
+        bool $isFollowing = false,
+        int $sectionPositionFrom = 0
+    ): ?string {
         $logicOperators = [
             LogicalOperator::OR->value,
             LogicalOperator::AND->value
@@ -180,7 +184,6 @@ class ExpressionSyntaxParser
                     $sectionPositionFrom + $currentPos + strlen(' ' . $logicOperator . ' ')
                 )
             ];
-            
         }
 
         return [
@@ -205,7 +208,7 @@ class ExpressionSyntaxParser
 
         $pattern = "/^([^\s]+)\s*([^\s]+)\s*('([^']+)'|(\d+\.\d+|\d+))$/";
         $isValidSyntax = preg_match($pattern, $trimmedCondition, $matches);
-        
+
         if ($isValidSyntax !== 1) {
             $this->errorReport->addError(
                 new ElementPosition($condition, $sectionPositionFrom),

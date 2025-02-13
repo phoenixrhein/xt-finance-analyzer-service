@@ -13,9 +13,11 @@ class Error
      * @param ParserErrorType $type
      * @param ElementPosition $position
      */
-    public function __construct(private string $message, private ParserErrorType $type, private ElementPosition $position)
-    {
-        
+    public function __construct(
+        private string $message,
+        private ParserErrorType $type,
+        private ElementPosition $position
+    ) {
     }
 
     /**

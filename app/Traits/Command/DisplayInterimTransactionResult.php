@@ -13,7 +13,7 @@ use de\xovatec\financeAnalyzer\Console\Commands\Transaction\TransactionList;
 trait DisplayInterimTransactionResult
 {
     use TableConsolePagination;
-    
+
     /**
      * @var int
      */
@@ -58,7 +58,8 @@ trait DisplayInterimTransactionResult
 
         if ($query->count() > self::DISPLAY_LIMIT) {
             $this->line(
-                ($query->count() - self::DISPLAY_LIMIT) . ' ' . __('cli.view.display_interim_results.more_matches_found')
+                ($query->count() - self::DISPLAY_LIMIT)
+                . ' ' . __('cli.view.display_interim_results.more_matches_found')
             );
         }
     }

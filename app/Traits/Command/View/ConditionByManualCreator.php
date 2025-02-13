@@ -14,6 +14,7 @@ use de\xovatec\financeAnalyzer\Services\FinQuery\Operators\BaseOperator;
 use de\xovatec\financeAnalyzer\Traits\Command\DisplayInterimTransactionResult;
 
 use function Laravel\Prompts\select;
+
 trait ConditionByManualCreator
 {
     use SimpleInput;

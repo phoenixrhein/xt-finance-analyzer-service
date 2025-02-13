@@ -8,7 +8,11 @@ use de\xovatec\financeAnalyzer\Services\FinQuery\FieldConfig;
 
 class RuleToConditionTransformer
 {
-
+    /**
+     *
+     * @param array $ruleCondition
+     * @return ConditionList
+     */
     public function transform(array $ruleCondition): ConditionList
     {
         $list = new ConditionList();
@@ -16,6 +20,13 @@ class RuleToConditionTransformer
         return $list;
     }
 
+    /**
+     *
+     * @param array $rule
+     * @param ConditionList $list
+     * @param string $logicalOperator
+     * @return void
+     */
     private function transformCondition(array $rule, ConditionList $list, string $logicalOperator = ''): void
     {
         $field = FieldConfig::getFieldByColumnKey($rule['condition']['field']);

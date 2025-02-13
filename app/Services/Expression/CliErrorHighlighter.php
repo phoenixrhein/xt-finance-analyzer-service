@@ -55,14 +55,14 @@ class CliErrorHighlighter
     private function preparePostions(array $errors): array
     {
         $positions = [];
-    
+
         // Collect error areas and merge overlapping areas
         foreach ($errors as $error) {
             $start = $error->getPosition()->getFrom();
             $end = $error->getPosition()->getTo();
-    
+
             $merged = false;
-    
+
             // If the new area overlaps with an existing one, merge it
             foreach ($positions as $index => $pos) {
                 if ($start <= $positions[$index]['end'] && $end >= $positions[$index]['start']) {
@@ -72,12 +72,12 @@ class CliErrorHighlighter
                     break;
                 }
             }
-    
+
             if (!$merged) {
                 $positions[] = ['start' => $start, 'end' => $end];
             }
         }
-    
+
         // Sort by starting position
         usort($positions, fn($a, $b) => $a['start'] <=> $b['start']);
 
@@ -95,32 +95,32 @@ class CliErrorHighlighter
         $highlighted = '';
         $lastPos = 0;
         $errorLine = str_repeat(' ', strlen($expression)); // Line for '^' markers
-    
+
         foreach ($this->preparePostions($errors) as $pos) {
             $highlighted .= substr($expression, $lastPos, $pos['start'] - $lastPos);
-    
+
             $errorPart = substr($expression, $pos['start'], $pos['end'] - $pos['start']);
-    
+
             if ($this->output->isDecorated()) {
                 $highlighted .= "<fg=red>{$errorPart}</>";
             } else {
                 $highlighted .= $errorPart;
-    
+
                 // Set error line with "^"
                 for ($i = $pos['start']; $i < $pos['end']; $i++) {
                     $errorLine[$i] = '^';
                 }
             }
-    
+
             $lastPos = $pos['end'];
         }
-    
+
         $highlighted .= substr($expression, $lastPos);
-    
+
         if (!$this->output->isDecorated()) {
             return $highlighted . PHP_EOL . $errorLine;
         }
-    
+
         return $highlighted;
     }
 }
