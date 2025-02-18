@@ -22,7 +22,7 @@ class BankAccount extends Model
 
     /**
      *
-     * @var array
+     * @return array
      */
     public static function getRules(): array
     {

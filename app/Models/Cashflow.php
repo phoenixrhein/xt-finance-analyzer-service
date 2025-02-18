@@ -3,6 +3,7 @@
 namespace de\xovatec\financeAnalyzer\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Cashflow extends Model
@@ -27,37 +28,37 @@ class Cashflow extends Model
 
     /**
      *
-     * @return void
+     * @return BelongsTo
      */
-    public function bankAccount()
+    public function bankAccount(): BelongsTo
     {
         return $this->belongsTo(BankAccount::class);
     }
 
     /**
      *
-     * @return void
+     * @return BelongsTo
      */
-    public function inCategory()
+    public function inCategory(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'in_category_id');
     }
 
     /**
      *
-     * @return void
+     * @return BelongsTo
      */
-    public function outCategory()
+    public function outCategory(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'out_category_id');
     }
 
     /**
      *
-     * @param [type] $attributes
+     * @param array $attributes
      * @return void
      */
-    public static function createWithCategories($attributes)
+    public static function createWithCategories(array $attributes)
     {
         $inCategory = Category::create(['name' => 'Einnahmen']);
         $outCategory = Category::create(['name' => 'Ausgaben']);

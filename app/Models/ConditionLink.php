@@ -49,9 +49,9 @@ class ConditionLink extends Model
 
     /**
      *
-     * @return void
+     * @return BelongsTo
      */
-    public function linkedCondition()
+    public function linkedCondition(): BelongsTo
     {
         return $this->belongsTo(ConditionLink::class, 'linked_condition_id');
     }
