@@ -149,11 +149,8 @@ class SplitUpsert extends FinCommand
     private function inputTransaction(TransactionSplit $splitEntry, BankAccount $bankAccount, bool $isAdd): Transactions
     {
         if ($isAdd) {
-            do {
-                $valid = true;
-                $splitEntry->transaction_id = $this->viewTransactionId($bankAccount->iban);
-                $transaction = Transactions::find($splitEntry->transaction_id);
-            } while (!$valid); //todo phpstan
+            $splitEntry->transaction_id = $this->viewTransactionId($bankAccount->iban);
+            $transaction = Transactions::find($splitEntry->transaction_id);
         } else {
             $transaction = Transactions::where('id', $splitEntry->transaction_id)
             ->select(array_keys(TransactionList::$compactView))

@@ -56,7 +56,7 @@ class AccountDelete extends FinCommand
             if (
                 !empty($deletableUsers)
                 && $this->confirmPrompt(
-                    __('cli.account.delete.question_delete_users', ['mail' => $user->email]) //todo phpstan
+                    __('cli.account.delete.question_delete_users')
                 ) === true
             ) {
                 foreach ($deletableUsers as $deletableUser) {
