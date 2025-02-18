@@ -11,9 +11,9 @@ class SqlQueryBuilder
     /**
      * @param Builder $query
      * @param ConditionList $conditions
-     * @return Builder
+     * @return void
      */
-    public static function build(Builder $query, ConditionList $conditions): Builder
+    public static function build(Builder $query, ConditionList $conditions): void
     {
         foreach ($conditions as $condition) {
             /** @var Condition $condition */
@@ -27,11 +27,9 @@ class SqlQueryBuilder
                 $query->orWhere(
                     $condition->getField()->getColumn(),
                     $condition->getOperator()->getSqlOperator(),
-                    $condition->getValue()
+                    $condition->getOperator()->getSqlValue($condition->getValue())
                 );
             }
         }
-
-        return $query;
     }
 }

@@ -2,11 +2,11 @@
 
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
-use Illuminate\Database\Eloquent\Collection;
-use de\xovatec\financeAnalyzer\Models\BankAccount;
+use Illuminate\Database\Eloquent\Builder;
 use de\xovatec\financeAnalyzer\Enums\LogicalOperator;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Condition;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
+use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FieldConfig;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\BaseField;
@@ -31,14 +31,11 @@ trait ConditionByManualCreator
     abstract private function getFinQueryBuilder(): FinQueryBuilder;
 
     /**
-     * @param BankAccount $bankAccount
-     * @param Collection|null $ignoreIbans
+     * @param Builder $transactions
      * @return ConditionList
      */
-    private function viewConditionByManualCreator(
-        BankAccount $bankAccount,
-        ?Collection $ignoreIbans = null
-    ): ConditionList {
+    private function viewConditionByManualCreator(Builder $transactions): ConditionList
+    {
         $conditions = new ConditionList();
         $condition = null;
         $logicalOperator = '';
@@ -47,9 +44,8 @@ trait ConditionByManualCreator
 
             $this->displayFinQuery($conditions, $condition);
             $this->displayInterimResult(
-                $bankAccount,
-                (new ConditionList())->addMany($conditions->all())->add($condition),
-                $ignoreIbans
+                CopyBuilderQueryHelper::copy($transactions),
+                (new ConditionList())->addMany($conditions->all())->add($condition)
             );
 
             if (!$this->confirmPrompt(__('cli.view.condition_creator.confirm_condition'))) {
