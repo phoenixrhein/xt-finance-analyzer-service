@@ -11,6 +11,7 @@ use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Helpers\DateRangeHelper;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
@@ -189,16 +190,18 @@ class TransactionList extends FinCommand
         }
 
         $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
-
-        $conditions = $this->determineCondition($bankAccount, $ignoreIbans);
-        $transactions = Transactions::where('bank_account_iban', $bankAccount->iban);
-
-        if ($conditions !== null) {
-            $this->getSqlQueryBuilder()->build($transactions, $conditions);
-        }
+        $transactions = Transactions::where('bank_account_iban', $bankAccount->iban)
+            ->orderBy('transaction_date')
+            ->orderByDesc('id');
 
         if (strlen($this->option('range')) > 0) {
             $this->filterDuration($transactions);
+        }
+
+        $conditions = $this->determineCondition(CopyBuilderQueryHelper::copy($transactions), $ignoreIbans);
+
+        if ($conditions !== null) {
+            $this->getSqlQueryBuilder()->build($transactions, $conditions);
         }
 
         $this->displayList($transactions, $viewConfig);
@@ -213,9 +216,7 @@ class TransactionList extends FinCommand
      */
     private function displayList(Builder $transactions, array $viewConfig): void
     {
-        $transactions->select($this->getColumns($viewConfig))
-            ->orderBy('transaction_date')
-            ->orderByDesc('id');
+        $transactions->select($this->getColumns($viewConfig));
 
         $this->tableConsolePagination(
             $transactions->get(),
@@ -249,14 +250,12 @@ class TransactionList extends FinCommand
 
     /**
      *
-     * @param BankAccount $bankAccount
-     * @param Collection|null $ignoreIbans
+     * @param Builder $transactions
+     * @param Collection $ignoreIbans
      * @return ConditionList|null
      */
-    private function determineCondition(
-        BankAccount $bankAccount,
-        ?Collection $ignoreIbans = null
-    ): ?ConditionList {
+    private function determineCondition(Builder $transactions, Collection $ignoreIbans): ?ConditionList
+    {
         $queryType = select(
             __('cli.transaction.list.query_type.title'),
             [
@@ -266,11 +265,15 @@ class TransactionList extends FinCommand
             ]
         );
 
+        if ($ignoreIbans->isNotEmpty()) {
+            $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        }
+
         $conditions = null;
         if ($queryType === 'manual') {
-            $conditions = $this->viewConditionByManualCreator($bankAccount, $ignoreIbans);
+            $conditions = $this->viewConditionByManualCreator($transactions);
         } elseif ($queryType === 'finQuery') {
-            $conditions = $this->viewConditionByFinQueryCreator($bankAccount, $ignoreIbans);
+            $conditions = $this->viewConditionByFinQueryCreator($transactions);
         }
 
         return $conditions;
@@ -278,10 +281,10 @@ class TransactionList extends FinCommand
 
     /**
      *
-     * @param Transactions $transactions
+     * @param Builder $transactions
      * @return void
      */
-    private function filterDuration(Transactions $transactions): void
+    private function filterDuration(Builder $transactions): void
     {
         $range = $this->prepareRangeParam($this->option('range'));
         if ($range === null) {

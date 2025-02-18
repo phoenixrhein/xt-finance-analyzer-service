@@ -98,6 +98,7 @@ return [
         ],
         'display_interim_results' => [
             'more_matches_found' => 'weitere(r) Treffer gefunden',
+            'no_matches_found' => 'Keine Treffer gefunden'
         ]
     ],
     'param' => [
@@ -106,7 +107,8 @@ return [
             'error' => [
                 'time_period_invalid' => 'Zeitraum: Das Format des Zeitraums ist ungültig [JJJJ-JJJJ, JJJJMM-JJJJMM, JJJJMMDD-JJJJMMDD, JJJJ, JJJJMM, JJJJMMDD]',
                 'not_start_before_end' => 'Zeitraum: Das Enddatum darf nicht vor dem Startdatum liegen'
-            ]
+            ],
+            'duration' => 'Zeitraum'
         ]
     ],
     'transaction_split' => [

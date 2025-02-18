@@ -10,6 +10,7 @@ use de\xovatec\financeAnalyzer\Services\RuleToConditionTransformer;
 use de\xovatec\financeAnalyzer\Services\Expression\CliErrorHighlighter;
 use de\xovatec\financeAnalyzer\Services\Expression\ExpressionSyntaxParser;
 use de\xovatec\financeAnalyzer\Traits\Command\DisplayInterimTransactionResult;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 trait ConditionByFinQueryCreator
 {
@@ -41,23 +42,19 @@ trait ConditionByFinQueryCreator
 
     /**
      *
-     * @param BankAccount $bankAccount
-     * @param Collection|null $ignoreIbans
+     * @param Builder $transactions
      * @return ConditionList
      */
-    private function viewConditionByFinQueryCreator(
-        BankAccount $bankAccount,
-        ?Collection $ignoreIbans = null
-    ): ConditionList {
+    private function viewConditionByFinQueryCreator(Builder $transactions): ConditionList
+    {
         do {
             $conditions = $this->inputFinQuery(
                 $this->getFinQueryBuilder()->build($conditionList ?? new ConditionList())
             );
             $conditionList = $this->getTransformer()->transform($conditions);
             $this->displayInterimResult(
-                $bankAccount,
-                $conditionList,
-                $ignoreIbans
+                $transactions,
+                $conditionList
             );
         } while (!$this->confirmPrompt(__('cli.view.fin_query_creator.confirm_condition')));
 
