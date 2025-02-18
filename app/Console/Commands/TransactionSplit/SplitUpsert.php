@@ -153,7 +153,7 @@ class SplitUpsert extends FinCommand
                 $valid = true;
                 $splitEntry->transaction_id = $this->viewTransactionId($bankAccount->iban);
                 $transaction = Transactions::find($splitEntry->transaction_id);
-            } while (!$valid);
+            } while (!$valid); //todo phpstan
         } else {
             $transaction = Transactions::where('id', $splitEntry->transaction_id)
             ->select(array_keys(TransactionList::$compactView))
@@ -251,7 +251,7 @@ class SplitUpsert extends FinCommand
      *
      * @param float $totalAmount
      * @param float $totalSplittedAmount
-     * @param integer $newAmount
+     * @param float $newAmount
      * @return boolean
      */
     private function validateTotalAmountExceeded(

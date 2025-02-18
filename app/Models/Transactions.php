@@ -63,7 +63,7 @@ class Transactions extends Model
 
     /**
      *
-     * @return HasOne
+     * @return HasMany
      */
     public function transactionSplit(): HasMany
     {

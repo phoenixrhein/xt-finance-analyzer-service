@@ -216,7 +216,7 @@ class ExpressionSyntaxParser
                 __('cli.fin_query.parser.error.invalid_syntax', ['trimmedCondition' => $trimmedCondition])
             );
         } else {
-            $value = isset($matches[3]) ?  trim($matches[3], "'") : ($matches[5] ?? $matches[4]);
+            $value = isset($matches[3]) ? trim($matches[3], "'") : ($matches[5] ?? $matches[4]);
 
             if (isset($matches[1]) && in_array($matches[1], $fields) === false) {
                 $this->errorReport->addError(

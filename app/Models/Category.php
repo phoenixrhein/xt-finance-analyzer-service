@@ -3,6 +3,9 @@
 namespace de\xovatec\financeAnalyzer\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 
@@ -18,7 +21,7 @@ class Category extends Model
 
     /**
      *
-     * @var array
+     * @return array
      */
     public static function getRules(): array
     {
@@ -31,7 +34,7 @@ class Category extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var array
      */
     protected $fillable = [
         'name',
@@ -40,36 +43,36 @@ class Category extends Model
 
     /**
      *
-     * @return void
+     * @return HasOne
      */
-    public function inCashflow()
+    public function inCashflow(): HasOne
     {
         return $this->hasOne(Cashflow::class, 'in_category_id');
     }
 
     /**
      *
-     * @return void
+     * @return HasOne
      */
-    public function outCashflow()
+    public function outCashflow(): HasOne
     {
         return $this->hasOne(Cashflow::class, 'out_category_id');
     }
 
     /**
      *
-     * @return void
+     * @return BelongsTo
      */
-    public function parentCategory()
+    public function parentCategory(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
 
     /**
      *
-     * @return void
+     * @return HasMany
      */
-    public function subCategories()
+    public function subCategories(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id');
     }

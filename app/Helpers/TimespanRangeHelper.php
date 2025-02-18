@@ -6,6 +6,13 @@ use de\xovatec\financeAnalyzer\Enums\TimespanType;
 
 class TimespanRangeHelper
 {
+    /**
+     *
+     * @param string $to
+     * @param integer $span
+     * @param TimespanType $type
+     * @return void
+     */
     public static function calculateRange(string $to, int $span, TimespanType $type)
     {
         $length = strlen($to);

@@ -189,7 +189,7 @@ class TransactionRecord
 
     /**
      *
-     * @return string|null
+     * @return float|null
      */
     public function getDebitOriginalAmount(): ?float
     {
@@ -198,7 +198,7 @@ class TransactionRecord
 
     /**
      *
-     * @return string|null
+     * @return float|null
      */
     public function getReimbursementOfExpensesReturnDebit(): ?float
     {
@@ -234,7 +234,7 @@ class TransactionRecord
 
     /**
      *
-     * @return string|null
+     * @return float|null
      */
     public function getAmount(): ?float
     {

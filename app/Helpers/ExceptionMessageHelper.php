@@ -4,6 +4,7 @@ namespace de\xovatec\financeAnalyzer\Helpers;
 
 use Exception;
 use Illuminate\Support\Str;
+use Throwable;
 
 class ExceptionMessageHelper
 {
@@ -47,10 +48,10 @@ class ExceptionMessageHelper
 
     /**
      *
-     * @param Exception $exception
+     * @param Throwable $exception
      * @return string
      */
-    public static function cleanException(Exception $exception): string
+    public static function cleanException(Throwable $exception): string
     {
         return Str::replaceMatches(
             pattern: '/\[:.*.:]/',

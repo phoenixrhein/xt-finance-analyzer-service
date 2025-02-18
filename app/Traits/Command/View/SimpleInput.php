@@ -18,7 +18,7 @@ trait SimpleInput
      * @param string $label
      * @param string|array $rules
      * @param mixed $rawInput
-     * @param [type] $type
+     * @param string $type
      * @param string $hint
      * @return integer|float|string
      */

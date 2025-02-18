@@ -120,8 +120,7 @@ abstract class AbstractCategory extends FinCommand
             if ($category->subCategories->isNotEmpty()) {
                 $tree .= $this->buildTree(
                     $category->subCategories,
-                    $prefix . ($isCurrentLast ? '    ' : '│   '),
-                    $isCurrentLast
+                    $prefix . ($isCurrentLast ? '    ' : '│   ')
                 );
             }
         }

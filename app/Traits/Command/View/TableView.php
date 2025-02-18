@@ -25,10 +25,6 @@ trait TableView
     ): void {
         $table = new Table($this->getOutput());
 
-        if ($rows instanceof Arrayable) {
-            $rows = $rows->toArray();
-        }
-
         $table->setHeaders((array) $headers)->setRows($rows)->setStyle($tableStyle);
         $table->setColumnWidths($columnsWidth);
         $table->render();

@@ -62,7 +62,13 @@ class DateRangeHelper
         ];
     }
 
-    private static function parsePartialDate(string $input, string $boundary): ?string
+    /**
+     *
+     * @param string $input
+     * @param string $boundary
+     * @return string
+     */
+    private static function parsePartialDate(string $input, string $boundary): string
     {
         $input = trim($input);
 
