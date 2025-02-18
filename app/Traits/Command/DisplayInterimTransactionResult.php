@@ -33,7 +33,7 @@ trait DisplayInterimTransactionResult
             $transactions,
             $conditions
         );
-        
+
         $transactions->select(array_keys(TransactionList::$compactView))
             ->limit(self::DISPLAY_LIMIT);
 

@@ -268,7 +268,7 @@ class TransactionList extends FinCommand
         if ($ignoreIbans->isNotEmpty()) {
             $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
         }
-        
+
         $conditions = null;
         if ($queryType === 'manual') {
             $conditions = $this->viewConditionByManualCreator($transactions);
