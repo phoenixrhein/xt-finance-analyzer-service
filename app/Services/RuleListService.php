@@ -22,7 +22,6 @@ class RuleListService
      */
     public function __construct(private Rule $model, private ExpressionBuilder $builder)
     {
-        
     }
 
     /**
