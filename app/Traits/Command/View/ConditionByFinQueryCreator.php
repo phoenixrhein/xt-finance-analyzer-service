@@ -3,8 +3,6 @@
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
-use Illuminate\Database\Eloquent\Collection;
-use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\RuleToConditionTransformer;
 use de\xovatec\financeAnalyzer\Services\Expression\CliErrorHighlighter;

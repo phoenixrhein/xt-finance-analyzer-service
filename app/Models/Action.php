@@ -21,15 +21,15 @@ class Action extends Model
      *
      * @var array
      */
-    protected $fillable = ['ruleset_id', 'category_id'];
+    protected $fillable = ['rule_id', 'category_id'];
 
     /**
      *
      * @return BelongsTo
      */
-    public function ruleset(): BelongsTo
+    public function rule(): BelongsTo
     {
-        return $this->belongsTo(Ruleset::class);
+        return $this->belongsTo(Rule::class);
     }
 
     /**

@@ -1,15 +1,15 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Console\Commands\Ruleset;
+namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use de\xovatec\financeAnalyzer\Models\Ruleset;
+use de\xovatec\financeAnalyzer\Models\Rule;
 use de\xovatec\financeAnalyzer\Services\Expression\ExpressionService;
 use de\xovatec\financeAnalyzer\Services\Expression\ExpressionSyntaxParser;
 use Throwable;
 
-class RulesetEdit extends Command
+class RuleEdit extends Command
 {
     public function __construct(
         private ExpressionSyntaxParser $expressionParser,
@@ -22,7 +22,7 @@ class RulesetEdit extends Command
      *
      * @var string
      */
-    protected $signature = 'fin:ruleset-edit {rulesetId} {--name=} {--categoryId=} {--expression=}';
+    protected $signature = 'fin:rule-edit {ruleId} {--name=} {--categoryId=} {--expression=}';
 
     /**
      * The console command description.
@@ -36,36 +36,36 @@ class RulesetEdit extends Command
      */
     public function handle()
     {
-        $rulesetId = $this->argument('rulesetId');
-        $ruleset = Ruleset::findOrFail($rulesetId);
+        $ruleId = $this->argument('ruleId');
+        $rule = Rule::findOrFail($ruleId);
         if (strlen(implode('', array_values($this->options()))) === 0) {
             $this->alert("No option for update");
             exit();
         }
-        $name = $this->option('name') ?? $ruleset->name;
-        $categoryId = $this->option('categoryId') ?? $ruleset->actions->category_id;
+        $name = $this->option('name') ?? $rule->name;
+        $categoryId = $this->option('categoryId') ?? $rule->actions->category_id;
         if ($this->option('name')) {
-            $ruleset->name = $this->option('name');
-            $ruleset->save();
+            $rule->name = $this->option('name');
+            $rule->save();
         }
         if ($this->option('categoryId')) {
-            $ruleset->actions->category_id = $this->option('categoryId');
-            $ruleset->actions->save();
+            $rule->actions->category_id = $this->option('categoryId');
+            $rule->actions->save();
         }
 
         try {
             if ($this->option('expression')) {
                 DB::beginTransaction();
-                $ruleset->forceDelete();
+                $rule->forceDelete();
                 // in parse koennen Exception geworfen werden
                 // wie soll damit umgegangen werden
                 // benutzerfreundliche Meldungen
                 // suche mit 'Exception(' in app/**
-                $rulesetData = $this->expressionParser->parse($this->option('expression'));
-                $this->expressionService->saveRulesetExpression(
+                $ruleData = $this->expressionParser->parse($this->option('expression'));
+                $this->expressionService->saveRuleExpression(
                     $name,
                     $categoryId,
-                    $rulesetData
+                    $ruleData
                 );
                 DB::commit();
             }
@@ -73,6 +73,6 @@ class RulesetEdit extends Command
             DB::rollBack();
             $this->error($e->getMessage());
         }
-        $this->info('ruleset updated');
+        $this->info('rule updated'); //Hinweis: Bei Expression bekommt der Datensatz eine neue ID
     }
 }
