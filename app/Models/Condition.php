@@ -36,6 +36,4 @@ class Condition extends Model
     {
         return $this->hasOne(ConditionLink::class, 'foreign_id')->where('condition_type', 'condition');
     }
-
-
 }

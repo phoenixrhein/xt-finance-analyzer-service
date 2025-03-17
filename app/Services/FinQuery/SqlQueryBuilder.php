@@ -29,7 +29,7 @@ class SqlQueryBuilder
     {
         foreach ($conditions as $condition) {
             if ($condition instanceof ConditionList) {
-                if($conditions->getLogicalOperator()->value === 'OR') {
+                if ($conditions->getLogicalOperator()->value === 'OR') {
                     $query->orWhere(function ($query) use ($condition) {
                         self::buildConditions($query, $condition);
                     });

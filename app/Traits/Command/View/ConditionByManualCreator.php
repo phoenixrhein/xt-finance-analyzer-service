@@ -87,7 +87,9 @@ trait ConditionByManualCreator
         if (Str::length($finQuery) === 0) {
             $logicalOperator = '';
         }
-        $this->line('<bg=cyan>FinQuery:</> ' . $finQuery . '<fg=yellow;options=bold> ' . $logicalOperator . $newfinQuery . '</>');
+        $this->line(
+            '<bg=cyan>FinQuery:</> ' . $finQuery . '<fg=yellow;options=bold> ' . $logicalOperator . $newfinQuery . '</>'
+        );
     }
 
     /**

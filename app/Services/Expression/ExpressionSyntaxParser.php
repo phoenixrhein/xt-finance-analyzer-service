@@ -297,7 +297,7 @@ class ExpressionSyntaxParser
                 __('cli.fin_query.parser.error.close_bracket_missing')
             );
         }
-        
+
         return '';
     }
 }

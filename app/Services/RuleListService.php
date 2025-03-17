@@ -20,7 +20,10 @@ class RuleListService
      * @param Rule $model
      * @param ExpressionBuilder $builder
      */
-    public function __construct(private Rule $model, private ExpressionBuilder $builder) {}
+    public function __construct(private Rule $model, private ExpressionBuilder $builder)
+    {
+        
+    }
 
     /**
      *
@@ -46,13 +49,12 @@ class RuleListService
     {
         $rules = $this->model->with(['actions.category'])->get();
 
-        $rules->each(function($rule) {
+        $rules->each(function ($rule) {
             $rule->loadMissing('conditionLink');
             $this->loadRecursiveConditionLink($rule->conditionLink);
         });
 
         return $rules->toArray();
-
     }
 
     /**
@@ -66,9 +68,9 @@ class RuleListService
         if (!$conditionLink || in_array($conditionLink->id, $this->loadedConditionLinks)) {
             return;
         }
-    
+
         $this->loadedConditionLinks[] = $conditionLink->id;
-    
+
         if ($conditionLink->condition_type === 'condition') {
             $conditionLink->loadMissing('condition');
         } elseif ($conditionLink->condition_type === 'group') {
@@ -77,11 +79,10 @@ class RuleListService
                 $this->loadRecursiveConditionLink($conditionLink->conditionGroup);
             }
         }
-    
+
         $conditionLink->loadMissing('linkedCondition');
         if ($conditionLink->linkedCondition) {
             $this->loadRecursiveConditionLink($conditionLink->linkedCondition);
         }
-    
     }
 }
