@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ConditionLink extends Model
 {
@@ -23,9 +24,9 @@ class ConditionLink extends Model
      * @var array
      */
     protected $fillable = [
-        'condition_foreign_id',
+        'foreign_id',
         'condition_type',
-        'linked_condition_id',
+        'condition_link_id',
         'link_operator'
     ];
 
@@ -33,18 +34,18 @@ class ConditionLink extends Model
      *
      * @return BelongsTo
      */
-    public function rule(): BelongsTo
+    public function conditionGroup(): BelongsTo
     {
-        return $this->belongsTo(Rule::class, 'condition_foreign_id');
+        return $this->belongsTo(ConditionLink::class, 'foreign_id');
     }
 
     /**
      *
      * @return BelongsTo
      */
-    public function ruleset(): BelongsTo
+    public function condition(): BelongsTo
     {
-        return $this->belongsTo(Ruleset::class, 'condition_foreign_id');
+        return $this->belongsTo(Condition::class, 'foreign_id');
     }
 
     /**
@@ -53,7 +54,16 @@ class ConditionLink extends Model
      */
     public function linkedCondition(): BelongsTo
     {
-        return $this->belongsTo(ConditionLink::class, 'linked_condition_id');
+        return $this->belongsTo(ConditionLink::class, 'condition_link_id');
+    }
+
+    /**
+     *
+     * @return BelongsTo
+     */
+    public function rule(): HasOne
+    {
+        return $this->hasOne(Rule::class);
     }
 
     /**
@@ -66,21 +76,21 @@ class ConditionLink extends Model
         parent::boot();
 
         static::deleting(function ($conditionLink) {
-            if ($conditionLink->condition_type == 'rule' && !is_null($conditionLink->rule)) {
+            if ($conditionLink->condition_type == 'condition' && !is_null($conditionLink->condition)) {
                 if ($conditionLink->isForceDeleting()) {
-                    $conditionLink->rule->forceDelete();
+                    $conditionLink->condition->forceDelete();
                 } else {
-                    $conditionLink->rule->delete();
+                    $conditionLink->condition->delete();
                 }
             }
-            if ($conditionLink->condition_type == 'ruleset' && !is_null($conditionLink->ruleset)) {
+            if ($conditionLink->condition_type == 'group' && !is_null($conditionLink->conditionGroup)) {
                 if ($conditionLink->isForceDeleting()) {
-                    $conditionLink->ruleset->forceDelete();
+                    $conditionLink->conditionGroup->forceDelete();
                 } else {
-                    $conditionLink->ruleset->delete();
+                    $conditionLink->conditionGroup->delete();
                 }
             }
-            if ($conditionLink->linked_condition_id != null && !is_null($conditionLink->linkedCondition)) {
+            if ($conditionLink->condition_link_id != null && !is_null($conditionLink->linkedCondition)) {
                 if ($conditionLink->isForceDeleting()) {
                     $conditionLink->linkedCondition->forceDelete();
                 } else {

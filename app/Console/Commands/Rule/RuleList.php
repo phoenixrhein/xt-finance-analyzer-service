@@ -1,14 +1,14 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Console\Commands\Ruleset;
+namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 
 use Illuminate\Support\Arr;
 use Illuminate\Console\Command;
-use de\xovatec\financeAnalyzer\Services\RulesetService;
+use de\xovatec\financeAnalyzer\Services\RuleListService;
 
-class RulesetList extends Command
+class RuleList extends Command
 {
-    public function __construct(private RulesetService $rulesetService)
+    public function __construct(private RuleListService $ruleListService)
     {
         parent::__construct();
     }
@@ -17,7 +17,7 @@ class RulesetList extends Command
      *
      * @var string
      */
-    protected $signature = 'fin:ruleset-list';
+    protected $signature = 'fin:rule-list';
 
     /**
      * The console command description.
@@ -33,7 +33,7 @@ class RulesetList extends Command
     {
         $this->table(
             ['Id', 'Name', 'Expression', 'Category'],
-            Arr::map($this->rulesetService->getMainRulesetsWithExpression(), function (array $value) {
+            Arr::map($this->ruleListService->getRulesWithExpression(), function (array $value) {
                 $category = $value['actions']['category']['name'] . ' [' . $value['actions']['category']['id'] . ']';
                 return Arr::only($value, ['id', 'name', 'expression']) + [$category];
             })

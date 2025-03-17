@@ -2,10 +2,11 @@
 
 namespace de\xovatec\financeAnalyzer\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Rule extends Model
 {
@@ -22,18 +23,50 @@ class Rule extends Model
      *
      * @var array
      */
-    protected $fillable = [
-        'field_identifier',
-        'compare_operator',
-        'value',
-    ];
+    protected $fillable = ['name', 'condition_link_id'];
 
     /**
      *
      * @return HasOne
      */
-    public function conditionLink(): HasOne
+    public function actions(): HasOne
     {
-        return $this->hasOne(ConditionLink::class, 'condition_foreign_id')->where('condition_type', 'rule');
+        return $this->hasOne(Action::class);
+    }
+
+    /**
+     *
+     * @return BelongsTo
+     */
+    public function conditionLink(): BelongsTo
+    {
+        return $this->belongsTo(ConditionLink::class);
+    }
+
+    /**
+     *
+     * @return void
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::deleting(function ($rule) {
+            if (!is_null($rule->actions)) {
+                if ($rule->isForceDeleting()) {
+                    $rule->actions->forceDelete();
+                } else {
+                    $rule->actions->delete();
+                }
+            }
+
+            if (!is_null($rule->conditionLink)) {
+                if ($rule->isForceDeleting()) {
+                    $rule->conditionLink->forceDelete();
+                } else {
+                    $rule->conditionLink->delete();
+                }
+            }
+        });
     }
 }

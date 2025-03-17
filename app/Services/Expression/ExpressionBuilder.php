@@ -12,10 +12,10 @@ class ExpressionBuilder
     public function build(array $expressionData): string
     {
         $expression = '';
-        if ($expressionData['condition_type'] == 'rule') {
-            $expression = $this->buildComparison($expressionData['rule']);
-        } elseif ($expressionData['condition_type'] == 'ruleset') {
-            $expression = $this->buildInnerExpression($expressionData['ruleset']);
+        if ($expressionData['condition_type'] == 'condition') {
+            $expression = $this->buildComparison($expressionData['condition']);
+        } elseif ($expressionData['condition_type'] == 'group') {
+            $expression = $this->buildInnerExpression($expressionData['condition_group']);
         }
 
         if (strlen($expressionData['link_operator']) === 0) {
@@ -28,12 +28,12 @@ class ExpressionBuilder
 
     /**
      *
-     * @param array $ruleset
+     * @param array $group
      * @return string
      */
-    private function buildInnerExpression(array $ruleset): string
+    private function buildInnerExpression(array $group): string
     {
-        return '(' . $this->build($ruleset['condition']) . ')';
+        return '(' . $this->build($group) . ')';
     }
 
     /**

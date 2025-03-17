@@ -3,10 +3,19 @@
 namespace de\xovatec\financeAnalyzer\Dto\FinQuery;
 
 use ArrayIterator;
+use de\xovatec\financeAnalyzer\Enums\LogicalOperator;
 use IteratorAggregate;
 
 class ConditionList implements IteratorAggregate
 {
+    /**
+     *
+     * @param LogicalOperator $logicalOperator
+     */
+    public function __construct(private LogicalOperator $logicalOperator = LogicalOperator::AND)
+    {
+    }
+
     /**
      *
      * @var Condition[]
@@ -19,7 +28,7 @@ class ConditionList implements IteratorAggregate
      * @param Condition $condition
      * @return ConditionList
      */
-    public function add(Condition $condition): ConditionList
+    public function add(Condition|ConditionList $condition): ConditionList
     {
         $this->conditions[] = $condition;
         return $this;
@@ -37,6 +46,26 @@ class ConditionList implements IteratorAggregate
             $this->add($condition);
         }
 
+        return $this;
+    }
+
+    /**
+     *
+     * @return LogicalOperator
+     */
+    public function getLogicalOperator(): LogicalOperator
+    {
+        return $this->logicalOperator;
+    }
+
+    /**
+     *
+     * @param LogicalOperator $logicalOperator
+     * @return ConditionList
+     */
+    public function setLogicalOperator(LogicalOperator $logicalOperator): ConditionList
+    {
+        $this->logicalOperator = $logicalOperator;
         return $this;
     }
 

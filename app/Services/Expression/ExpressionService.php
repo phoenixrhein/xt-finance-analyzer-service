@@ -2,9 +2,9 @@
 
 namespace de\xovatec\financeAnalyzer\Services\Expression;
 
-use de\xovatec\financeAnalyzer\Models\Rule;
+use de\xovatec\financeAnalyzer\Models\Condition;
 use de\xovatec\financeAnalyzer\Models\Action;
-use de\xovatec\financeAnalyzer\Models\Ruleset;
+use de\xovatec\financeAnalyzer\Models\Rule;
 use de\xovatec\financeAnalyzer\Models\Category;
 use de\xovatec\financeAnalyzer\Enums\ConditionType;
 use de\xovatec\financeAnalyzer\Exceptions\ExpressionSyntaxException;
@@ -19,47 +19,31 @@ class ExpressionService
      */
     private function saveCondition(array $conditionData): int
     {
-        if ($conditionData['conditionType'] === ConditionType::rule) {
-            $rule = Rule::create([
+        if ($conditionData['conditionType'] === ConditionType::condition) {
+            $condition = Condition::create([
                 'field_identifier' => $conditionData['condition']['field'],
                 'compare_operator' => $conditionData['condition']['comparer'],
                 'value' => $conditionData['condition']['value']
             ]);
-            $id = $rule->id;
-        } elseif ($conditionData['conditionType'] === ConditionType::ruleset) {
-            $id = $this->saveSubRuleset($conditionData['condition']);
+            $id = $condition->id;
+        } elseif ($conditionData['conditionType'] === ConditionType::group) {
+            $id = $this->saveCondition($conditionData['condition']);
         } else {
             throw new ExpressionSyntaxException('No valid condition type given: ' . $conditionData['conditionType']);
         }
 
-        $conditionId = null;
+        $conditionLinkId = null;
         if (is_array($conditionData['linkTo'])) {
-            $conditionId = $this->saveCondition($conditionData['linkTo']);
+            $conditionLinkId = $this->saveCondition($conditionData['linkTo']);
         }
 
-        $condition = ConditionLink::create([
-            'condition_foreign_id' => $id,
+        $conditionLink = ConditionLink::create([
+            'foreign_id' => $id,
             'condition_type' => $conditionData['conditionType']->name,
-            'linked_condition_id' => $conditionId,
+            'condition_link_id' => $conditionLinkId,
             'link_operator' => $conditionData['logicOperator']
         ]);
-        return $condition->id;
-    }
-
-    /**
-     *
-     * @param array $conditionData
-     * @return integer
-     */
-    private function saveSubRuleset(array $conditionData): int
-    {
-        $id = $this->saveCondition($conditionData);
-        $ruleset = Ruleset::create([
-            'name' => '',
-            'type' => 'sub',
-            'condition_id' => $id
-        ]);
-        return $ruleset->id;
+        return $conditionLink->id;
     }
 
     /**
@@ -69,22 +53,21 @@ class ExpressionService
      * @param array $expressionData
      * @return int
      */
-    public function saveRulesetExpression(string $name, int $categoryId, array $expressionData): int
+    public function saveRuleExpression(string $name, int $categoryId, array $expressionData): int
     {
         Category::findOrFail($categoryId);
-        $id = $this->saveCondition($expressionData);
+        $conditionLinkId = $this->saveCondition($expressionData);
 
-        $ruleset = Ruleset::create([
+        $rule = Rule::create([
             'name' => $name,
-            'type' => 'main',
-            'condition_id' => $id
+            'condition_link_id' => $conditionLinkId
         ]);
 
         Action::create([
-            'ruleset_id' => $ruleset->id,
+            'rule_id' => $rule->id,
             'category_id' => $categoryId
         ]);
 
-        return $ruleset->id;
+        return $rule->id;
     }
 }

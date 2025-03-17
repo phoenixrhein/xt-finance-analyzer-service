@@ -21,6 +21,10 @@ class ExpressionSyntaxParser
     ) {
     }
 
+    /**
+     *
+     * @return ErrorReport
+     */
     public function getErrorReport(): ErrorReport
     {
         return $this->errorReport;
@@ -54,9 +58,9 @@ class ExpressionSyntaxParser
         }
 
         if (str_starts_with($expressionTail, '(')) {
-            return $this->buildRuleset($expressionTail, $sectionPositionFrom);
+            return $this->buildConditionGroup($expressionTail, $sectionPositionFrom);
         } else {
-            return $this->buildRuleCondition($expressionTail, $sectionPositionFrom);
+            return $this->buildRule($expressionTail, $sectionPositionFrom);
         }
     }
 
@@ -66,7 +70,7 @@ class ExpressionSyntaxParser
      * @param int $sectionPositionFrom
      * @return array
      */
-    private function buildRuleset(string $expressionTail, int $sectionPositionFrom): array
+    private function buildConditionGroup(string $expressionTail, int $sectionPositionFrom): array
     {
         $linkTo = null;
         $countLeadingSpaces = strlen($expressionTail) - strlen(ltrim($expressionTail, " "));
@@ -83,7 +87,7 @@ class ExpressionSyntaxParser
         //remove outer parentheses
         $innerExpression = substr($innerExpression, 1, strlen($innerExpression) - 2);
 
-        $ruleset = $this->parseExpression(
+        $group = $this->parseExpression(
             $innerExpression,
             $sectionPositionFrom + 1 + $countLeadingSpaces // 1 = open bracket
         );
@@ -98,8 +102,8 @@ class ExpressionSyntaxParser
         }
 
         return [
-            'condition' => $ruleset,
-            'conditionType' => ConditionType::ruleset,
+            'condition' => $group,
+            'conditionType' => ConditionType::group,
             'logicOperator' => $logicOperator,
             'linkTo' => $linkTo
         ];
@@ -108,6 +112,8 @@ class ExpressionSyntaxParser
     /**
      *
      * @param string $expressionTail
+     * @param bool $isFollowing
+     * @param int $sectionPositionFrom
      * @return string|null
      */
     private function parseLogicOperator(
@@ -153,7 +159,7 @@ class ExpressionSyntaxParser
      * @param integer $sectionPositionFrom
      * @return array|null
      */
-    private function buildRuleCondition(string $expressionTail, int $sectionPositionFrom): ?array
+    private function buildRule(string $expressionTail, int $sectionPositionFrom): ?array
     {
         if (strlen(trim($expressionTail)) === 0) {
             return null;
@@ -176,8 +182,8 @@ class ExpressionSyntaxParser
             }
 
             return [
-                'condition' => $this->buildRule(substr($expressionTail, 0, $currentPos), $sectionPositionFrom),
-                'conditionType' => ConditionType::rule,
+                'condition' => $this->buildCondition(substr($expressionTail, 0, $currentPos), $sectionPositionFrom),
+                'conditionType' => ConditionType::condition,
                 'logicOperator' => $logicOperator,
                 'linkTo' => $this->parseExpression(
                     substr($expressionTail, $currentPos + strlen(' ' . $logicOperator . ' ')),
@@ -187,8 +193,8 @@ class ExpressionSyntaxParser
         }
 
         return [
-            'condition' => $this->buildRule($expressionTail, $sectionPositionFrom),
-            'conditionType' => ConditionType::rule,
+            'condition' => $this->buildCondition($expressionTail, $sectionPositionFrom),
+            'conditionType' => ConditionType::condition,
             'logicOperator' => null,
             'linkTo' => null
         ];
@@ -200,7 +206,7 @@ class ExpressionSyntaxParser
      * @param int $sectionPositionFrom
      * @return array
      */
-    private function buildRule(string $condition, int $sectionPositionFrom): array
+    private function buildCondition(string $condition, int $sectionPositionFrom): array
     {
         $trimmedCondition = trim($condition);
 
@@ -291,5 +297,7 @@ class ExpressionSyntaxParser
                 __('cli.fin_query.parser.error.close_bracket_missing')
             );
         }
+        
+        return '';
     }
 }

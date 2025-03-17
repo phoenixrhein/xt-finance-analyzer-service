@@ -2,12 +2,13 @@
 
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use de\xovatec\financeAnalyzer\Enums\LogicalOperator;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Condition;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
-use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FieldConfig;
+use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\BaseField;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Operators\BaseOperator;
@@ -38,14 +39,14 @@ trait ConditionByManualCreator
     {
         $conditions = new ConditionList();
         $condition = null;
-        $logicalOperator = '';
+        $logicalOperator = LogicalOperator::AND;
         do {
-            $condition = $this->inputCondition($condition, $logicalOperator);
+            $condition = $this->inputCondition($condition);
 
-            $this->displayFinQuery($conditions, $condition);
+            $this->displayFinQuery($conditions, $condition, $logicalOperator->value);
             $this->displayInterimResult(
                 CopyBuilderQueryHelper::copy($transactions),
-                (new ConditionList())->addMany($conditions->all())->add($condition)
+                (new ConditionList($logicalOperator))->addMany($conditions->all())->add($condition)
             );
 
             if (!$this->confirmPrompt(__('cli.view.condition_creator.confirm_condition'))) {
@@ -60,6 +61,10 @@ trait ConditionByManualCreator
                     self::LOGICAL_OPERATOR_NONE => __('cli.view.condition_creator.option_no_more_condition')
                 ]
             );
+            if ($logicalOperator !== self::LOGICAL_OPERATOR_NONE) {
+                $logicalOperator = LogicalOperator::from($logicalOperator);
+                $conditions->setLogicalOperator($logicalOperator);
+            }
             $conditions->add($condition);
 
             $condition = null;
@@ -71,13 +76,18 @@ trait ConditionByManualCreator
     /**
      * @param ConditionList $conditions
      * @param Condition $condition
+     * @param string $logicalOperator
      * @return void
      */
-    private function displayFinQuery(ConditionList $conditions, Condition $condition): void
+    private function displayFinQuery(ConditionList $conditions, Condition $condition, string $logicalOperator): void
     {
         $newfinQuery = $this->getFinQueryBuilder()->build((new ConditionList())->add($condition));
         $finQuery = $this->getFinQueryBuilder()->build($conditions);
-        $this->line('<bg=cyan>FinQuery:</> ' . $finQuery . '<fg=yellow;options=bold> ' . $newfinQuery . '</>');
+        $logicalOperator .= ' ';
+        if (Str::length($finQuery) === 0) {
+            $logicalOperator = '';
+        }
+        $this->line('<bg=cyan>FinQuery:</> ' . $finQuery . '<fg=yellow;options=bold> ' . $logicalOperator . $newfinQuery . '</>');
     }
 
     /**
@@ -86,13 +96,13 @@ trait ConditionByManualCreator
      * @param string $logicalOperator
      * @return Condition
      */
-    private function inputCondition(?Condition $condition, string $logicalOperator): Condition
+    private function inputCondition(?Condition $condition): Condition
     {
         $field = $this->selectField($condition ? $condition->getField() : null);
         $operator = $this->selectOperator($field, $condition ? $condition->getOperator() : null);
         $value = $this->getValue($field, $condition ? $condition->getValue() : null);
 
-        return new Condition($field, $operator, $value, $logicalOperator);
+        return new Condition($field, $operator, $value);
     }
 
     /**

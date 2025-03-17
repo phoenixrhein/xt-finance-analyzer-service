@@ -1,6 +1,6 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Console\Commands\Ruleset;
+namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 
 use de\xovatec\financeAnalyzer\Services\Expression\ExpressionService;
 use Illuminate\Console\Command;
@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use de\xovatec\financeAnalyzer\Services\Expression\ExpressionSyntaxParser;
 use Throwable;
 
-class RulesetAdd extends Command
+class RuleAdd extends Command
 {
     /**
      * @param ExpressionSyntaxParser $expressionParser
@@ -26,14 +26,14 @@ class RulesetAdd extends Command
      *
      * @var string
      */
-    protected $signature = 'fin:ruleset-add {name} {categoryId} {expression}';
+    protected $signature = 'fin:rule-add {name} {categoryId} {expression}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new ruleset b< expression';
+    protected $description = 'Create a new rule expression';
 
     /**
      * Execute the console command.
@@ -41,15 +41,15 @@ class RulesetAdd extends Command
     public function handle(): void
     {
         try {
-            $rulesetData = $this->expressionParser->parse($this->argument('expression'));
+            $ruleData = $this->expressionParser->parse($this->argument('expression'));
             DB::beginTransaction();
-            $id = $this->expressionService->saveRulesetExpression(
+            $id = $this->expressionService->saveRuleExpression(
                 $this->argument('name'),
                 (int)$this->argument('categoryId'),
-                $rulesetData
+                $ruleData
             );
             DB::commit();
-            $this->info("Ruleset with id '{$id}' created");
+            $this->info("Rule with id '{$id}' created");
         } catch (Throwable $e) {
             DB::rollBack();
             $this->error($e->getMessage());
