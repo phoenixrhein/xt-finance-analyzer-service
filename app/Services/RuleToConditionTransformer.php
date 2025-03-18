@@ -70,7 +70,7 @@ class RuleToConditionTransformer
         $operator = FieldConfig::getOperatorClass($field, $condition['condition']['comparer']);
         $list->add(new Condition($field, $operator, $condition['condition']['value']));
         if ($condition['linkTo'] !== null) {
-            $this->transformCondition($condition['linkTo'], $list);
+            $this->transformConditionLink($condition['linkTo'], $list);
         }
     }
 }

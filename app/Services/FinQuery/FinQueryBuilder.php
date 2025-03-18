@@ -15,17 +15,18 @@ class FinQueryBuilder
     public function build(ConditionList $conditions): string
     {
         $query = '';
-        foreach ($conditions as $condition) {
+        foreach ($conditions as $index => $condition) {
             if ($condition instanceof ConditionList) {
                 $query .= '(' . $this->build($condition) . ') ';
-                continue;
+            } else {
+                /** @var Condition $condition */
+                $query .= $condition->getField()->getColumn() . ' ' . $condition->getOperator()->getFinQueryOperator() .
+                    " '" . $condition->getValue() . "' ";
             }
-            if (Str::length($query) > 0) {
+            if (Str::length($query) > 0 && $index !== array_key_last($conditions->all())) {
                 $query .= $conditions->getLogicalOperator()->value . ' ';
             }
-            /** @var Condition $condition */
-            $query .= $condition->getField()->getColumn() . ' ' . $condition->getOperator()->getFinQueryOperator() .
-                " '" . $condition->getValue() . "' ";
+
         }
         return trim($query);
     }

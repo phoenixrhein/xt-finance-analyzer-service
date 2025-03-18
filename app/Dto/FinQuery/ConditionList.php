@@ -10,10 +10,11 @@ class ConditionList implements IteratorAggregate
 {
     /**
      *
-     * @param LogicalOperator $logicalOperator
+     * @param LogicalOperator|null $logicalOperator
      */
-    public function __construct(private LogicalOperator $logicalOperator = LogicalOperator::AND)
+    public function __construct(private ?LogicalOperator $logicalOperator = null)
     {
+        $this->logicalOperator ??= LogicalOperator::AND;
     }
 
     /**
