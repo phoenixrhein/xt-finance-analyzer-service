@@ -26,7 +26,6 @@ class FinQueryBuilder
             if (Str::length($query) > 0 && $index !== array_key_last($conditions->all())) {
                 $query .= $conditions->getLogicalOperator()->value . ' ';
             }
-
         }
         return trim($query);
     }
