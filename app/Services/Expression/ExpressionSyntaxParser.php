@@ -93,7 +93,7 @@ class ExpressionSyntaxParser
         );
 
         if ($logicOperator !== null) {
-            $followingExpression = substr($followingExpression, strlen($logicOperator . ' '));
+            $followingExpression = trim(substr($followingExpression, strlen($logicOperator)));
             $linkTo = $this->parseExpression(
                 // following expression without logic operator
                 $followingExpression,
