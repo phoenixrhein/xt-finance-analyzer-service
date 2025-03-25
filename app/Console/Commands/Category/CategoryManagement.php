@@ -33,7 +33,7 @@ class CategoryManagement extends AbstractCategory implements ProvidesAccountList
     {
         return $this->accountListQuery;
     }
-    
+
     /**
      * The name and signature of the console command.
      *
@@ -91,7 +91,7 @@ class CategoryManagement extends AbstractCategory implements ProvidesAccountList
         }
 
         if ($changed) {
-           $this->displayCashflowTrees($cashflow);
+            $this->displayCashflowTrees($cashflow);
         }
     }
 
@@ -135,7 +135,7 @@ class CategoryManagement extends AbstractCategory implements ProvidesAccountList
         if ($error === true) {
             return;
         }
-        
+
         if ($this->confirmPrompt(__('cli.category.delete.confirm_question', ['name' => $category->name])) === false) {
             return;
         }
@@ -155,7 +155,11 @@ class CategoryManagement extends AbstractCategory implements ProvidesAccountList
         do {
             $valid = true;
             $name = $this->viewNameInput($name ?? '');
-            $parentId = $this->viewCategoryIdInput('parent_id', __('cli.category.base.input_parent_id'), $parentId ?? '');
+            $parentId = $this->viewCategoryIdInput(
+                'parent_id',
+                __('cli.category.base.input_parent_id'),
+                $parentId ?? ''
+            );
 
             $parentCategory = Category::find($parentId);
             $this->viewCategoryPath($parentCategory, $name);

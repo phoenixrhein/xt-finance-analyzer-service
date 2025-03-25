@@ -28,7 +28,7 @@ class CategoryList extends AbstractCategory implements ProvidesAccountListQueryI
     {
         return $this->accountListQuery;
     }
-    
+
     /**
      * The name and signature of the console command.
      *
