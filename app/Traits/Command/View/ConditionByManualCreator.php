@@ -29,7 +29,7 @@ trait ConditionByManualCreator
     /**
      * @return FinQueryBuilder
      */
-    abstract private function getFinQueryBuilder(): FinQueryBuilder;
+    abstract protected function getFinQueryBuilder(): FinQueryBuilder;
 
     /**
      * @param Builder $transactions
@@ -111,7 +111,7 @@ trait ConditionByManualCreator
      * @param BaseField|null $default
      * @return BaseField
      */
-    private function selectField(BaseField $default = null): ?BaseField
+    private function selectField(?BaseField $default = null): ?BaseField
     {
         $fields = FieldConfig::getAvailableFields();
         $fieldNames = array_map(fn(BaseField $field) => $field->getColumn(), $fields);
@@ -133,7 +133,7 @@ trait ConditionByManualCreator
      * @param BaseOperator|null $default
      * @return BaseOperator
      */
-    private function selectOperator(BaseField $field, BaseOperator $default = null): BaseOperator
+    private function selectOperator(BaseField $field, ?BaseOperator $default = null): BaseOperator
     {
         $operatorId = select(
             __('cli.view.condition_creator.select_operator'),

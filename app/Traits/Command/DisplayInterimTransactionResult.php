@@ -20,7 +20,7 @@ trait DisplayInterimTransactionResult
     /**
      * @return SqlQueryBuilder
      */
-    abstract private function getSqlQueryBuilder(): SqlQueryBuilder;
+    abstract protected function getSqlQueryBuilder(): SqlQueryBuilder;
 
     /**
      * @param Builder $transactions

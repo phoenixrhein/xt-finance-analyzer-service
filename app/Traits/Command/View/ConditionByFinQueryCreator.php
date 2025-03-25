@@ -19,24 +19,24 @@ trait ConditionByFinQueryCreator
      *
      * @return ExpressionSyntaxParser
      */
-    abstract private function getExpressionSyntaxParser(): ExpressionSyntaxParser;
+    abstract protected function getExpressionSyntaxParser(): ExpressionSyntaxParser;
 
     /**
      *
      * @return CliErrorHighlighter
      */
-    abstract private function getCliErrorHighlighter(): CliErrorHighlighter;
+    abstract protected function getCliErrorHighlighter(): CliErrorHighlighter;
 
     /**
      *
      * @return RuleToConditionTransformer
      */
-    abstract private function getTransformer(): RuleToConditionTransformer;
+    abstract protected function getTransformer(): RuleToConditionTransformer;
 
     /**
      * @return FinQueryBuilder
      */
-    abstract private function getFinQueryBuilder(): FinQueryBuilder;
+    abstract protected function getFinQueryBuilder(): FinQueryBuilder;
 
     /**
      *

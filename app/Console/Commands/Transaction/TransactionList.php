@@ -54,7 +54,7 @@ class TransactionList extends FinCommand
     /**
      * @inheritDoc
      */
-    private function getFinQueryBuilder(): FinQueryBuilder
+    protected function getFinQueryBuilder(): FinQueryBuilder
     {
         return $this->finQueryBuilder;
     }
@@ -62,7 +62,7 @@ class TransactionList extends FinCommand
     /**
      * @inheritDoc
      */
-    private function getSqlQueryBuilder(): SqlQueryBuilder
+    protected function getSqlQueryBuilder(): SqlQueryBuilder
     {
         return $this->sqlQueryBuilder;
     }
@@ -70,7 +70,7 @@ class TransactionList extends FinCommand
     /**
      * @inheritDoc
      */
-    private function getExpressionSyntaxParser(): ExpressionSyntaxParser
+    protected function getExpressionSyntaxParser(): ExpressionSyntaxParser
     {
         return $this->parser;
     }
@@ -78,7 +78,7 @@ class TransactionList extends FinCommand
     /**
      * @inheritDoc
      */
-    private function getCliErrorHighlighter(): CliErrorHighlighter
+    protected function getCliErrorHighlighter(): CliErrorHighlighter
     {
         return $this->errorHighlighter;
     }
@@ -86,7 +86,7 @@ class TransactionList extends FinCommand
     /**
      * @inheritDoc
      */
-    private function getTransformer(): RuleToConditionTransformer
+    protected function getTransformer(): RuleToConditionTransformer
     {
         return $this->transformer;
     }
