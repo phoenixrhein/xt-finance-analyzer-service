@@ -11,11 +11,12 @@ use de\xovatec\financeAnalyzer\Models\CashDeposit;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SelectAccountId;
+use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\warning;
 
-class CashDepositUpsert extends FinCommand
+class CashDepositUpsert extends FinCommand implements ProvidesAccountListQueryInterface
 {
     use SelectAccountId;
     use SimpleInput;
@@ -47,7 +48,7 @@ class CashDepositUpsert extends FinCommand
      *
      * @return AccountListQuery
      */
-    protected function getAccountlistQuery(): AccountListQuery
+    public function getAccountListQuery(): AccountListQuery
     {
         return $this->accountlistQuery;
     }

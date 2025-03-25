@@ -2,7 +2,7 @@
 
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
-use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
+use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
 use function Laravel\Prompts\text;
 
@@ -12,16 +12,10 @@ trait SelectAccountId
 
     /**
      *
-     * @return AccountListQuery
-     */
-    abstract protected function getAccountlistQuery(): AccountListQuery;
-
-    /**
-     *
      * @param integer|null $rawAccountId
      * @return integer
      */
-    protected function viewAccountId(int $rawAccountId = null): int
+    protected function viewAccountId(?int $rawAccountId = null): int
     {
         $accountId = $rawAccountId;
         do {
@@ -48,7 +42,7 @@ trait SelectAccountId
                         __('cli.account.list.table.columns.bic'),
                         __('cli.account.list.table.columns.count_users')
                     ],
-                    $this->getAccountlistQuery()->createList()->get()->toArray()
+                    $this->getAccountListQuery()->createList()->get()->toArray()
                 );
             }
         } while (!$valid);

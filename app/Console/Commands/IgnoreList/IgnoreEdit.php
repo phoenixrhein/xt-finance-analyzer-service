@@ -3,14 +3,15 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\IgnoreList;
 
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
-use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\View\IbanInput;
+use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SelectAccountId;
+use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
 use function Laravel\Prompts\text;
 use function Laravel\Prompts\warning;
 
-class IgnoreEdit extends AbstractIgnoreList
+class IgnoreEdit extends AbstractIgnoreList implements ProvidesAccountListQueryInterface
 {
     use IbanInput;
     use SelectAccountId;
@@ -42,7 +43,7 @@ class IgnoreEdit extends AbstractIgnoreList
      *
      * @return AccountListQuery
      */
-    protected function getAccountlistQuery(): AccountListQuery
+    public function getAccountListQuery(): AccountListQuery
     {
         return $this->accountlistQuery;
     }

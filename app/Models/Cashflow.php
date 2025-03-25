@@ -60,8 +60,8 @@ class Cashflow extends Model
      */
     public static function createWithCategories(array $attributes)
     {
-        $inCategory = Category::create(['name' => 'Einnahmen']);
-        $outCategory = Category::create(['name' => 'Ausgaben']);
+        $inCategory = Category::create(['name' => __('cli.base.cashflow_in')]);
+        $outCategory = Category::create(['name' => __('cli.base.cashflow_out')]);
 
         $attributes['in_category_id'] = $inCategory->id;
         $attributes['out_category_id'] = $outCategory->id;
@@ -70,7 +70,6 @@ class Cashflow extends Model
     }
 
     /**
-     *
      *
      * @return void
      */
