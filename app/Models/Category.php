@@ -26,6 +26,7 @@ class Category extends Model
     public static function getRules(): array
     {
         return [
+            'id' => 'required|numeric|exists:de\xovatec\financeAnalyzer\Models\Category,id',
             'name' => 'required',
             'parent_id' => 'required|numeric|exists:de\xovatec\financeAnalyzer\Models\Category,id'
         ];

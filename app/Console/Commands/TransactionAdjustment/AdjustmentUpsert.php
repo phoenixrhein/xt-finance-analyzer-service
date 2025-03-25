@@ -13,11 +13,12 @@ use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SelectAccountId;
 use de\xovatec\financeAnalyzer\Console\Commands\Transaction\TransactionList;
 use de\xovatec\financeAnalyzer\Traits\Command\View\FindAndSelectTransaction;
+use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\warning;
 
-class AdjustmentUpsert extends FinCommand
+class AdjustmentUpsert extends FinCommand implements ProvidesAccountListQueryInterface
 {
     use SelectAccountId;
     use SimpleInput;
@@ -51,7 +52,7 @@ class AdjustmentUpsert extends FinCommand
      *
      * @return AccountListQuery
      */
-    protected function getAccountlistQuery(): AccountListQuery
+    public function getAccountListQuery(): AccountListQuery
     {
         return $this->accountlistQuery;
     }

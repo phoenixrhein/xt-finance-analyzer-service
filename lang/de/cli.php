@@ -20,7 +20,7 @@ return [
             'user_id' => 'ID des Benutzers',
             'account_id' => 'ID des Bankkontos'
         ],
-        'confirm_save' => 'Sie alle Daten korrekt?',
+        'confirm_save' => 'Sind alle Daten korrekt?',
         'created' => 'Eintrag erfolgreich angelegt [Id: :id]',
         'edited' => 'Der Eintrag mit der ID \':id\' wurde aktualisiert',
         'deleted' => 'Der Eintrag mit der ID \':id\' wurde gelöscht',
@@ -30,7 +30,10 @@ return [
         'payee' => 'Zahlungsempfänger',
         'value' => 'Wert',
         'count' => 'Anzahl',
-        'amount' => 'Betrag'
+        'amount' => 'Betrag',
+        'rules' => 'Regeln',
+        'cashflow_in' => 'Einnahmen',
+        'cashflow_out' => 'Ausgaben',
     ],
     'service' => [
         'cli_error_highlighter' => [
@@ -296,32 +299,35 @@ return [
     ],
     'category' => [
         'base' => [
-            'param' => [
-                'category_id' => 'ID des Kategorie',
-                'cashflow_id' => 'ID des Zahlungsstroms'
-            ],
             'error'=> [
-                'not_found_category_id' => 'Die Kategorie mit der ID \':categoryId\' wurde nicht gefunden',
-                'not_found_cashflow_id' => 'Der Zahlungsstrom mit der ID \':cashflowId\' wurde nicht gefunden'
+                'not_found_cashflow' => 'Der Zahlungsstrom zu der Bank-Account-ID \':bankAccountId\' wurde nicht gefunden',
+                'already_exist' => 'Eine Kategorie mit dem Namen existiert bereits auf der Ebene'
             ],
             'category_path' => 'Kategoriepfad',
             'input_name' => 'Bitte geben Sie einen Namen ein',
             'input_parent_id' => 'Bitte geben Sie die ID der übergeordneten Kategorie ein',
+            'select_category' => 'Bitte wählen Sie eine Kategorie aus',
+        ],
+        'manage' => [
+            'description' => 'Kategorien verwalten',
+            'select_action' => 'Bitte wählen Sie eine Option',
+            'action' => [
+                'add' => 'Kategorie anlegen',
+                'edit' => 'Kategorie bearbeiten',
+                'delete' => 'Kategorie löschen',
+                'finish' => 'Beenden'
+            ],
         ],
         'add' => [
-            'description' => 'Neue Kategorie anlegen',
-            'confirm' => 'Möchten Sie die Kategorie anlegen?',
             'created' => 'Kategorie erfolgreich angelegt [Name: :name / Id: :id]'
         ],
         'edit' => [
-            'description' => 'Kategorie bearbeiten',
             'edited' => 'Die Kategorie mit der ID \':categoryId\' wurde aktualisiert'
         ],
         'list' => [
             'description' => 'Liste der Kategorien des Zahlungsstroms',
         ],
         'delete' => [
-            'description' => 'Kategorie löschen',
             'confirm_question' => 'Möchten Sie die Kategorie \':name\' wirklich löschen?',
             'error' => [
                 'has_childs' => 'Die Kategorie hat mindestens eine Unterkategorie',

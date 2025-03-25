@@ -48,7 +48,7 @@ abstract class AbstractCategory extends FinCommand
         intro(__('cli.category.base.category_path'));
         $ancestors = $category->ancestors();
 
-        foreach ($ancestors as $ancestor) {
+        foreach ($ancestors->reverse() as $ancestor) {
             echo $ancestor->name . " [{$ancestor->id}] " . ' \ ';
         }
         echo $category->name . " [{$category->id}] " . ' \ ' . $name . PHP_EOL;
@@ -57,21 +57,23 @@ abstract class AbstractCategory extends FinCommand
 
     /**
      *
+     * @param string $idField
+     * @param string $label
      * @param string $rawParentId
      * @return string
      */
-    protected function viewParentIdInput(string $rawParentId = ''): string
+    protected function viewCategoryIdInput(string $idField, string $label, string $rawParentId = ''): string
     {
         $parentId = $rawParentId;
         do {
             $parentId = text(
-                label: __('cli.category.base.input_parent_id'),
+                label: $label,
                 default: $parentId
             );
 
             $valid = $this->viewValidatorError(
                 [
-                    'parent_id' => $parentId
+                    $idField => $parentId
                 ],
                 Category::getRules()
             );

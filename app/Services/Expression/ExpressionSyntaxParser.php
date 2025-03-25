@@ -256,8 +256,6 @@ class ExpressionSyntaxParser
             }
         }
 
-
-
         return [
             'field' => $matches[1] ?? '',
             'comparer' => $matches[2] ?? '',
