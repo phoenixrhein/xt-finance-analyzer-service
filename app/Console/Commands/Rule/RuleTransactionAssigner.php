@@ -2,7 +2,6 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 
-use function Laravel\Prompts\select;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
@@ -25,6 +24,8 @@ use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByManualCreator;
 use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByFinQueryCreator;
 use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
+
+use function Laravel\Prompts\select;
 
 class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQueryInterface
 {
@@ -109,7 +110,8 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
      *
      * @var string
      */
-    protected $signature = 'fin:rule-assign {accountId : [:cli.base.param.account_id:]} {--range= : [:cli.param.date_range.description:]}';
+    protected $signature = 'fin:rule-assign {accountId : [:cli.base.param.account_id:]} ' .
+        '{--range= : [:cli.param.date_range.description:]}';
 
     /**
      * The console command description.
@@ -179,16 +181,25 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
                 )->count();
                 if ($totalUnmatchedTransactions > 0) {
                     $this->emptyLn();
-                    $this->alert(__('cli.rule.assign.count_unmatched_transactions', ['count' => $totalUnmatchedTransactions]));
+                    $this->alert(__(
+                        'cli.rule.assign.count_unmatched_transactions',
+                        ['count' => $totalUnmatchedTransactions]
+                    ));
                     $this->halt();
                 }
             }
 
             if (strlen($this->option('range')) > 0) {
-                $unmatchedTransactions = FilterTransactionDurationHelper::applyFilter($unmatchedTransactions, $this->option('range'), $this);
+                $unmatchedTransactions = FilterTransactionDurationHelper::applyFilter(
+                    $unmatchedTransactions,
+                    $this->option('range'),
+                    $this
+                );
             }
 
-            $unmatchedTransactions = $this->unmatchedTransactionsService->getUnmatchedTransactions($unmatchedTransactions);
+            $unmatchedTransactions = $this->unmatchedTransactionsService->getUnmatchedTransactions(
+                $unmatchedTransactions
+            );
 
             if ($total === null) {
                 $this->emptyLn();
@@ -196,7 +207,8 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
                 $this->line(__('cli.rule.assign.total_found', ['count' => $total]));
             }
 
-            $unmatchedTransactions = $unmatchedTransactions->select(array_keys($viewConfig))->cursorPaginate(10, ['*'], 'page', $cursor);
+            $unmatchedTransactions = $unmatchedTransactions->select(array_keys($viewConfig))
+                ->cursorPaginate(10, ['*'], 'page', $cursor);
 
             $col = new Collection();
             foreach ($unmatchedTransactions->items() as $item) {

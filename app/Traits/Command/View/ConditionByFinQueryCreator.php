@@ -87,7 +87,6 @@ trait ConditionByFinQueryCreator
             } elseif ($confirmation === 'no') {
                 $start = 0;
             }
-
         } while ($confirmation !== 'yes');
 
         return $conditionList;

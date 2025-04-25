@@ -21,7 +21,10 @@ class UnmatchedTransactionsService
         }
         return $transactions->leftJoin('rule_transaction', 'transactions.id', '=', 'rule_transaction.transaction_id')
             ->whereNull('rule_transaction.transaction_id')
-            ->whereRaw('checks_code & ' . TransactionCheckCode::UNCATEGORISABLE->value . ' = ' . TransactionCheckCode::NONE->value)
+            ->whereRaw(
+                'checks_code & ' . TransactionCheckCode::UNCATEGORISABLE->value . ' = ' .
+                TransactionCheckCode::NONE->value
+            )
             ->orderBy('transactions.transaction_date', 'asc');
     }
 }

@@ -58,7 +58,7 @@ trait DisplayInterimTransactionResult
         if (empty($transactions->getQuery()->columns)) {
             $transactions->select(array_keys(TransactionList::$compactView));
         }
-            
+
         $totalCount = $transactions->count();
 
         $this->onTotalResult(CopyBuilderQueryHelper::copy($transactions));

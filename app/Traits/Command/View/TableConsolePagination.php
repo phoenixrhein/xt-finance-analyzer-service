@@ -80,7 +80,7 @@ trait TableConsolePagination
             } else {
                 $columnValueTag[$column] = [];
             }
-            
+
             $splittedRows[$column] = str_split(
                 $value,
                 $columnsLengthConfig[$column] ?? strlen($value) ?: 1
