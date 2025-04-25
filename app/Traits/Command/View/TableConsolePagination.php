@@ -21,11 +21,11 @@ trait TableConsolePagination
      * @param string|null $headlinePrefix
      * @return void
      */
-    private function tableConsolePagination(
+    protected function tableConsolePagination(
         Collection $transactions,
         array $columnsConfig,
-        int $limit = null,
-        string $headlinePrefix = null
+        ?int $limit = null,
+        ?string $headlinePrefix = null
     ): void {
         $limit = $limit ?? $transactions->count();
         for ($i = 0; $i < $transactions->count(); $i = $i + $limit) {
@@ -68,7 +68,19 @@ trait TableConsolePagination
     {
         $maxRows = 1;
         $splittedRows = [];
+        $columnValueTag = [];
+        $pattern = '/^(<[^>]+>)(.*?)(<\/[^>]+>|<\/>)?$/';
         foreach ($row->toArray() as $column => $value) {
+            if (preg_match($pattern, $value, $matches)) {
+                $columnValueTag[$column] = [
+                    'start' => $matches[1],
+                    'end' => !empty($matches[3]) ? $matches[3] : "</>",
+                ];
+                $value = $matches[2];
+            } else {
+                $columnValueTag[$column] = [];
+            }
+            
             $splittedRows[$column] = str_split(
                 $value,
                 $columnsLengthConfig[$column] ?? strlen($value) ?: 1
@@ -77,8 +89,13 @@ trait TableConsolePagination
         }
         $newRows = [];
         for ($i = 0; $i < $maxRows; $i++) {
-            foreach ($row->toArray() as $column => $value) {
-                $newRows[$i][] = $splittedRows[$column][$i] ?? '';
+            foreach ($row->toArray() as $column => $rawValue) {
+                $value = $splittedRows[$column][$i] ?? '';
+                if (count($columnValueTag[$column]) > 0 && strlen($value) > 0) {
+                    $value = $columnValueTag[$column]['start'] . $value . $columnValueTag[$column]['end'];
+                }
+
+                $newRows[$i][] = $value;
             }
         }
         $newRows[] = new TableSeparator();
@@ -91,7 +108,7 @@ trait TableConsolePagination
      * @param string|null $headlinePrefix
      * @return array
      */
-    private function getHeadlines(array $config, string $headlinePrefix = null): array
+    private function getHeadlines(array $config, ?string $headlinePrefix = null): array
     {
         return array_map(function ($item, $key) use ($headlinePrefix) {
             if (is_array($item) && array_key_exists('headline', $item)) {

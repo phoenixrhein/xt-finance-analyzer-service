@@ -2,13 +2,17 @@
 
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
+use Illuminate\Support\Arr;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
+use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\RuleToConditionTransformer;
 use de\xovatec\financeAnalyzer\Services\Expression\CliErrorHighlighter;
 use de\xovatec\financeAnalyzer\Services\Expression\ExpressionSyntaxParser;
 use de\xovatec\financeAnalyzer\Traits\Command\DisplayInterimTransactionResult;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+
+use function Laravel\Prompts\select;
 
 trait ConditionByFinQueryCreator
 {
@@ -45,16 +49,46 @@ trait ConditionByFinQueryCreator
      */
     private function viewConditionByFinQueryCreator(Builder $transactions): ConditionList
     {
+        $confirmation = null;
+        $start = 0;
         do {
-            $conditions = $this->inputFinQuery(
-                $this->getFinQueryBuilder()->build($conditionList ?? new ConditionList())
+            if ($confirmation !== 'more') {
+                $conditions = $this->inputFinQuery(
+                    $this->getFinQueryBuilder()->build($conditionList ?? new ConditionList())
+                );
+                $conditionList = $this->getTransformer()->transform($conditions);
+            }
+            $hasMore = $this->displayInterimResult(
+                CopyBuilderQueryHelper::copy($transactions),
+                $conditionList,
+                $start
             );
-            $conditionList = $this->getTransformer()->transform($conditions);
-            $this->displayInterimResult(
-                $transactions,
-                $conditionList
+
+            $confirmOptions = [
+                'yes' =>  __('cli.base.button.yes'),
+                'no' =>  __('cli.base.button.no')
+            ];
+
+            if ($hasMore) {
+                $confirmOptions = Arr::prepend(
+                    $confirmOptions,
+                    __('cli.view.condition_creator.option_more_data'),
+                    'more'
+                );
+            }
+
+            $confirmation = select(
+                __('cli.view.condition_creator.confirm_condition'),
+                $confirmOptions
             );
-        } while (!$this->confirmPrompt(__('cli.view.fin_query_creator.confirm_condition')));
+
+            if ($confirmation === 'more') {
+                $start += $this->getDisplayLimit();
+            } elseif ($confirmation === 'no') {
+                $start = 0;
+            }
+
+        } while ($confirmation !== 'yes');
 
         return $conditionList;
     }

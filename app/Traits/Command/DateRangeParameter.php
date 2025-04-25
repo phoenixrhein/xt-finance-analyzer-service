@@ -15,7 +15,7 @@ trait DateRangeParameter
      * @param string $rangeStr
      * @return array|null
      */
-    private function prepareRangeParam(string $rangeStr): array|null
+    public function prepareRangeParam(string $rangeStr): array|null
     {
         $this->emptyLn();
         if (!DateRangeHelper::validFormat($rangeStr)) {

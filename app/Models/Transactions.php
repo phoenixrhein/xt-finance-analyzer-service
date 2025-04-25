@@ -3,9 +3,10 @@
 namespace de\xovatec\financeAnalyzer\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Transactions extends Model
 {
@@ -69,6 +70,17 @@ class Transactions extends Model
     {
         return $this->hasMany(TransactionSplit::class, 'transaction_id', 'id');
     }
+
+    /**
+     *
+     * @return BelongsToMany
+     */
+    public function rules(): BelongsToMany
+    {
+        return $this->belongsToMany(Rule::class, 'rule_transaction')
+                    ->withPivot('bank_account_id');
+    }
+
     /**
      *
      * @return void

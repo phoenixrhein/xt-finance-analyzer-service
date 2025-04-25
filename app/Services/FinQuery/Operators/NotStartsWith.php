@@ -38,6 +38,6 @@ class NotStartsWith extends BaseOperator
      */
     public function getSqlValue(string $value): string
     {
-        return "'" . $value . "%'";
+        return $value . "%";
     }
 }

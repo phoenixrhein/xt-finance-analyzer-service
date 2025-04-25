@@ -22,6 +22,9 @@ class CopyBuilderQueryHelper
         if ($source->getQuery()->groups) {
             $newBuilder->getQuery()->groups = $source->getQuery()->groups;
         }
+        if ($source->getQuery()->columns) {
+            $newBuilder->getQuery()->columns = $source->getQuery()->columns;
+        }
         if ($source->getQuery()->havings) {
             $newBuilder->getQuery()->havings = $source->getQuery()->havings;
         }

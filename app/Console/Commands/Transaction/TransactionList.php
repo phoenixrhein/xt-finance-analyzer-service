@@ -8,15 +8,14 @@ use Illuminate\Database\Eloquent\Collection;
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Transactions;
-use de\xovatec\financeAnalyzer\Helpers\DateRangeHelper;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
-use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
 use de\xovatec\financeAnalyzer\Services\RuleToConditionTransformer;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
+use de\xovatec\financeAnalyzer\Helpers\FilterTransactionDurationHelper;
 use de\xovatec\financeAnalyzer\Services\Expression\CliErrorHighlighter;
 use de\xovatec\financeAnalyzer\Services\Expression\ExpressionSyntaxParser;
 use de\xovatec\financeAnalyzer\Traits\Command\View\TableConsolePagination;
@@ -28,7 +27,6 @@ use function Laravel\Prompts\select;
 class TransactionList extends FinCommand
 {
     use TableConsolePagination;
-    use DateRangeParameter;
     use BankAccountIdParameter;
     use ConditionByManualCreator;
     use ConditionByFinQueryCreator;
@@ -102,7 +100,7 @@ class TransactionList extends FinCommand
         'transaction_type' => null,
         'reason_for_payment' => null,
         'creditor_id' => null,
-        'mandate_ reference' => null,
+        'mandate_reference' => null,
         'customer_reference' => null,
         'collector_reference' => null,
         'debit_original_amount' => null,
@@ -195,7 +193,7 @@ class TransactionList extends FinCommand
             ->orderByDesc('id');
 
         if (strlen($this->option('range')) > 0) {
-            $this->filterDuration($transactions);
+            FilterTransactionDurationHelper::applyFilter($transactions, $this->option('range'), $this);
         }
 
         $conditions = $this->determineCondition(CopyBuilderQueryHelper::copy($transactions), $ignoreIbans);
@@ -277,24 +275,5 @@ class TransactionList extends FinCommand
         }
 
         return $conditions;
-    }
-
-    /**
-     *
-     * @param Builder $transactions
-     * @return void
-     */
-    private function filterDuration(Builder $transactions): void
-    {
-        $range = $this->prepareRangeParam($this->option('range'));
-        if ($range === null) {
-            return;
-        }
-
-        $from = $range[DateRangeHelper::FROM];
-        $to = $range[DateRangeHelper::TO];
-
-        $transactions = $transactions->where('transaction_date', '>=', $from)
-            ->where('transaction_date', '<=', $to);
     }
 }

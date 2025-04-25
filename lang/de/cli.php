@@ -82,6 +82,7 @@ return [
             'value_select' => 'Wert auswählen',
             'confirm_condition' => 'Ist die Bedingung korrekt?',
             'further_condition' => 'Weitere Bedingung hinzufügen?',
+            'option_more_data' => 'Weitere Treffer anzeigen',
             'operator' => [
                 'equal' => 'Gleich',
                 'not_equal' => 'Ungleich',
@@ -434,5 +435,20 @@ return [
                 ]
             ]
         ]
+    ],
+    'rule' => [
+        'assign' => [
+            'description' => 'Regel zuweisen',
+            'select_more_data_or_add_rule' => [
+                'text' => 'Weitere anzeigen oder ein Regel anlegen',
+                'options' => [
+                    'add_rule' => 'Regel anlegen',
+                    'more_data' => 'Weitere anzeigen'
+                ]
+            ],
+            'count_unmatched_transactions' => 'Anzahl der nicht kategorisierten Transaktionen: :count',
+            'total_found' => 'Gesamtanzahl: :count',
+            'found_already_matched' => 'Es werden :count bereits kategorisierte Transaktionen gefunden'
+        ],
     ]
 ];
