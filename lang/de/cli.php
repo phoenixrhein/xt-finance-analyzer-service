@@ -18,7 +18,9 @@ return [
         ],
         'param' => [
             'user_id' => 'ID des Benutzers',
-            'account_id' => 'ID des Bankkontos'
+            'account_id' => 'ID des Bankkontos',
+            'rule_id' => 'ID der Regel',
+            'force_delete' => 'Löschen erzwingen',
         ],
         'confirm_save' => 'Sind alle Daten korrekt?',
         'created' => 'Eintrag erfolgreich angelegt [Id: :id]',
@@ -448,7 +450,30 @@ return [
             ],
             'count_unmatched_transactions' => 'Anzahl der nicht kategorisierten Transaktionen: :count',
             'total_found' => 'Gesamtanzahl: :count',
-            'found_already_matched' => 'Es werden :count bereits kategorisierte Transaktionen gefunden'
+            'found_already_matched' => 'Es werden :count bereits kategorisierte Transaktionen gefunden',
+            'cat_mgmt_continue_button_text' => 'Kategorie auswählen',
+            'result' => [
+                'info' => 'Die Regel mit der ID \':id\' wurde erfolgreich angelegt',
+                'error' => 'Beim Speichern der Regel ist ein Fehler aufgetreten',
+            ]
+        ],
+        'list' => [
+            'description' => 'Regeln anzeigen',
+            'table_header' => [
+                'id' => 'ID',
+                'name' => 'Name',
+                'expression' => 'Expression',
+                'category' => 'Kategorie'
+            ]
+        ],
+        'delete' => [
+            'description' => 'Regel löschen',
+            'confirm' => 'Wollen Sie die Regel mit der ID \':id\' wirklich löschen?',
+            'deleted' => 'Die Regel mit der ID \':ruleId\' wurde gelöscht',
+            'error' => [
+                'not_found' => 'Die Regel mit der ID \':ruleId\' wurde nicht gefunden'
+            ],
+            'success' => 'Die Regel mit der ID \':ruleId\' wurde gelöscht'
         ],
     ]
 ];

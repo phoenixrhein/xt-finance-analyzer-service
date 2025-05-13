@@ -7,9 +7,9 @@ use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Parser\ErrorReport;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
-use de\xovatec\financeAnalyzer\Services\RuleToConditionTransformer;
-use de\xovatec\financeAnalyzer\Services\Expression\ExpressionSyntaxParser;
-use de\xovatec\financeAnalyzer\Services\Expression\ExpressionBaseValidator;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionBaseValidator;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 
 class ExpressionSyntaxParserTest extends TestCase
@@ -52,8 +52,8 @@ class ExpressionSyntaxParserTest extends TestCase
         $errorReportMock = $this->createMock(ErrorReport::class);
 
         $this->parser = new ExpressionSyntaxParser($validatorMock, $errorReportMock);
-        $this->transformer = new RuleToConditionTransformer();
         $this->queryBuilder = new FinQueryBuilder();
+        $this->transformer = new RuleToConditionTransformer($this->parser, $this->queryBuilder);
         $this->sqlQueryBuilder = new SqlQueryBuilder();
     }
 
@@ -109,7 +109,7 @@ class ExpressionSyntaxParserTest extends TestCase
         $parsed = $this->parser->parse($expression);
         $this->assertIsArray($parsed, "Parsing failed for expression: $expression");
         
-        $conditionList = $this->transformer->transform($parsed);
+        $conditionList = $this->transformer->transformToConditionList($parsed);
         $this->assertInstanceOf(ConditionList::class, $conditionList);
         
         $query = $this->queryBuilder->build($conditionList);
@@ -133,7 +133,7 @@ class ExpressionSyntaxParserTest extends TestCase
         $parsed = $this->parser->parse($expression);
         $this->assertIsArray($parsed, "Parsing failed for expression: {$expression}");
         
-        $conditionList = $this->transformer->transform($parsed);
+        $conditionList = $this->transformer->transformToConditionList($parsed);
         
         $query = Transactions::query();
         $this->sqlQueryBuilder->build($query, $conditionList);

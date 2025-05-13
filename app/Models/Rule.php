@@ -24,7 +24,7 @@ class Rule extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'condition_link_id'];
+    protected $fillable = ['name', 'condition_link_id', 'bank_account_id'];
 
     /**
      *
@@ -52,6 +52,15 @@ class Rule extends Model
     {
         return $this->belongsToMany(Transactions::class, 'rule_transaction')
                     ->withPivot('bank_account_id');
+    }
+
+    /**
+     *
+     * @return BelongsTo
+     */
+    public function bankAccount(): BelongsTo
+    {
+        return $this->belongsTo(BankAccount::class);
     }
 
     /**

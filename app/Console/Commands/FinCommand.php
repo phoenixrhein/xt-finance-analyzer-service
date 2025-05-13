@@ -83,7 +83,7 @@ abstract class FinCommand extends Command
      * @param string $hint
      * @return boolean
      */
-    protected function confirmPrompt(
+    public function confirmPrompt(
         string $label,
         bool $default = true,
         string $yes = '',

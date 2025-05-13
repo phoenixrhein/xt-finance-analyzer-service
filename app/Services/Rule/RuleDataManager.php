@@ -1,6 +1,6 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Services\Expression;
+namespace de\xovatec\financeAnalyzer\Services\Rule;
 
 use de\xovatec\financeAnalyzer\Models\Condition;
 use de\xovatec\financeAnalyzer\Models\Action;
@@ -10,7 +10,7 @@ use de\xovatec\financeAnalyzer\Enums\ConditionType;
 use de\xovatec\financeAnalyzer\Exceptions\ExpressionSyntaxException;
 use de\xovatec\financeAnalyzer\Models\ConditionLink;
 
-class ExpressionService
+class RuleDataManager
 {
     /**
      *
@@ -51,16 +51,19 @@ class ExpressionService
      * @param string $name
      * @param integer $categoryId
      * @param array $expressionData
+     * @param integer $bankAccountId
+     * @throws ExpressionSyntaxException
      * @return int
      */
-    public function saveRuleExpression(string $name, int $categoryId, array $expressionData): int
+    public function saveRuleExpression(string $name, int $categoryId, array $expressionData, int $bankAccountId): int
     {
         Category::findOrFail($categoryId);
         $conditionLinkId = $this->saveCondition($expressionData);
 
         $rule = Rule::create([
             'name' => $name,
-            'condition_link_id' => $conditionLinkId
+            'condition_link_id' => $conditionLinkId,
+            'bank_account_id' => $bankAccountId
         ]);
 
         Action::create([

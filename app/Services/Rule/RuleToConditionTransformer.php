@@ -1,22 +1,49 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Services;
+namespace de\xovatec\financeAnalyzer\Services\Rule;
 
 use de\xovatec\financeAnalyzer\Enums\ConditionType;
 use de\xovatec\financeAnalyzer\Enums\LogicalOperator;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Condition;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FieldConfig;
+use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Exceptions\ExpressionSyntaxException;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
 
 class RuleToConditionTransformer
 {
+
+    /**
+     *
+     * @param ExpressionSyntaxParser $expressionSyntaxParser
+     * @param FinQueryBuilder $finQueryBuilder
+     */
+    public function __construct(
+        private ExpressionSyntaxParser $expressionSyntaxParser,
+        private FinQueryBuilder $finQueryBuilder,
+    ) {
+    }
+
+    /**
+     *
+     * @param ConditionList $conditionList
+     * @return array
+     */
+    public function transformToArray(ConditionList $conditionList): array
+    {
+        return $this->expressionSyntaxParser->parse(
+            $this->finQueryBuilder->build($conditionList)
+        );
+       
+    }
+
     /**
      *
      * @param array $ruleCondition
      * @return ConditionList
      */
-    public function transform(array $conditionLink): ConditionList
+    public function transformToConditionList(array $conditionLink): ConditionList
     {
         $list = new ConditionList(LogicalOperator::tryFrom($conditionLink['logicOperator']));
         $this->transformConditionLink($conditionLink, $list);

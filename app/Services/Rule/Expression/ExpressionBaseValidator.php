@@ -1,6 +1,6 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Services\Expression;
+namespace de\xovatec\financeAnalyzer\Services\Rule\Expression;
 
 use de\xovatec\financeAnalyzer\Enums\ParserErrorType;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Parser\ErrorReport;

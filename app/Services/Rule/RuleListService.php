@@ -1,10 +1,10 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Services;
+namespace de\xovatec\financeAnalyzer\Services\Rule;
 
 use de\xovatec\financeAnalyzer\Models\Rule;
 use de\xovatec\financeAnalyzer\Models\ConditionLink;
-use de\xovatec\financeAnalyzer\Services\Expression\ExpressionBuilder;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionBuilder;
 
 class RuleListService
 {
@@ -28,10 +28,10 @@ class RuleListService
      *
      * @return array
      */
-    public function getRulesWithExpression(): array
+    public function getRulesWithExpression(int $bankAccountId): array
     {
         $data = [];
-        foreach ($this->getRules() as $rule) {
+        foreach ($this->getRules($bankAccountId) as $rule) {
             $rule['expression'] = $this->builder->build($rule['condition_link']);
             $data[] = $rule;
         }
@@ -44,9 +44,12 @@ class RuleListService
      *
      * @return array
      */
-    private function getRules(): array
+    private function getRules(int $bankAccountId): array
     {
-        $rules = $this->model->with(['actions.category'])->get();
+        $rules = $this->model
+            ->with(['actions.category'])
+            ->where('bank_account_id', $bankAccountId)
+            ->get();
 
         $rules->each(function ($rule) {
             $rule->loadMissing('conditionLink');

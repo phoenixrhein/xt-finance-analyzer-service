@@ -16,7 +16,7 @@ trait BaseView
      * @param array $rules
      * @return boolean
      */
-    protected function viewValidatorError(array $data, array $rules): bool
+    public function viewValidatorError(array $data, array $rules): bool
     {
         $validator = Validator::make(
             $data,
@@ -37,7 +37,7 @@ trait BaseView
      *
      * @return void
      */
-    protected function emptyLn(): void
+    public function emptyLn(): void
     {
         $this->line('');
     }

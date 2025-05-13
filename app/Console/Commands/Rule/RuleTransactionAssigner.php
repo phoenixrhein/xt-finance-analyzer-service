@@ -2,9 +2,14 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 
+use Throwable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use de\xovatec\financeAnalyzer\Models\Cashflow;
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
+use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use Illuminate\Support\Collection as SupportCollection;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
@@ -13,15 +18,16 @@ use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
-use de\xovatec\financeAnalyzer\Services\RuleToConditionTransformer;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleDataManager;
 use de\xovatec\financeAnalyzer\Services\UnmatchedTransactionsService;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 use de\xovatec\financeAnalyzer\Helpers\FilterTransactionDurationHelper;
-use de\xovatec\financeAnalyzer\Services\Expression\CliErrorHighlighter;
-use de\xovatec\financeAnalyzer\Services\Expression\ExpressionSyntaxParser;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\CliErrorHighlighter;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
 use de\xovatec\financeAnalyzer\Console\Commands\Transaction\TransactionList;
-use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByManualCreator;
+use de\xovatec\financeAnalyzer\Services\Console\Category\ManageConsoleService;
 use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByFinQueryCreator;
 use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
@@ -42,6 +48,8 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
      * @param CliErrorHighlighter $errorHighlighter
      * @param RuleToConditionTransformer $transformer
      * @param SqlQueryBuilder $sqlQueryBuilder
+     * @param ManageConsoleService $manageConsoleService
+     * @param RuleDataManager $ruleDataManager
      */
     public function __construct(
         private AccountListQuery $accountListQuery,
@@ -50,10 +58,13 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         private ExpressionSyntaxParser $parser,
         private CliErrorHighlighter $errorHighlighter,
         private RuleToConditionTransformer $transformer,
-        private SqlQueryBuilder $sqlQueryBuilder
+        private SqlQueryBuilder $sqlQueryBuilder,
+        private ManageConsoleService $manageConsoleService,
+        private RuleDataManager $ruleDataManager
     ) {
         parent::__construct();
         $this->setDisplayLimit(7);
+        $this->manageConsoleService->setIo($this);
     }
 
     /**
@@ -153,7 +164,54 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
 
         $conditionList = $this->createRuleCondition($transactions, $queryType);
 
-        $this->info('cli.rule.assign.result.info');
+        $cashflow = Cashflow::where('bank_account_id', $bankAccount->id)->first();
+        if (!$cashflow instanceof Cashflow) {
+            $this->emptyLn();
+            $this->error(__('cli.category.base.error.not_found_cashflow', ['bankAccountId' => $bankAccount->id]));
+            return;
+        }
+
+        $this->manageConsoleService->getTreeViewConsoleService()->displayCashflowTrees($cashflow);
+        $this->manageConsoleService->manage($bankAccount->id, __('cli.rule.assign.cat_mgmt_continue_button_text'));
+        $selectedCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow);
+
+        $this->saveRule(
+            $this->viewInput('Name der Regel', 'required|min:1|unique:rule,name'),
+            $selectedCategoryId,
+            $this->getTransformer()->transformToArray($conditionList),
+            $bankAccount->id
+        );
+    }
+
+    /**
+     *
+     * @param string $name
+     * @param integer $categoryId
+     * @param array $ruleData
+     * @param integer $bankAccountId
+     * @return void
+     */
+    private function saveRule(
+        string $name,
+        int $categoryId,
+        array $ruleData,
+        int $bankAccountId
+    ): void {
+        try {
+            DB::beginTransaction();
+            $id = $this->ruleDataManager->saveRuleExpression(
+                $name,
+                $categoryId,
+                $ruleData,
+                $bankAccountId
+            );
+            DB::commit();
+            $this->info(__('cli.rule.assign.result.info', ['id' => $id]));
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            $this->error(__('cli.rule.assign.result.error'));
+        }
     }
 
     /**
@@ -226,7 +284,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         } while (
             $cursor !== null
             && $this->confirmPrompt(
-                __('cli.rule.assign.select_more_data_or_add_rule'),
+                __('cli.rule.assign.select_more_data_or_add_rule.text'),
                 true,
                 __('cli.rule.assign.select_more_data_or_add_rule.options.more_data'),
                 __('cli.rule.assign.select_more_data_or_add_rule.options.add_rule')

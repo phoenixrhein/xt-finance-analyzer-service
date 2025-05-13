@@ -7,9 +7,9 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
-use de\xovatec\financeAnalyzer\Services\RuleToConditionTransformer;
-use de\xovatec\financeAnalyzer\Services\Expression\CliErrorHighlighter;
-use de\xovatec\financeAnalyzer\Services\Expression\ExpressionSyntaxParser;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\CliErrorHighlighter;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
 use de\xovatec\financeAnalyzer\Traits\Command\DisplayInterimTransactionResult;
 
 use function Laravel\Prompts\select;
@@ -56,7 +56,7 @@ trait ConditionByFinQueryCreator
                 $conditions = $this->inputFinQuery(
                     $this->getFinQueryBuilder()->build($conditionList ?? new ConditionList())
                 );
-                $conditionList = $this->getTransformer()->transform($conditions);
+                $conditionList = $this->getTransformer()->transformToConditionList($conditions);
             }
             $hasMore = $this->displayInterimResult(
                 CopyBuilderQueryHelper::copy($transactions),
