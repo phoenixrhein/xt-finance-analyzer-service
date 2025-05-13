@@ -18,8 +18,10 @@ class CategoryManagement extends FinCommand implements ProvidesAccountListQueryI
      * @param AccountListQuery $accountListQuery
      * @param CategoryConsoleService $categoryConsoleService
      */
-    public function __construct(private AccountListQuery $accountListQuery, private ManageConsoleService $manageConsoleService)
-    {
+    public function __construct(
+        private AccountListQuery $accountListQuery,
+        private ManageConsoleService $manageConsoleService
+    ){
         parent::__construct();
         $this->manageConsoleService->setIo($this);
     }

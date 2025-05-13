@@ -8,7 +8,6 @@ use de\xovatec\financeAnalyzer\Models\Transactions;
 
 class RefreshTransactionRuleIndexService
 {
-
     public function refreshAll(): void
     {
         DB::transaction(function () {

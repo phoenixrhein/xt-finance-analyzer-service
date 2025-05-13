@@ -11,7 +11,7 @@ use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 class RuleList extends FinCommand
 {
     use BankAccountIdParameter;
-    
+
     /**
      *
      * @param RuleListService $ruleListService

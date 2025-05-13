@@ -13,7 +13,6 @@ use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
 
 class RuleToConditionTransformer
 {
-
     /**
      *
      * @param ExpressionSyntaxParser $expressionSyntaxParser
@@ -35,7 +34,6 @@ class RuleToConditionTransformer
         return $this->expressionSyntaxParser->parse(
             $this->finQueryBuilder->build($conditionList)
         );
-       
     }
 
     /**

@@ -33,7 +33,7 @@ class RuleDelete extends FinCommand
             $this->error(__('cli.rule.delete.error.not_found', ['id' => $ruleId]));
             return;
         }
-        
+
         if ($this->confirmPrompt(__('cli.rule.delete.confirm', ['id' => $this->argument('ruleId')])) === false) {
             return;
         }
