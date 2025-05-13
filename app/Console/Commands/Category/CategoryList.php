@@ -21,7 +21,7 @@ class CategoryList extends FinCommand implements ProvidesAccountListQueryInterfa
     public function __construct(
         private AccountListQuery $accountListQuery,
         private TreeViewConsoleService $treeViewConsoleService
-    ){
+    ) {
         parent::__construct();
         $this->treeViewConsoleService->setIo($this);
     }

@@ -81,9 +81,8 @@ class ManageConsoleService extends AbstractCategory
             return;
         }
 
-        if ($this->getIo()->confirmPrompt(
-            __('cli.category.delete.confirm_question', ['name' => $category->name])
-            ) === false) {
+        $promptText = __('cli.category.delete.confirm_question', ['name' => $category->name]);
+        if ($this->getIo()->confirmPrompt($promptText) === false) {
             return;
         }
 
