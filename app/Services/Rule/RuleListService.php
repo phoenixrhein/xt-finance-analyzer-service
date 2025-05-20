@@ -44,7 +44,7 @@ class RuleListService
      *
      * @return array
      */
-    private function getRules(int $bankAccountId): array
+    public function getRules(int $bankAccountId): array
     {
         $rules = $this->model
             ->with(['actions.category'])

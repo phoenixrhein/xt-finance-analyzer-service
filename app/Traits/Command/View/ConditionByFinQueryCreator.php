@@ -53,10 +53,9 @@ trait ConditionByFinQueryCreator
         $start = 0;
         do {
             if ($confirmation !== 'more') {
-                $conditions = $this->inputFinQuery(
+                $conditionList = $this->inputFinQuery(
                     $this->getFinQueryBuilder()->build($conditionList ?? new ConditionList())
                 );
-                $conditionList = $this->getTransformer()->transformToConditionList($conditions);
             }
             $hasMore = $this->displayInterimResult(
                 CopyBuilderQueryHelper::copy($transactions),
@@ -95,9 +94,9 @@ trait ConditionByFinQueryCreator
     /**
      *
      * @param string $expression
-     * @return array
+     * @return ConditionList
      */
-    private function inputFinQuery(string $expression): array
+    private function inputFinQuery(string $expression): ConditionList
     {
         do {
             $isValid = true;

@@ -14,7 +14,6 @@ class ConditionList implements IteratorAggregate
      */
     public function __construct(private ?LogicalOperator $logicalOperator = null)
     {
-        $this->logicalOperator ??= LogicalOperator::AND;
     }
 
     /**
@@ -52,11 +51,15 @@ class ConditionList implements IteratorAggregate
 
     /**
      *
-     * @return LogicalOperator
+     * @param bool $onlyRaw
+     * @return LogicalOperator|null
      */
-    public function getLogicalOperator(): LogicalOperator
+    public function getLogicalOperator(bool $onlyRaw = false): ?LogicalOperator
     {
-        return $this->logicalOperator;
+        if ($onlyRaw) {
+            return $this->logicalOperator;
+        }
+        return $this->logicalOperator ?? LogicalOperator::AND;
     }
 
     /**

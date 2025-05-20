@@ -2,16 +2,25 @@
 
 namespace de\xovatec\financeAnalyzer\Services\Rule;
 
-use de\xovatec\financeAnalyzer\Models\Condition;
-use de\xovatec\financeAnalyzer\Models\Action;
 use de\xovatec\financeAnalyzer\Models\Rule;
+use de\xovatec\financeAnalyzer\Models\Action;
 use de\xovatec\financeAnalyzer\Models\Category;
+use de\xovatec\financeAnalyzer\Models\Condition;
 use de\xovatec\financeAnalyzer\Enums\ConditionType;
-use de\xovatec\financeAnalyzer\Exceptions\ExpressionSyntaxException;
 use de\xovatec\financeAnalyzer\Models\ConditionLink;
+use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
+use de\xovatec\financeAnalyzer\Exceptions\ExpressionSyntaxException;
 
 class RuleDataManager
 {
+    /**
+     *
+     * @param RuleToConditionTransformer $transformer
+     */
+    public function __construct(private RuleToConditionTransformer $transformer)
+    {
+    }
+
     /**
      *
      * @param array $conditionData
@@ -50,15 +59,15 @@ class RuleDataManager
      *
      * @param string $name
      * @param integer $categoryId
-     * @param array $expressionData
+     * @param ConditionList $conditionList
      * @param integer $bankAccountId
      * @throws ExpressionSyntaxException
      * @return int
      */
-    public function saveRuleExpression(string $name, int $categoryId, array $expressionData, int $bankAccountId): int
+    public function saveRule(string $name, int $categoryId, ConditionList $conditionList, int $bankAccountId): int
     {
         Category::findOrFail($categoryId);
-        $conditionLinkId = $this->saveCondition($expressionData);
+        $conditionLinkId = $this->saveCondition($this->transformer->transformToArray($conditionList));
 
         $rule = Rule::create([
             'name' => $name,

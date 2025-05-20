@@ -31,6 +31,7 @@ class RuleToConditionTransformer
      */
     public function transformToArray(ConditionList $conditionList): array
     {
+        //todo Was wenn Parse einen Fehler liefert?
         return $this->expressionSyntaxParser->parse(
             $this->finQueryBuilder->build($conditionList)
         );

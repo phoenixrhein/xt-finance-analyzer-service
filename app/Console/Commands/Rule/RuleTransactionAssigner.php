@@ -178,7 +178,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         $this->saveRule(
             $this->viewInput('Name der Regel', 'required|min:1|unique:rule,name'),
             $selectedCategoryId,
-            $this->getTransformer()->transformToArray($conditionList),
+            $conditionList,
             $bankAccount->id
         );
     }
@@ -187,22 +187,22 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
      *
      * @param string $name
      * @param integer $categoryId
-     * @param array $ruleData
+     * @param ConditionList $conditionList
      * @param integer $bankAccountId
      * @return void
      */
     private function saveRule(
         string $name,
         int $categoryId,
-        array $ruleData,
+        ConditionList $conditionList,
         int $bankAccountId
     ): void {
         try {
             DB::beginTransaction();
-            $id = $this->ruleDataManager->saveRuleExpression(
+            $id = $this->ruleDataManager->saveRule(
                 $name,
                 $categoryId,
-                $ruleData,
+                $conditionList,
                 $bankAccountId
             );
             DB::commit();

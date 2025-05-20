@@ -48,10 +48,8 @@ class ExpressionSyntaxParserTest extends TestCase
 
         /** @var ExpressionBaseValidator $validatorMock */
         $validatorMock = $this->createMock(ExpressionBaseValidator::class);
-        /** @var ErrorReport $errorReportMock */
-        $errorReportMock = $this->createMock(ErrorReport::class);
 
-        $this->parser = new ExpressionSyntaxParser($validatorMock, $errorReportMock);
+        $this->parser = new ExpressionSyntaxParser($validatorMock, new ErrorReport());
         $this->queryBuilder = new FinQueryBuilder();
         $this->transformer = new RuleToConditionTransformer($this->parser, $this->queryBuilder);
         $this->sqlQueryBuilder = new SqlQueryBuilder();
@@ -106,10 +104,12 @@ class ExpressionSyntaxParserTest extends TestCase
      */
     public function testParseToQuery(string $expression, ?string $expectedQuery): void
     {
-        $parsed = $this->parser->parse($expression);
-        $this->assertIsArray($parsed, "Parsing failed for expression: $expression");
-        
-        $conditionList = $this->transformer->transformToConditionList($parsed);
+        $conditionList = $this->parser->parse($expression);
+        $this->assertFalse(
+            $this->parser->getErrorReport()->hasErrors(),
+            'Error parsing expression: ' . print_r($this->parser->getErrorReport()->getErrors(), true)
+        );
+
         $this->assertInstanceOf(ConditionList::class, $conditionList);
         
         $query = $this->queryBuilder->build($conditionList);
@@ -130,10 +130,11 @@ class ExpressionSyntaxParserTest extends TestCase
      */
     public function testParseToSqlQuery(string $expression, ?string $expectedQuery, ?string $expectedSqlQuery): void
     {
-        $parsed = $this->parser->parse($expression);
-        $this->assertIsArray($parsed, "Parsing failed for expression: {$expression}");
-        
-        $conditionList = $this->transformer->transformToConditionList($parsed);
+        $conditionList = $this->parser->parse($expression);
+        $this->assertFalse(
+            $this->parser->getErrorReport()->hasErrors(),
+            'Error parsing expression: ' . print_r($this->parser->getErrorReport()->getErrors(), true)
+        );
         
         $query = Transactions::query();
         $this->sqlQueryBuilder->build($query, $conditionList);
