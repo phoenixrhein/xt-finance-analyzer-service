@@ -20,7 +20,7 @@ class RefreshTransactionRuleIndexService
         private SqlQueryBuilder $sqlQueryBuilder,
         private RuleToConditionTransformer $transformer,
         private RuleListService $ruleListService
-    ){
+    ) {
     }
 
     public function refreshAll(int $bankAccountId): void
@@ -35,7 +35,10 @@ class RefreshTransactionRuleIndexService
             foreach ($this->ruleListService->getRules($bankAccountId) as $rule) {
                 $query = Transactions::select('id');
 
-                $this->sqlQueryBuilder->build($query, $this->transformer->transformToConditionList($rule['condition_link']));
+                $this->sqlQueryBuilder->build(
+                    $query,
+                    $this->transformer->transformToConditionList($rule['condition_link'])
+                );
                 echo $query->toSql() . PHP_EOL;
 
 
