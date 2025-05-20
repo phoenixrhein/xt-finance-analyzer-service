@@ -75,8 +75,11 @@ class ExpressionSyntaxParser
      * @param ConditionList $parentList
      * @return void
      */
-    private function buildConditionGroup(string $expressionTail, int $sectionPositionFrom, ConditionList $parentList): void
-    {
+    private function buildConditionGroup(
+        string $expressionTail,
+        int $sectionPositionFrom,
+        ConditionList $parentList
+    ): void {
         $countLeadingSpaces = strlen($expressionTail) - strlen(ltrim($expressionTail, " "));
         $expressionTail = trim($expressionTail);
         $innerExpression = $this->extractOuterParentheses($expressionTail, $sectionPositionFrom + $countLeadingSpaces);
@@ -102,7 +105,10 @@ class ExpressionSyntaxParser
 
         if ($logicOperatorRaw !== null) {
             $logicOperator = LogicalOperator::tryFrom(strtoupper($logicOperatorRaw)) ?? LogicalOperator::AND;
-            if ($parentList->getLogicalOperator(true) !== null && $parentList->getLogicalOperator()->value !== $logicOperator->value) {
+            if (
+                $parentList->getLogicalOperator(true) !== null
+                && $parentList->getLogicalOperator()->value !== $logicOperator->value
+            ) {
                 $this->errorReport->addError(
                     new ElementPosition($expressionTail, $sectionPositionFrom, $logicOperatorRaw),
                     ParserErrorType::LOGICAL_OPERATOR,
@@ -198,7 +204,10 @@ class ExpressionSyntaxParser
                 continue; //skip to next logical operator
             }
             $logicOperator = LogicalOperator::tryFrom(strtoupper($logicOperatorRaw)) ?? LogicalOperator::AND;
-            if ($list->getLogicalOperator(true) !== null && $list->getLogicalOperator()->value !== $logicOperator->value) {
+            if (
+                $list->getLogicalOperator(true) !== null
+                && $list->getLogicalOperator()->value !== $logicOperator->value
+            ) {
                 $this->errorReport->addError(
                     new ElementPosition($expressionTail, $sectionPositionFrom, $logicOperatorRaw),
                     ParserErrorType::LOGICAL_OPERATOR,

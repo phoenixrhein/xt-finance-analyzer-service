@@ -10,8 +10,17 @@ use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
 
 class RefreshTransactionRuleIndexService
 {
-    public function __construct(private SqlQueryBuilder $sqlQueryBuilder, private RuleToConditionTransformer $transformer, private RuleListService $ruleListService)
-    {
+    /**
+     *
+     * @param SqlQueryBuilder $sqlQueryBuilder
+     * @param RuleToConditionTransformer $transformer
+     * @param RuleListService $ruleListService
+     */
+    public function __construct(
+        private SqlQueryBuilder $sqlQueryBuilder,
+        private RuleToConditionTransformer $transformer,
+        private RuleListService $ruleListService
+    ){
     }
 
     public function refreshAll(int $bankAccountId): void
@@ -29,7 +38,7 @@ class RefreshTransactionRuleIndexService
                 $this->sqlQueryBuilder->build($query, $this->transformer->transformToConditionList($rule['condition_link']));
                 echo $query->toSql() . PHP_EOL;
 
-  
+
                 // ConditionQueryBuilder::applyCondition($query, $rule->conditionLink); chat: app-contractpartner-search
                 /*
                 $transactionIds = $query->pluck('id');
