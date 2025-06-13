@@ -64,8 +64,8 @@ class RefreshTransactionRuleIndexService
                 $countStyle = $transactionIds->count() > 0 ? 'info' : 'error';
                 $transactionIds->count() === 0 ? $zero++ : $updated++;
                 $this->io->line(
-                    '<info>'.$rule['name'].'</info>' .
-                    ' [<comment>'.$rule['expression'].'</comment>]: ' .
+                    '<info>' . $rule['name'] . '</info>' .
+                    ' [<comment>' . $rule['expression'] . '</comment>]: ' .
                     "<{$countStyle}>" . count($transactionIds) . "</{$countStyle}>"
                 );
             }

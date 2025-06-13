@@ -197,7 +197,8 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
             $bankAccount->id
         );
 
-        if ($this->unmatchedTransactionsService->getTotalUnmatchedTransactions(
+        if (
+            $this->unmatchedTransactionsService->getTotalUnmatchedTransactions(
                 $bankAccount,
                 $ignoreIbans
             )->count() > 0
