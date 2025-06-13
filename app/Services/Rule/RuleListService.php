@@ -1,10 +1,10 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Services;
+namespace de\xovatec\financeAnalyzer\Services\Rule;
 
 use de\xovatec\financeAnalyzer\Models\Rule;
 use de\xovatec\financeAnalyzer\Models\ConditionLink;
-use de\xovatec\financeAnalyzer\Services\Expression\ExpressionBuilder;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionBuilder;
 
 class RuleListService
 {
@@ -28,10 +28,10 @@ class RuleListService
      *
      * @return array
      */
-    public function getRulesWithExpression(): array
+    public function getRulesWithExpression(int $bankAccountId): array
     {
         $data = [];
-        foreach ($this->getRules() as $rule) {
+        foreach ($this->getRules($bankAccountId) as $rule) {
             $rule['expression'] = $this->builder->build($rule['condition_link']);
             $data[] = $rule;
         }
@@ -40,13 +40,32 @@ class RuleListService
     }
 
     /**
+     *
+     * @param integer $ruleId
+     * @return array
+     */
+    public function getRuleWithExpression(int $ruleId): array
+    {
+        $rule = $this->getRule($ruleId);
+        if (!empty($rule)) {
+            $rule['expression'] = $this->builder->build($rule['condition_link']);
+        }
+
+        return $rule;
+    }
+
+    /**
      * Retrieves the rules along with their relationships.
      *
      * @return array
      */
-    private function getRules(): array
+    public function getRules(int $bankAccountId): array
     {
-        $rules = $this->model->with(['actions.category'])->get();
+        $this->loadedConditionLinks = [];
+        $rules = $this->model
+            ->with(['actions.category'])
+            ->where('bank_account_id', $bankAccountId)
+            ->get();
 
         $rules->each(function ($rule) {
             $rule->loadMissing('conditionLink');
@@ -83,5 +102,26 @@ class RuleListService
         if ($conditionLink->linkedCondition) {
             $this->loadRecursiveConditionLink($conditionLink->linkedCondition);
         }
+    }
+
+    /**
+     *
+     * @param integer $ruleId
+     * @return array
+     */
+    public function getRule(int $ruleId): array
+    {
+        $this->loadedConditionLinks = [];
+        $rule = $this->model
+            ->with(['actions.category'])
+            ->where('id', $ruleId)
+            ->first();
+
+        if ($rule) {
+            $rule->loadMissing('conditionLink');
+            $this->loadRecursiveConditionLink($rule->conditionLink);
+        }
+
+        return $rule ? $rule->toArray() : [];
     }
 }

@@ -5,6 +5,7 @@ namespace de\xovatec\financeAnalyzer\Console\Commands;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use de\xovatec\financeAnalyzer\Traits\Command\View\BaseView;
+use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
 use de\xovatec\financeAnalyzer\Traits\Command\View\TableConsolePagination;
 
 use function Laravel\Prompts\confirm;
@@ -13,6 +14,7 @@ abstract class FinCommand extends Command
 {
     use TableConsolePagination;
     use BaseView;
+    use DateRangeParameter;
 
     /**
      * @inheritDoc
@@ -81,7 +83,7 @@ abstract class FinCommand extends Command
      * @param string $hint
      * @return boolean
      */
-    protected function confirmPrompt(
+    public function confirmPrompt(
         string $label,
         bool $default = true,
         string $yes = '',

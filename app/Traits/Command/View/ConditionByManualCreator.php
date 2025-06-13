@@ -13,6 +13,7 @@ use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\BaseField;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Operators\BaseOperator;
 use de\xovatec\financeAnalyzer\Traits\Command\DisplayInterimTransactionResult;
+use Illuminate\Support\Arr;
 
 use function Laravel\Prompts\select;
 
@@ -27,6 +28,11 @@ trait ConditionByManualCreator
     private const LOGICAL_OPERATOR_NONE = 'none';
 
     /**
+     * @var bool
+     */
+    private const LOGICAL_MODIFY_CONDITION = 'modify_condition';
+
+    /**
      * @return FinQueryBuilder
      */
     abstract protected function getFinQueryBuilder(): FinQueryBuilder;
@@ -39,34 +45,82 @@ trait ConditionByManualCreator
     {
         $conditions = new ConditionList();
         $condition = null;
+        $confirmation = null;
+        $start = 0;
         $logicalOperator = LogicalOperator::AND;
         do {
-            $condition = $this->inputCondition($condition);
-
-            $this->displayFinQuery($conditions, $condition, $logicalOperator->value);
-            $this->displayInterimResult(
+            if ($confirmation !== 'more') {
+                $condition = $this->inputCondition($condition);
+                $this->displayFinQuery($conditions, $condition, $logicalOperator->value);
+            }
+            $hasMore = $this->displayInterimResult(
                 CopyBuilderQueryHelper::copy($transactions),
-                (new ConditionList($logicalOperator))->addMany($conditions->all())->add($condition)
+                (new ConditionList($logicalOperator))->addMany($conditions->all())->add($condition),
+                $start
             );
 
-            if (!$this->confirmPrompt(__('cli.view.condition_creator.confirm_condition'))) {
+            $confirmOptions = [
+                'yes' =>  __('cli.base.button.yes'),
+                'no' =>  __('cli.base.button.no')
+            ];
+
+            if ($hasMore) {
+                $confirmOptions = Arr::prepend(
+                    $confirmOptions,
+                    __('cli.view.condition_creator.option_more_data'),
+                    'more'
+                );
+            }
+
+            $confirmation = select(
+                __('cli.view.condition_creator.confirm_condition'),
+                $confirmOptions
+            );
+
+            if ($confirmation !== 'yes') {
+                if ($confirmation === 'more') {
+                    $start += $this->getDisplayLimit();
+                } else {
+                    $start = 0;
+                }
                 continue;
+            }
+
+            $furtherConditionOptions = [
+                    LogicalOperator::AND->value => __('cli.view.condition_creator.option_and_link'),
+                    LogicalOperator::OR->value => __('cli.view.condition_creator.option_or_link'),
+            ];
+
+            if (!$this->overlapMatches) {
+                $furtherConditionOptions[self::LOGICAL_OPERATOR_NONE] = __(
+                    'cli.view.condition_creator.option_no_more_condition'
+                );
+            } else {
+                $this->warn(__('cli.view.condition_creator.warning_overlap_matches'));
+                $furtherConditionOptions[self::LOGICAL_MODIFY_CONDITION] = __(
+                    'cli.view.condition_creator.option_modify_condition'
+                );
             }
 
             $logicalOperator = select(
                 __('cli.view.condition_creator.further_condition'),
-                [
-                    LogicalOperator::AND->value => __('cli.view.condition_creator.option_and_link'),
-                    LogicalOperator::OR->value => __('cli.view.condition_creator.option_or_link'),
-                    self::LOGICAL_OPERATOR_NONE => __('cli.view.condition_creator.option_no_more_condition')
-                ]
+                $furtherConditionOptions
             );
+
+            if ($logicalOperator === self::LOGICAL_MODIFY_CONDITION) {
+                $start = 0;
+                $confirmation = 'no';
+                $logicalOperator = LogicalOperator::AND;
+                continue;
+            }
+
             if ($logicalOperator !== self::LOGICAL_OPERATOR_NONE) {
                 $logicalOperator = LogicalOperator::from($logicalOperator);
                 $conditions->setLogicalOperator($logicalOperator);
             }
             $conditions->add($condition);
 
+            $start = 0;
             $condition = null;
         } while ($logicalOperator !== self::LOGICAL_OPERATOR_NONE);
 

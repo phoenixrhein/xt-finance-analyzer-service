@@ -16,7 +16,7 @@ class CashDepositList extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:cash-list  {accountId : [:cli.base.param.account_id:]}';
+    protected $signature = 'fin:cash-list {accountId : [:cli.base.param.account_id:]}';
 
     /**
      * The console command description.

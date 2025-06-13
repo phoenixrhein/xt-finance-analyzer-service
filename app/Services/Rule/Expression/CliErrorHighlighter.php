@@ -1,6 +1,6 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Services\Expression;
+namespace de\xovatec\financeAnalyzer\Services\Rule\Expression;
 
 use Symfony\Component\Console\Output\OutputInterface;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Parser\ErrorReport;

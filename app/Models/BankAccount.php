@@ -53,6 +53,15 @@ class BankAccount extends Model
 
     /**
      *
+     * @return hasMany
+     */
+    public function rules(): HasMany
+    {
+        return $this->hasMany(Rule::class);
+    }
+
+    /**
+     *
      * @return HasOne
      */
     public function cashflow(): HasOne

@@ -2,22 +2,28 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Category;
 
+use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\Cashflow;
+use de\xovatec\financeAnalyzer\Services\Console\Category\TreeViewConsoleService;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
-class CategoryList extends AbstractCategory implements ProvidesAccountListQueryInterface
+class CategoryList extends FinCommand implements ProvidesAccountListQueryInterface
 {
     use BankAccountIdParameter;
 
     /**
      *
      * @param AccountListQuery $accountListQuery
+     * @param TreeViewConsoleService $treeViewConsoleService
      */
-    public function __construct(private AccountListQuery $accountListQuery)
-    {
+    public function __construct(
+        private AccountListQuery $accountListQuery,
+        private TreeViewConsoleService $treeViewConsoleService
+    ) {
         parent::__construct();
+        $this->treeViewConsoleService->setIo($this);
     }
 
     /**
@@ -58,6 +64,6 @@ class CategoryList extends AbstractCategory implements ProvidesAccountListQueryI
         }
 
         $this->emptyLn();
-        $this->displayCashflowTrees($cashflow);
+        $this->treeViewConsoleService->displayCashflowTrees($cashflow);
     }
 }

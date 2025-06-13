@@ -4,9 +4,10 @@ namespace de\xovatec\financeAnalyzer\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Rule extends Model
 {
@@ -23,7 +24,7 @@ class Rule extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'condition_link_id'];
+    protected $fillable = ['name', 'condition_link_id', 'bank_account_id'];
 
     /**
      *
@@ -41,6 +42,25 @@ class Rule extends Model
     public function conditionLink(): BelongsTo
     {
         return $this->belongsTo(ConditionLink::class);
+    }
+
+    /**
+     *
+     * @return BelongsToMany
+     */
+    public function transactions(): BelongsToMany
+    {
+        return $this->belongsToMany(Transactions::class, 'rule_transaction')
+                    ->withPivot('bank_account_id');
+    }
+
+    /**
+     *
+     * @return BelongsTo
+     */
+    public function bankAccount(): BelongsTo
+    {
+        return $this->belongsTo(BankAccount::class);
     }
 
     /**

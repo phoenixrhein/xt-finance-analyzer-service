@@ -1,10 +1,11 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Services\Expression;
+namespace de\xovatec\financeAnalyzer\Services\Rule\Expression;
 
-use de\xovatec\financeAnalyzer\Enums\ConditionType;
 use de\xovatec\financeAnalyzer\Enums\LogicalOperator;
 use de\xovatec\financeAnalyzer\Enums\ParserErrorType;
+use de\xovatec\financeAnalyzer\Dto\FinQuery\Condition;
+use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FieldConfig;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Parser\ErrorReport;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Parser\ElementPosition;
@@ -33,34 +34,37 @@ class ExpressionSyntaxParser
     /**
      *
      * @param string $expression
-     * @return array|null
+     * @return ConditionList|null
      */
-    public function parse(string $expression): ?array
+    public function parse(string $expression): ConditionList|null
     {
         $this->errorReport->clear();
         $this->expressionBaseValidator->validate($expression, $this->errorReport);
         if ($this->errorReport->hasErrors()) {
             return null;
         }
-        return $this->parseExpression($expression);
+        $list = new ConditionList();
+        $this->parseExpression($expression, 0, $list);
+        return $list;
     }
 
     /**
      *
      * @param string $expressionTail
-     * @param integer $sectionPositionFrom
-     * @return array|null
+     * @param int $sectionPositionFrom
+     * @param ConditionList $list
+     * @return void
      */
-    private function parseExpression(string $expressionTail, $sectionPositionFrom = 0): ?array
+    private function parseExpression(string $expressionTail, int $sectionPositionFrom, ConditionList $list): void
     {
         if (strlen(trim($expressionTail)) === 0) {
-            return null;
+            return;
         }
 
         if (str_starts_with($expressionTail, '(')) {
-            return $this->buildConditionGroup($expressionTail, $sectionPositionFrom);
+            $this->buildConditionGroup($expressionTail, $sectionPositionFrom, $list);
         } else {
-            return $this->buildRule($expressionTail, $sectionPositionFrom);
+            $this->buildRule($expressionTail, $sectionPositionFrom, $list);
         }
     }
 
@@ -68,45 +72,63 @@ class ExpressionSyntaxParser
      *
      * @param string $expressionTail
      * @param int $sectionPositionFrom
-     * @return array
+     * @param ConditionList $parentList
+     * @return void
      */
-    private function buildConditionGroup(string $expressionTail, int $sectionPositionFrom): array
-    {
-        $linkTo = null;
+    private function buildConditionGroup(
+        string $expressionTail,
+        int $sectionPositionFrom,
+        ConditionList $parentList
+    ): void {
         $countLeadingSpaces = strlen($expressionTail) - strlen(ltrim($expressionTail, " "));
         $expressionTail = trim($expressionTail);
         $innerExpression = $this->extractOuterParentheses($expressionTail, $sectionPositionFrom + $countLeadingSpaces);
 
         $followingExpression = trim(substr($expressionTail, strlen($innerExpression)));
-        $logicOperator = $this->parseLogicOperator(
+        $logicOperatorRaw = $this->parseLogicOperator(
             $followingExpression,
             true,
             $sectionPositionFrom + strpos($expressionTail, $followingExpression)
         );
 
+        $list = new ConditionList();
+
         //remove outer parentheses
         $innerExpression = substr($innerExpression, 1, strlen($innerExpression) - 2);
 
-        $group = $this->parseExpression(
+        $this->parseExpression(
             $innerExpression,
-            $sectionPositionFrom + 1 + $countLeadingSpaces // 1 = open bracket
+            $sectionPositionFrom + 1 + $countLeadingSpaces, // 1 = open bracket
+            $list
         );
+        $parentList->add($list);
 
-        if ($logicOperator !== null) {
-            $followingExpression = trim(substr($followingExpression, strlen($logicOperator)));
-            $linkTo = $this->parseExpression(
+        if ($logicOperatorRaw !== null) {
+            $logicOperator = LogicalOperator::tryFrom(strtoupper($logicOperatorRaw)) ?? LogicalOperator::AND;
+            if (
+                $parentList->getLogicalOperator(true) !== null
+                && $parentList->getLogicalOperator()->value !== $logicOperator->value
+            ) {
+                $this->errorReport->addError(
+                    new ElementPosition($expressionTail, $sectionPositionFrom, $logicOperatorRaw),
+                    ParserErrorType::LOGICAL_OPERATOR,
+                    __(
+                        'cli.fin_query.parser.error.invalid_logical_operator',
+                        [
+                            'operators' => implode(', ', [LogicalOperator::AND->value, LogicalOperator::OR->value])
+                        ]
+                    )
+                );
+            }
+            $parentList->setLogicalOperator($logicOperator);
+            $followingExpression = trim(substr($followingExpression, strlen($logicOperatorRaw)));
+            $this->parseExpression(
                 // following expression without logic operator
                 $followingExpression,
-                $sectionPositionFrom + strpos($expressionTail, $followingExpression)
+                $sectionPositionFrom + strpos($expressionTail, $followingExpression),
+                $parentList
             );
         }
-
-        return [
-            'condition' => $group,
-            'conditionType' => ConditionType::group,
-            'logicOperator' => $logicOperator,
-            'linkTo' => $linkTo
-        ];
     }
 
     /**
@@ -156,13 +178,14 @@ class ExpressionSyntaxParser
     /**
      *
      * @param string $expressionTail
-     * @param integer $sectionPositionFrom
-     * @return array|null
+     * @param int $sectionPositionFrom
+     * @param ConditionList $list
+     * @return void
      */
-    private function buildRule(string $expressionTail, int $sectionPositionFrom): ?array
+    private function buildRule(string $expressionTail, int $sectionPositionFrom, ConditionList $list): void
     {
         if (strlen(trim($expressionTail)) === 0) {
-            return null;
+            return;
         }
 
         $ignoreValueString = false;
@@ -175,38 +198,62 @@ class ExpressionSyntaxParser
                 continue;
             }
 
-            $logicOperator = $this->parseLogicOperator(substr($expressionTail, $currentPos));
+            $logicOperatorRaw = $this->parseLogicOperator(substr($expressionTail, $currentPos));
 
-            if ($logicOperator === null || $currentPos === 0) {
+            if ($logicOperatorRaw === null || $currentPos === 0) {
                 continue; //skip to next logical operator
             }
+            $logicOperator = LogicalOperator::tryFrom(strtoupper($logicOperatorRaw)) ?? LogicalOperator::AND;
+            if (
+                $list->getLogicalOperator(true) !== null
+                && $list->getLogicalOperator()->value !== $logicOperator->value
+            ) {
+                $this->errorReport->addError(
+                    new ElementPosition($expressionTail, $sectionPositionFrom, $logicOperatorRaw),
+                    ParserErrorType::LOGICAL_OPERATOR,
+                    __(
+                        'cli.fin_query.parser.error.invalid_logical_operator',
+                        [
+                            'operators' => implode(', ', [LogicalOperator::AND->value, LogicalOperator::OR->value])
+                        ]
+                    )
+                );
+            }
 
-            return [
-                'condition' => $this->buildCondition(substr($expressionTail, 0, $currentPos), $sectionPositionFrom),
-                'conditionType' => ConditionType::condition,
-                'logicOperator' => $logicOperator,
-                'linkTo' => $this->parseExpression(
-                    substr($expressionTail, $currentPos + strlen(' ' . $logicOperator . ' ')),
-                    $sectionPositionFrom + $currentPos + strlen(' ' . $logicOperator . ' ')
-                )
-            ];
+            $list->setLogicalOperator(
+                $logicOperator
+            );
+
+            $condition = $this->buildCondition(substr($expressionTail, 0, $currentPos), $sectionPositionFrom);
+
+            if ($condition === null) {
+                return;
+            }
+
+            $list->add($condition);
+
+            $this->parseExpression(
+                substr($expressionTail, $currentPos + strlen(' ' . $logicOperatorRaw . ' ')),
+                $sectionPositionFrom + $currentPos + strlen(' ' . $logicOperatorRaw . ' '),
+                $list
+            );
+            return;
         }
 
-        return [
-            'condition' => $this->buildCondition($expressionTail, $sectionPositionFrom),
-            'conditionType' => ConditionType::condition,
-            'logicOperator' => null,
-            'linkTo' => null
-        ];
+        $condition = $this->buildCondition($expressionTail, $sectionPositionFrom);
+        if ($condition === null) {
+            return;
+        }
+        $list->add($condition);
     }
 
     /**
      *
      * @param string $condition
      * @param int $sectionPositionFrom
-     * @return array
+     * @return Condition|null
      */
-    private function buildCondition(string $condition, int $sectionPositionFrom): array
+    private function buildCondition(string $condition, int $sectionPositionFrom): ?Condition
     {
         $trimmedCondition = trim($condition);
 
@@ -256,11 +303,17 @@ class ExpressionSyntaxParser
             }
         }
 
-        return [
-            'field' => $matches[1] ?? '',
-            'comparer' => $matches[2] ?? '',
-            'value' => $value ?? ''
-        ];
+        if (empty($matches[1]) || empty($matches[2])) {
+            return null;
+        }
+
+        $field = FieldConfig::getFieldByColumnKey($matches[1]);
+        $operator = FieldConfig::getOperatorClass($field, $matches[2]);
+        return new Condition(
+            $field,
+            $operator,
+            $value ?? ''
+        );
     }
 
     /**

@@ -18,7 +18,9 @@ return [
         ],
         'param' => [
             'user_id' => 'ID des Benutzers',
-            'account_id' => 'ID des Bankkontos'
+            'account_id' => 'ID des Bankkontos',
+            'rule_id' => 'ID der Regel',
+            'force_delete' => 'Löschen erzwingen',
         ],
         'confirm_save' => 'Sind alle Daten korrekt?',
         'created' => 'Eintrag erfolgreich angelegt [Id: :id]',
@@ -76,12 +78,15 @@ return [
             'option_and_link' => 'Weitere Bedingung mit UND-Verknüpfung',
             'option_or_link' => 'Weitere Bedingung mit ODER-Verknüpfung',
             'option_no_more_condition' => 'Keine weitere Bedingung',
+            'option_modify_condition' => 'Letzte Bedingung erneut anpassen',
             'select_field' => 'Feld für die Bedingung auswählen',
             'select_operator' => 'Vergleichs-Operator auswählen',
             'value_input' => 'Wert eingeben',
             'value_select' => 'Wert auswählen',
             'confirm_condition' => 'Ist die Bedingung korrekt?',
             'further_condition' => 'Weitere Bedingung hinzufügen?',
+            'option_more_data' => 'Weitere Treffer anzeigen',
+            'warning_overlap_matches' => 'Es gibt Überschneidungen mit mindestens einer weiteren Regel',
             'operator' => [
                 'equal' => 'Gleich',
                 'not_equal' => 'Ungleich',
@@ -434,5 +439,51 @@ return [
                 ]
             ]
         ]
+    ],
+    'rule' => [
+        'assign' => [
+            'description' => 'Regel zuweisen',
+            'select_more_data_or_add_rule' => [
+                'text' => 'Weitere anzeigen oder ein Regel anlegen',
+                'options' => [
+                    'add_rule' => 'Regel anlegen',
+                    'more_data' => 'Weitere anzeigen'
+                ]
+            ],
+            'count_unmatched_transactions' => 'Anzahl der nicht kategorisierten Transaktionen: :count',
+            'total_found' => 'Gesamtanzahl: :count',
+            'found_already_matched' => 'Es werden :count bereits kategorisierte Transaktionen gefunden. Diese sind mit gelber Schrift markiert',
+            'cat_mgmt_continue_button_text' => 'Kategorie auswählen',
+            'result' => [
+                'info' => 'Die Regel mit der ID \':id\' wurde erfolgreich angelegt',
+                'error' => 'Beim Speichern der Regel ist ein Fehler aufgetreten',
+            ]
+        ],
+        'list' => [
+            'description' => 'Regeln anzeigen',
+            'table_header' => [
+                'id' => 'ID',
+                'name' => 'Name',
+                'expression' => 'Expression',
+                'category' => 'Kategorie'
+            ]
+        ],
+        'delete' => [
+            'description' => 'Regel löschen',
+            'confirm' => 'Wollen Sie die Regel mit der ID \':id\' wirklich löschen?',
+            'deleted' => 'Die Regel mit der ID \':ruleId\' wurde gelöscht',
+            'error' => [
+                'not_found' => 'Die Regel mit der ID \':ruleId\' wurde nicht gefunden'
+            ],
+            'success' => 'Die Regel mit der ID \':ruleId\' wurde gelöscht'
+        ],
+        'refresh_index' => [
+            'param' => [
+                'considerIgnoreIbans' => 'Die Ignore-IBANs berücksichtigen'
+            ],
+            'description' => 'Regel-Index aktualisieren',
+            'not_considering_ignore_ibans' => 'Die Aktualisierung des Indexes berücksichtigt nicht die Ignore-IBANs',
+            'summary' => 'Es wurden :total Regeln verarbeitet. :updated Regeln aktualisiert, :zero Regeln ohne Treffer.'
+        ],
     ]
 ];

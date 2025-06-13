@@ -5,7 +5,10 @@ namespace de\xovatec\financeAnalyzer\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use de\xovatec\financeAnalyzer\Services\Console\Output\NullOutput;
+use de\xovatec\financeAnalyzer\Services\Console\Output\ConsoleOutput;
 use de\xovatec\financeAnalyzer\Services\Import\Progress\NullProgressDisplay;
+use de\xovatec\financeAnalyzer\Services\Console\Output\ConsoleOutputInterface;
 use de\xovatec\financeAnalyzer\Services\Import\Progress\ConsoleProgressDisplay;
 use de\xovatec\financeAnalyzer\Services\Import\Progress\ProgressDisplayInterface;
 use de\xovatec\financeAnalyzer\Services\Import\Transaction\Detector\FileTypeDetector;
@@ -51,6 +54,23 @@ class AppServiceProvider extends ServiceProvider
             }
 
             return new NullProgressDisplay();
+        });
+
+        $this->app->bind(ConsoleOutput::class, function () {
+            return new ConsoleOutput(
+                new SymfonyStyle(
+                    new \Symfony\Component\Console\Input\ArgvInput(),
+                    new \Symfony\Component\Console\Output\ConsoleOutput()
+                )
+            );
+        });
+
+        $this->app->bind(ConsoleOutputInterface::class, function ($app) {
+            if ($app->runningInConsole()) {
+                return $app->make(ConsoleOutput::class);
+            }
+
+            return new NullOutput();
         });
     }
 }
