@@ -50,7 +50,7 @@ class RefreshTransactionRuleIndexService
         if ($considerIgnoreIbans) {
             $ignoreIbans = IgnoreList::where('bank_account_id', $bankAccount->id)->select('value')->get();
         }
-        
+
         DB::transaction(function () use ($bankAccount, $ignoreIbans) {
             $this->io->emptyLn();
             $rules = $this->ruleListService->getRulesWithExpression($bankAccount->id);
@@ -66,8 +66,8 @@ class RefreshTransactionRuleIndexService
                 $this->io->line(
                     '<info>'.$rule['name'].'</info>' .
                     ' [<comment>'.$rule['expression'].'</comment>]: ' .
-                    "<{$countStyle}>" . count($transactionIds) . "</{$countStyle}>");
-                    
+                    "<{$countStyle}>" . count($transactionIds) . "</{$countStyle}>"
+                );
             }
 
             $this->io->emptyLn();
@@ -131,7 +131,6 @@ class RefreshTransactionRuleIndexService
         if ($ignoreIbans->isNotEmpty()) {
             $query->whereNotIn('creditor_iban', $ignoreIbans->toArray());
         }
-
     }
 
     /**
@@ -158,7 +157,7 @@ class RefreshTransactionRuleIndexService
     public function addRule(int $ruleId, BankAccount $bankAccount, bool $considerIgnoreIbans = true): void
     {
         $ignoreIbans = new Collection();
-        
+
         if ($considerIgnoreIbans) {
             $ignoreIbans = IgnoreList::where('bank_account_id', $bankAccount->id)->select('value')->get();
         }

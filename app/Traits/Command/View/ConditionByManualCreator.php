@@ -92,10 +92,14 @@ trait ConditionByManualCreator
             ];
 
             if (!$this->overlapMatches) {
-                $furtherConditionOptions[self::LOGICAL_OPERATOR_NONE] = __('cli.view.condition_creator.option_no_more_condition');
+                $furtherConditionOptions[self::LOGICAL_OPERATOR_NONE] = __(
+                    'cli.view.condition_creator.option_no_more_condition'
+                );
             } else {
                 $this->warn(__('cli.view.condition_creator.warning_overlap_matches'));
-                $furtherConditionOptions[self::LOGICAL_MODIFY_CONDITION] = __('cli.view.condition_creator.option_modify_condition');
+                $furtherConditionOptions[self::LOGICAL_MODIFY_CONDITION] = __(
+                    'cli.view.condition_creator.option_modify_condition'
+                );
             }
 
             $logicalOperator = select(

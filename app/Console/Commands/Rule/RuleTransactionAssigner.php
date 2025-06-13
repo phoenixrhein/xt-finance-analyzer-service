@@ -198,9 +198,10 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         );
 
         if ($this->unmatchedTransactionsService->getTotalUnmatchedTransactions(
-            $bankAccount,
-            $ignoreIbans
-        )->count() > 0) {
+                $bankAccount,
+                $ignoreIbans
+            )->count() > 0
+        ) {
             $continue = select(
                 '',
                 [

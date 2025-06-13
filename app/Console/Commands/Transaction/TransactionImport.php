@@ -16,9 +16,12 @@ class TransactionImport extends FinCommand
     /**
      *
      * @param ImportTransactionService $importTransactionService
+     * @param RefreshTransactionRuleIndexService $indexService
      */
-    public function __construct(private ImportTransactionService $importTransactionService, private RefreshTransactionRuleIndexService $indexService)
-    {
+    public function __construct(
+        private ImportTransactionService $importTransactionService,
+        private RefreshTransactionRuleIndexService $indexService
+    ) {
         parent::__construct();
     }
 

@@ -20,7 +20,7 @@ class RuleList extends FinCommand
     {
         parent::__construct();
     }
-    
+
     /**
      * The name and signature of the console command.
      *

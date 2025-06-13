@@ -40,8 +40,10 @@ class RuleToConditionTransformer
      * @param LogicalOperator|null $logicalOperator
      * @return array|null
      */
-    private function transformByArrayIterator(ArrayIterator $conditionIterator, ?LogicalOperator $logicalOperator): ?array
-    {
+    private function transformByArrayIterator(
+        ArrayIterator $conditionIterator,
+        ?LogicalOperator $logicalOperator
+    ): ?array {
         if ($conditionIterator->valid() === false) {
             return null;
         }
@@ -69,7 +71,7 @@ class RuleToConditionTransformer
             throw new ExpressionSyntaxException('No valid condition type given: ' . get_class($condition));
         }
 
-        if ($logicalOperator !== null ) {
+        if ($logicalOperator !== null) {
             $conditionIterator->next();
             $conditionData['linkTo'] = $this->transformByArrayIterator($conditionIterator, $logicalOperator);
         }
@@ -92,5 +94,4 @@ class RuleToConditionTransformer
             $this->expressionBuilder->build($conditionLink)
         );
     }
-
 }

@@ -20,7 +20,8 @@ class RefreshTransactionRuleIndex extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:rule-refresh-index {accountId : [:cli.base.param.account_id:]} {--considerIgnoreIbans : [:cli.rule.refresh_index.param.considerIgnoreIbans:]}';
+    protected $signature = 'fin:rule-refresh-index {accountId : [:cli.base.param.account_id:]} " .
+        "{--considerIgnoreIbans : [:cli.rule.refresh_index.param.considerIgnoreIbans:]}';
 
     /**
      * The console command description.
