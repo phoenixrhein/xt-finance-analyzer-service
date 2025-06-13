@@ -6,6 +6,8 @@ use UnexpectedValueException;
 use Illuminate\Database\Eloquent\Builder;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Enums\TransactionCheckCode;
+use de\xovatec\financeAnalyzer\Models\BankAccount;
+use Illuminate\Database\Eloquent\Collection;
 
 class UnmatchedTransactionsService
 {
@@ -26,5 +28,22 @@ class UnmatchedTransactionsService
                 TransactionCheckCode::NONE->value
             )
             ->orderBy('transactions.transaction_date', 'asc');
+    }
+
+    /**
+     *
+     * @param BankAccount $bankAccount
+     * @param Collection $ignoreIbans
+     * @return Builder
+     */
+    public function getTotalUnmatchedTransactions(BankAccount $bankAccount, Collection $ignoreIbans): Builder
+    {
+        $unmatchedTransactions = Transactions::where('bank_account_iban', $bankAccount->iban)->orderBy('id');
+
+        if ($ignoreIbans->isNotEmpty()) {
+            $unmatchedTransactions = $unmatchedTransactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        }
+
+        return $this->getUnmatchedTransactions($unmatchedTransactions);
     }
 }

@@ -2,13 +2,13 @@
 
 namespace de\xovatec\financeAnalyzer\Services\Rule;
 
+use ArrayIterator;
 use de\xovatec\financeAnalyzer\Enums\ConditionType;
 use de\xovatec\financeAnalyzer\Enums\LogicalOperator;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Condition;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
-use de\xovatec\financeAnalyzer\Services\FinQuery\FieldConfig;
-use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Exceptions\ExpressionSyntaxException;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionBuilder;
 use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
 
 class RuleToConditionTransformer
@@ -16,11 +16,11 @@ class RuleToConditionTransformer
     /**
      *
      * @param ExpressionSyntaxParser $expressionSyntaxParser
-     * @param FinQueryBuilder $finQueryBuilder
+     * @param ExpressionBuilder $expressionBuilder
      */
     public function __construct(
         private ExpressionSyntaxParser $expressionSyntaxParser,
-        private FinQueryBuilder $finQueryBuilder,
+        private ExpressionBuilder $expressionBuilder
     ) {
     }
 
@@ -31,72 +31,66 @@ class RuleToConditionTransformer
      */
     public function transformToArray(ConditionList $conditionList): array
     {
-        //todo Was wenn Parse einen Fehler liefert?
-        return $this->expressionSyntaxParser->parse(
-            $this->finQueryBuilder->build($conditionList)
-        );
+        return $this->transformByArrayIterator($conditionList->getIterator(), $conditionList->getLogicalOperator());
     }
 
     /**
+     *
+     * @param ArrayIterator $conditionIterator
+     * @param LogicalOperator|null $logicalOperator
+     * @return array|null
+     */
+    private function transformByArrayIterator(ArrayIterator $conditionIterator, ?LogicalOperator $logicalOperator): ?array
+    {
+        if ($conditionIterator->valid() === false) {
+            return null;
+        }
+        $condition = $conditionIterator->current();
+
+        if ($condition instanceof Condition) {
+            $conditionData = [
+                'conditionType' => ConditionType::condition,
+                'condition' => [
+                    'field' => $condition->getField()->getColumn(),
+                    'comparer' => $condition->getOperator()->getFinQueryOperator(),
+                    'value' => $condition->getValue()
+                ],
+                'logicOperator' => $logicalOperator?->value,
+                'linkTo' => null
+            ];
+        } elseif ($condition instanceof ConditionList) {
+            $conditionData = [
+                'conditionType' => ConditionType::group,
+                'condition' => $this->transformToArray($condition, $condition->getLogicalOperator()),
+                'logicOperator' => $logicalOperator?->value,
+                'linkTo' => null
+            ];
+        } else {
+            throw new ExpressionSyntaxException('No valid condition type given: ' . get_class($condition));
+        }
+
+        if ($logicalOperator !== null ) {
+            $conditionIterator->next();
+            $conditionData['linkTo'] = $this->transformByArrayIterator($conditionIterator, $logicalOperator);
+        }
+
+        if ($conditionData['linkTo'] === null) {
+            $conditionData['logicOperator'] = null;
+        }
+
+        return $conditionData;
+    }
+
+        /**
      *
      * @param array $ruleCondition
      * @return ConditionList
      */
     public function transformToConditionList(array $conditionLink): ConditionList
     {
-        $list = new ConditionList(LogicalOperator::tryFrom($conditionLink['logicOperator']));
-        $this->transformConditionLink($conditionLink, $list);
-        return $list;
+        return $this->expressionSyntaxParser->parse(
+            $this->expressionBuilder->build($conditionLink)
+        );
     }
 
-    /**
-     *
-     * @param array $rule
-     * @param ConditionList $list
-     * @param string $logicalOperator
-     * @throws ExpressionSyntaxException
-     * @return void
-     */
-    private function transformConditionLink(array $conditionLink, ConditionList $list): void
-    {
-        if ($conditionLink['conditionType'] === ConditionType::group) {
-            $this->transformGroup($conditionLink, $list);
-        } elseif ($conditionLink['conditionType'] === ConditionType::condition) {
-            $this->transformCondition($conditionLink, $list);
-        } else {
-            throw new ExpressionSyntaxException('Invalid condition type');
-        }
-    }
-
-    /**
-     *
-     * @param array $conditionLink
-     * @param ConditionList $list
-     * @return void
-     */
-    private function transformGroup(array $conditionLink, ConditionList $list): void
-    {
-        $groupList = new ConditionList(LogicalOperator::tryFrom($conditionLink['condition']['logicOperator']));
-        $this->transformConditionLink($conditionLink['condition'], $groupList);
-        $list->add($groupList);
-        if ($conditionLink['linkTo'] !== null) {
-            $this->transformConditionLink($conditionLink['linkTo'], $list);
-        }
-    }
-
-    /**
-     *
-     * @param array $condition
-     * @param ConditionList $list
-     * @return void
-     */
-    private function transformCondition(array $condition, ConditionList $list): void
-    {
-        $field = FieldConfig::getFieldByColumnKey($condition['condition']['field']);
-        $operator = FieldConfig::getOperatorClass($field, $condition['condition']['comparer']);
-        $list->add(new Condition($field, $operator, $condition['condition']['value']));
-        if ($condition['linkTo'] !== null) {
-            $this->transformConditionLink($condition['linkTo'], $list);
-        }
-    }
 }

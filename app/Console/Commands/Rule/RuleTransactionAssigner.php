@@ -132,9 +132,24 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
     protected $description = 'cli.rule.assign.description';
 
     /**
+     *
+     * @var boolean
+     */
+    private bool $overlapMatches = false;
+
+    /**
      * @inheritDoc
      */
     protected function process(): void
+    {
+        $this->assignRule();
+    }
+
+    /**
+     *
+     * @return void
+     */
+    private function assignRule(): void
     {
         $bankAccount = $this->getBankAccount((int)$this->argument('accountId'), true);
         $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
@@ -181,6 +196,23 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
             $conditionList,
             $bankAccount->id
         );
+
+        if ($this->unmatchedTransactionsService->getTotalUnmatchedTransactions(
+            $bankAccount,
+            $ignoreIbans
+        )->count() > 0) {
+            $continue = select(
+                '',
+                [
+                    'yes' => 'Weitere Regel erstellen',
+                    'no' => 'Beenden'
+                ]
+            );
+
+            if ($continue === 'yes') {
+                $this->assignRule();
+            }
+        }
     }
 
     /**
@@ -340,7 +372,9 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
     {
         $clonedTransactions->whereNotNull('rule_transaction.rule_id');
         $found = $clonedTransactions->count();
+        $this->overlapMatches = $found > 0;
         if ($found > 0) {
+            $this->emptyLn();
             $this->alert(__('cli.rule.assign.found_already_matched', ['count' => $found]));
             $this->halt();
         }

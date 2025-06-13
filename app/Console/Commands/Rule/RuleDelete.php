@@ -2,11 +2,21 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 
-use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\Rule;
+use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Services\Rule\RefreshTransactionRuleIndexService;
 
 class RuleDelete extends FinCommand
 {
+    /**
+     *
+     * @param RefreshTransactionRuleIndexService $refreshService
+     */
+    public function __construct(private RefreshTransactionRuleIndexService $refreshService)
+    {
+        parent::__construct();
+    }
+
     /**
      * The name and signature of the console command.
      *
@@ -43,6 +53,8 @@ class RuleDelete extends FinCommand
         } else {
             Rule::destroy($ruleId);
         }
+
+        $this->refreshService->deleteByRuleId($ruleId, $rule->bank_account_id);
 
         $this->info(__('cli.rule.delete.success', ['ruleId' => $ruleId]));
     }

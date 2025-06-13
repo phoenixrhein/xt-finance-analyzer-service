@@ -68,6 +68,12 @@ trait ConditionByFinQueryCreator
                 'no' =>  __('cli.base.button.no')
             ];
 
+            if ($this->overlapMatches) {
+                $confirmOptions = [
+                    'no' =>  'Bedingung anpassen',
+                ];
+            }
+
             if ($hasMore) {
                 $confirmOptions = Arr::prepend(
                     $confirmOptions,
@@ -77,7 +83,7 @@ trait ConditionByFinQueryCreator
             }
 
             $confirmation = select(
-                __('cli.view.condition_creator.confirm_condition'),
+                $this->overlapMatches ? '' : __('cli.view.condition_creator.confirm_condition'),
                 $confirmOptions
             );
 

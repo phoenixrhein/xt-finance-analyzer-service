@@ -10,15 +10,19 @@ use de\xovatec\financeAnalyzer\Enums\ConditionType;
 use de\xovatec\financeAnalyzer\Models\ConditionLink;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Exceptions\ExpressionSyntaxException;
+use de\xovatec\financeAnalyzer\Models\BankAccount;
+use de\xovatec\financeAnalyzer\Services\Rule\RefreshTransactionRuleIndexService;
 
 class RuleDataManager
 {
     /**
-     *
      * @param RuleToConditionTransformer $transformer
+     * @param RefreshTransactionRuleIndexService $indexService
      */
-    public function __construct(private RuleToConditionTransformer $transformer)
-    {
+    public function __construct(
+        private RuleToConditionTransformer $transformer,
+        private RefreshTransactionRuleIndexService $indexService
+    ) {
     }
 
     /**
@@ -79,6 +83,9 @@ class RuleDataManager
             'rule_id' => $rule->id,
             'category_id' => $categoryId
         ]);
+
+        $bankAccount = BankAccount::find($bankAccountId);
+        $this->indexService->addRule($rule->id, $bankAccount);
 
         return $rule->id;
     }

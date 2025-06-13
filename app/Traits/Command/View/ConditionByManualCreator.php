@@ -28,6 +28,11 @@ trait ConditionByManualCreator
     private const LOGICAL_OPERATOR_NONE = 'none';
 
     /**
+     * @var bool
+     */
+    private const LOGICAL_MODIFY_CONDITION = 'modify_condition';
+
+    /**
      * @return FinQueryBuilder
      */
     abstract protected function getFinQueryBuilder(): FinQueryBuilder;
@@ -81,14 +86,30 @@ trait ConditionByManualCreator
                 continue;
             }
 
-            $logicalOperator = select(
-                __('cli.view.condition_creator.further_condition'),
-                [
+            $furtherConditionOptions = [
                     LogicalOperator::AND->value => __('cli.view.condition_creator.option_and_link'),
                     LogicalOperator::OR->value => __('cli.view.condition_creator.option_or_link'),
-                    self::LOGICAL_OPERATOR_NONE => __('cli.view.condition_creator.option_no_more_condition')
-                ]
+            ];
+
+            if (!$this->overlapMatches) {
+                $furtherConditionOptions[self::LOGICAL_OPERATOR_NONE] = __('cli.view.condition_creator.option_no_more_condition');
+            } else {
+                $this->warn(__('cli.view.condition_creator.warning_overlap_matches'));
+                $furtherConditionOptions[self::LOGICAL_MODIFY_CONDITION] = __('cli.view.condition_creator.option_modify_condition');
+            }
+
+            $logicalOperator = select(
+                __('cli.view.condition_creator.further_condition'),
+                $furtherConditionOptions
             );
+
+            if ($logicalOperator === self::LOGICAL_MODIFY_CONDITION) {
+                $start = 0;
+                $confirmation = 'no';
+                $logicalOperator = LogicalOperator::AND;
+                continue;
+            }
+
             if ($logicalOperator !== self::LOGICAL_OPERATOR_NONE) {
                 $logicalOperator = LogicalOperator::from($logicalOperator);
                 $conditions->setLogicalOperator($logicalOperator);

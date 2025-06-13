@@ -21,6 +21,12 @@ trait DisplayInterimTransactionResult
 
     /**
      *
+     * @var boolean
+     */
+    private bool $overlapMatches = false;
+
+    /**
+     *
      * @return integer
      */
     private function getDisplayLimit(): int

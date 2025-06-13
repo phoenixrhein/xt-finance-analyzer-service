@@ -20,7 +20,7 @@ class RefreshTransactionRuleIndex extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:rule-refresh-index {accountId : [:cli.base.param.account_id:]} ';
+    protected $signature = 'fin:rule-refresh-index {accountId : [:cli.base.param.account_id:]} {--considerIgnoreIbans : [:cli.rule.refresh_index.param.considerIgnoreIbans:]}';
 
     /**
      * The console command description.
@@ -34,7 +34,14 @@ class RefreshTransactionRuleIndex extends FinCommand
      */
     protected function process(): void
     {
+        $considerIgnoreIbans = $this->option('considerIgnoreIbans');
+        if (!$considerIgnoreIbans) {
+            $this->emptyLn();
+            $this->warn(__('cli.rule.refresh_index.not_considering_ignore_ibans'));
+            $this->emptyLn();
+        }
+
         $bankAccount = $this->getBankAccount((int)$this->argument('accountId'), true);
-        $this->indexService->refreshAll($bankAccount->id);
+        $this->indexService->refreshAll($bankAccount, $considerIgnoreIbans);
     }
 }

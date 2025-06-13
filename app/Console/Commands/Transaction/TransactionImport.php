@@ -4,8 +4,10 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\Transaction;
 
 use Illuminate\Support\Facades\Validator;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Services\Import\ImportTransactionService;
+use de\xovatec\financeAnalyzer\Services\Rule\RefreshTransactionRuleIndexService;
 
 class TransactionImport extends FinCommand
 {
@@ -15,7 +17,7 @@ class TransactionImport extends FinCommand
      *
      * @param ImportTransactionService $importTransactionService
      */
-    public function __construct(private ImportTransactionService $importTransactionService)
+    public function __construct(private ImportTransactionService $importTransactionService, private RefreshTransactionRuleIndexService $indexService)
     {
         parent::__construct();
     }
@@ -83,11 +85,18 @@ class TransactionImport extends FinCommand
             );
         }
 
+        $this->emptyLn();
+        $this->info("Aktualisiere den Regel-Buchungs-Index...");
+        $this->indexService->refreshAll(
+            BankAccount::find($accountId),
+            true
+        );
+
         if ($accountId !== null) {
             $this->call(
                 'fin:cash-detector',
                 [
-                    'accountId' => 1
+                    'accountId' => $accountId
                 ]
             );
         }

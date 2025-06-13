@@ -3,14 +3,15 @@
 namespace de\xovatec\Tests\financeAnalyzer\app\Services\Expression;
 
 use de\xovatec\Tests\financeAnalyzer\TestCase;
+use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\Parser\ErrorReport;
-use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
+use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionBuilder;
 use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
 use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionBaseValidator;
-use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 
 class ExpressionSyntaxParserTest extends TestCase
 {
@@ -51,7 +52,7 @@ class ExpressionSyntaxParserTest extends TestCase
 
         $this->parser = new ExpressionSyntaxParser($validatorMock, new ErrorReport());
         $this->queryBuilder = new FinQueryBuilder();
-        $this->transformer = new RuleToConditionTransformer($this->parser, $this->queryBuilder);
+        $this->transformer = new RuleToConditionTransformer($this->parser, new ExpressionBuilder());
         $this->sqlQueryBuilder = new SqlQueryBuilder();
     }
 

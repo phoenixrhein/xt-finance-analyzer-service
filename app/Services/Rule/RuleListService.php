@@ -40,12 +40,28 @@ class RuleListService
     }
 
     /**
+     *
+     * @param integer $ruleId
+     * @return array
+     */
+    public function getRuleWithExpression(int $ruleId): array
+    {
+        $rule = $this->getRule($ruleId);
+        if (!empty($rule)) {
+            $rule['expression'] = $this->builder->build($rule['condition_link']);
+        }
+
+        return $rule;
+    }
+
+    /**
      * Retrieves the rules along with their relationships.
      *
      * @return array
      */
     public function getRules(int $bankAccountId): array
     {
+        $this->loadedConditionLinks = [];
         $rules = $this->model
             ->with(['actions.category'])
             ->where('bank_account_id', $bankAccountId)
@@ -86,5 +102,26 @@ class RuleListService
         if ($conditionLink->linkedCondition) {
             $this->loadRecursiveConditionLink($conditionLink->linkedCondition);
         }
+    }
+
+    /**
+     *
+     * @param integer $ruleId
+     * @return array
+     */
+    public function getRule(int $ruleId): array
+    {
+        $this->loadedConditionLinks = [];
+        $rule = $this->model
+            ->with(['actions.category'])
+            ->where('id', $ruleId)
+            ->first();
+
+        if ($rule) {
+            $rule->loadMissing('conditionLink');
+            $this->loadRecursiveConditionLink($rule->conditionLink);
+        }
+
+        return $rule ? $rule->toArray() : [];
     }
 }
