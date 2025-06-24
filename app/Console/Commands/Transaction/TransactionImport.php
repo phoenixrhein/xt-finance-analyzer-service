@@ -8,6 +8,7 @@ use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Services\Import\ImportTransactionService;
 use de\xovatec\financeAnalyzer\Services\Rule\RefreshTransactionRuleIndexService;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleTransactionAssignmentsValidator;
 
 class TransactionImport extends FinCommand
 {
@@ -17,10 +18,12 @@ class TransactionImport extends FinCommand
      *
      * @param ImportTransactionService $importTransactionService
      * @param RefreshTransactionRuleIndexService $indexService
+     * @param RuleTransactionAssignmentsValidator $validator
      */
     public function __construct(
         private ImportTransactionService $importTransactionService,
-        private RefreshTransactionRuleIndexService $indexService
+        private RefreshTransactionRuleIndexService $indexService,
+        private RuleTransactionAssignmentsValidator $validator
     ) {
         parent::__construct();
     }
@@ -88,12 +91,22 @@ class TransactionImport extends FinCommand
             );
         }
 
-        $this->emptyLn();
-        $this->info("Aktualisiere den Regel-Buchungs-Index...");
-        $this->indexService->refreshAll(
-            BankAccount::find($accountId),
-            true
-        );
+        if ($accountId !== null) {
+            $this->emptyLn();
+            $this->info(__('cli.transaction.import.refresh_index'));
+            $this->indexService->refreshAll(
+                BankAccount::find($accountId),
+                true
+            );
+        }
+
+        if (count($this->importTransactionService->getImportedTransactionIds()) > 0) {
+            $this->emptyLn();
+            $this->validator->validateRange(
+                $this->importTransactionService->getImportedTransactionIds(),
+                BankAccount::find($accountId)
+            );
+        }
 
         if ($accountId !== null) {
             $this->call(

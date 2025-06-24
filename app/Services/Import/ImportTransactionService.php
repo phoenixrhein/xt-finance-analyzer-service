@@ -3,7 +3,6 @@
 namespace de\xovatec\financeAnalyzer\Services\Import;
 
 use InvalidArgumentException;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use de\xovatec\financeAnalyzer\Dto\Import\Report;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
@@ -23,6 +22,12 @@ class ImportTransactionService
      * @var Report
      */
     private Report $report;
+
+    /**
+     *
+     * @var array
+     */
+    private array $importedTransactionIds = [];
 
     /**
      *
@@ -52,6 +57,7 @@ class ImportTransactionService
         $this->report = new Report();
 
         $accountId = null;
+        $this->importedTransactionIds = [];
 
         foreach ($records as $record) {
             /** @var TransactionRecord $record */
@@ -71,7 +77,7 @@ class ImportTransactionService
                 }
                 $accountId = $account->id;
 
-                $this->insertRow($record);
+                $this->importedTransactionIds[] = $this->insertRow($record);
                 $this->progressDisplay->show();
                 $this->report->incrementImported();
             } catch (UniqueConstraintViolationException $e) {
@@ -89,12 +95,21 @@ class ImportTransactionService
 
     /**
      *
-     * @param TransactionRecord $record
-     * @return void
+     * @return array
      */
-    private function insertRow(TransactionRecord $record): void
+    public function getImportedTransactionIds(): array
     {
-        Transactions::create([
+        return $this->importedTransactionIds;
+    }
+
+    /**
+     *
+     * @param TransactionRecord $record
+     * @return int
+     */
+    private function insertRow(TransactionRecord $record): int
+    {
+        $transaction = Transactions::create([
             'bank_account_iban' => $record->getBankAccountIban(),
             'transaction_date' => $record->getTransactionDate(),
             'exchange_date' => $record->getExchangeDate(),
@@ -113,6 +128,8 @@ class ImportTransactionService
             'currency' => $record->getCurrency(),
             'hash_identifier' => $record->getHashIdentifier()
         ]);
+
+        return $transaction->id;
     }
 
     /**
