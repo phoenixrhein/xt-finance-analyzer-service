@@ -21,6 +21,7 @@ return [
             'account_id' => 'ID des Bankkontos',
             'rule_id' => 'ID der Regel',
             'force_delete' => 'Löschen erzwingen',
+            'consider_ignore_ibans' => 'Die Ignore-IBANs berücksichtigen'
         ],
         'confirm_save' => 'Sind alle Daten korrekt?',
         'created' => 'Eintrag erfolgreich angelegt [Id: :id]',
@@ -416,7 +417,7 @@ return [
                     'text' => 'Anzahl der letzten zu importierenden Monate',
                     'hint' => '0 bedeutet uneingeschränkt alles. Z.B. 1 bedeutet nur den letzten Monat'
                 ],
-                'ignoreAlreadyExists' => 'Sollen Duplikate igoriert werden?',
+                'ignoreAlreadyExists' => 'Sollen Duplikate ignoriert werden?',
                 'ignoreAlreadyExists_hint' => 'Ansonsten bricht das Skript beim ersten Duplikat ab'
             ],
             'validate' => [
@@ -426,7 +427,8 @@ return [
             ],
             'error' => [
                 'different_accounts' => 'Unterschiedliche Konten in der Importdatei. Erwartet: :expected / Erhalten: :get'
-            ]
+            ],
+            'refresh_index' => 'Aktualisiere den Regel-Buchungs-Index...'
         ],
         'list' => [
             'description' => 'Buchungen anzeigen',
@@ -478,12 +480,15 @@ return [
             'success' => 'Die Regel mit der ID \':ruleId\' wurde gelöscht'
         ],
         'refresh_index' => [
-            'param' => [
-                'considerIgnoreIbans' => 'Die Ignore-IBANs berücksichtigen'
-            ],
             'description' => 'Regel-Index aktualisieren',
             'not_considering_ignore_ibans' => 'Die Aktualisierung des Indexes berücksichtigt nicht die Ignore-IBANs',
             'summary' => 'Es wurden :total Regeln verarbeitet. :updated Regeln aktualisiert, :zero Regeln ohne Treffer.'
         ],
+        'validator' => [
+            'description' => 'Regel validieren',
+            'not_considering_ignore_ibans' => 'Die Validierung der Regeln berücksichtigt nicht die Ignore-IBANs',
+            'validate_assignments' => 'Validierung der Buchungen für das Bankkonto: :iban (:id) ...',
+            'validate_assignments_overlaps' => 'Buchung mit der ID :id würde mehreren Regeln zugeordnet: :ruleIds',
+        ]
     ]
 ];

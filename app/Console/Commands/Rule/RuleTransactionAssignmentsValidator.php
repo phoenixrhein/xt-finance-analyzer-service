@@ -3,14 +3,19 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleTransactionAssignmentsValidator
+    as RuleTransactionAssignmentsValidatorService;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
-use de\xovatec\financeAnalyzer\Services\Rule\RefreshTransactionRuleIndexService;
 
-class RefreshTransactionRuleIndex extends FinCommand
+class RuleTransactionAssignmentsValidator extends FinCommand
 {
     use BankAccountIdParameter;
 
-    public function __construct(private RefreshTransactionRuleIndexService $indexService)
+    /**
+     *
+     * @param RuleTransactionAssignmentsValidatorService $validator
+     */
+    public function __construct(private RuleTransactionAssignmentsValidatorService $validator)
     {
         parent::__construct();
     }
@@ -20,7 +25,7 @@ class RefreshTransactionRuleIndex extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:rule-refresh-index {accountId : [:cli.base.param.account_id:]} " .
+    protected $signature = 'fin:rule-validate {accountId : [:cli.base.param.account_id:]} " .
         "{--considerIgnoreIbans : [:cli.base.param.consider_ignore_ibans:]}';
 
     /**
@@ -28,7 +33,7 @@ class RefreshTransactionRuleIndex extends FinCommand
      *
      * @var string
      */
-    protected $description = 'cli.rule.refresh_index.description';
+    protected $description = 'cli.rule.validator.description';
 
     /**
      * @inheritDoc
@@ -38,11 +43,11 @@ class RefreshTransactionRuleIndex extends FinCommand
         $considerIgnoreIbans = $this->option('considerIgnoreIbans');
         if (!$considerIgnoreIbans) {
             $this->emptyLn();
-            $this->warn(__('cli.rule.refresh_index.not_considering_ignore_ibans'));
-            $this->emptyLn();
+            $this->warn(__('cli.rule.validator.not_considering_ignore_ibans'));
         }
 
+        $this->emptyLn();
         $bankAccount = $this->getBankAccount((int)$this->argument('accountId'), true);
-        $this->indexService->refreshAll($bankAccount, $considerIgnoreIbans);
+        $this->validator->validateAll($bankAccount, $considerIgnoreIbans);
     }
 }
