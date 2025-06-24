@@ -3,7 +3,8 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
-use de\xovatec\financeAnalyzer\Services\Rule\RuleTransactionAssignmentsValidator as RuleTransactionAssignmentsValidatorService;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleTransactionAssignmentsValidator
+    as RuleTransactionAssignmentsValidatorService;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 
 class RuleTransactionAssignmentsValidator extends FinCommand

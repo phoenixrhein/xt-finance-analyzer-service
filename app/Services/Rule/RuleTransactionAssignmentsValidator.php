@@ -24,7 +24,9 @@ class RuleTransactionAssignmentsValidator
         private RuleToConditionTransformer $transformer,
         private RuleListService $ruleListService,
         private ConsoleOutputInterface $io
-    ) {}
+    ) {
+        
+    }
 
     /**
      *
@@ -45,8 +47,11 @@ class RuleTransactionAssignmentsValidator
      * @param boolean $considerIgnoreIbans
      * @return void
      */
-    public function validateRange(array $transactionIds, BankAccount $bankAccount, bool $considerIgnoreIbans = true): void
-    {
+    public function validateRange(
+        array $transactionIds,
+        BankAccount $bankAccount,
+        bool $considerIgnoreIbans = true
+    ): void {
         $query = Transactions::select('id')->whereIn('id', $transactionIds);
         $this->validateTransactionAssignments($query, $bankAccount, $considerIgnoreIbans);
     }
@@ -92,7 +97,12 @@ class RuleTransactionAssignmentsValidator
 
         foreach ($transactionRuleMap as $tid => $ruleIds) {
             if (count($ruleIds) > 1) {
-                $this->io->error(__('cli.rule.validator.validate_assignments_overlaps', ['id' => $tid, 'ruleIds' => implode(',', $ruleIds)]));
+                $this->io->error(
+                    __(
+                        'cli.rule.validator.validate_assignments_overlaps',
+                        ['id' => $tid, 'ruleIds' => implode(',', $ruleIds)]
+                    )
+                );
             }
         }
     }
