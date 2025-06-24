@@ -25,7 +25,6 @@ class RuleTransactionAssignmentsValidator
         private RuleListService $ruleListService,
         private ConsoleOutputInterface $io
     ) {
-        
     }
 
     /**
