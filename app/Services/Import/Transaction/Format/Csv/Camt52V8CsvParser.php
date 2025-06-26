@@ -67,6 +67,7 @@ class Camt52V8CsvParser implements CsvParserInterface
         $csv->setHeaderOffset(0);
         $csv->setDelimiter(';');
 
+        $toDate = null;
         $records = [];
         foreach ($csv->getRecordsAsObject(Camt52V8CsvSetter::class) as $row) {
             if ($row->getStatus() === self::TRANSACTION_STATUS_PREPARED) {
@@ -74,9 +75,11 @@ class Camt52V8CsvParser implements CsvParserInterface
             }
 
             $records[] =  $row;
+            $toDate = max($toDate, $row->getTransactionDate());
+           
         }
 
-        $records = $this->filterTransactionsByLastMonths($records, $lastMonths);
+        $records = $this->filterTransactionsByLastMonths($records, $lastMonths, $toDate);
 
         return $records;
     }
@@ -134,15 +137,16 @@ class Camt52V8CsvParser implements CsvParserInterface
      *
      * @param array $transactions
      * @param int $lastMonths
+     * @param string|null $toDate
      * @return array
      */
-    private function filterTransactionsByLastMonths(array $transactions, int $lastMonths): array
+    private function filterTransactionsByLastMonths(array $transactions, int $lastMonths, ?string $toDate): array
     {
-        if ($lastMonths === 0) {
+        if ($lastMonths === 0 || $toDate === null) {
             return $transactions;
         }
 
-        $startDate = Carbon::now()->startOfMonth()->subMonths($lastMonths);
+        $startDate = Carbon::parse($toDate)->startOfMonth()->subMonths($lastMonths);
 
         return array_filter($transactions, function ($transaction) use ($startDate) {
             $transactionDate = Carbon::parse($transaction->getTransactionDate());

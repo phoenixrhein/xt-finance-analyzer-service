@@ -127,7 +127,7 @@ class CashDetector extends FinCommand
                 ],
                 new TableSeparator(),
                 [
-                    '<info>' . __('cli.nase.payee') . '</info>',
+                    '<info>' . __('cli.base.payee') . '</info>',
                     $transaction['beneficiary_payee']
                 ]
             ]

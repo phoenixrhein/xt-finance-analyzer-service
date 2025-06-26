@@ -45,6 +45,15 @@ class ImportTransactionService
 
     /**
      *
+     * @return FileValidatorService
+     */
+    public function getFileValidator(): FileValidatorService
+    {
+        return $this->fileValidator;
+    }
+
+    /**
+     *
      * @param string $filePath
      * @param integer $lastMonths
      * @param boolean $ignoreAlreadyExists
