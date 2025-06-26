@@ -49,6 +49,10 @@ class TransactionImport extends FinCommand
      */
     protected function process(): void
     {
+        $this->importTransactionService->getFileValidator()->validate(
+            $this->argument('file')
+        );
+
         $lastMonths = $this->option('lastMonths');
         if (empty($lastMonths)) {
             $lastMonths = $this->viewInput(
