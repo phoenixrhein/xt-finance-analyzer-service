@@ -76,7 +76,6 @@ class Camt52V8CsvParser implements CsvParserInterface
 
             $records[] =  $row;
             $toDate = max($toDate, $row->getTransactionDate());
-           
         }
 
         $records = $this->filterTransactionsByLastMonths($records, $lastMonths, $toDate);
