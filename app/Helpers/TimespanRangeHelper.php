@@ -11,9 +11,9 @@ class TimespanRangeHelper
      * @param string $to
      * @param integer $span
      * @param TimespanType $type
-     * @return void
+     * @return array
      */
-    public static function calculateRange(string $to, int $span, TimespanType $type)
+    public static function calculateRange(string $to, int $span, TimespanType $type): array
     {
         $length = strlen($to);
         $ranges = DateRangeHelper::parseDateRange($to);
