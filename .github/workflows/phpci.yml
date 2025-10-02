@@ -2,9 +2,9 @@ name: update changelog
 
 on:
   push:
-    branches: [ "main", "developement" ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main", "developement" ]
+    branches: [ "main", "develop" ]
 
 permissions: {}
 
