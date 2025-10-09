@@ -490,5 +490,8 @@ return [
             'validate_assignments' => 'Validierung der Buchungen für das Bankkonto: :iban (:id) ...',
             'validate_assignments_overlaps' => 'Buchung mit der ID :id würde mehreren Regeln zugeordnet: :ruleIds',
         ]
+    ],
+    'report' => [
+        'description' => 'Finanzbericht generieren',
     ]
 ];
