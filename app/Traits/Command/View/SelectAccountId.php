@@ -2,27 +2,43 @@
 
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
-use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
-
 use function Laravel\Prompts\text;
+
+use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 
 trait SelectAccountId
 {
     use BaseView;
+    use DisplayBankAccounts;
+
+    /**
+     *
+     * @return AccountListQuery|null
+     */
+    protected function getAccountListQuery(): ?AccountListQuery
+    {
+        return null;
+    }
 
     /**
      *
      * @param integer|null $rawAccountId
+     * @param bool $cancellable
      * @return integer
      */
-    protected function viewAccountId(?int $rawAccountId = null): int
+    protected function viewAccountId(?int $rawAccountId = null, bool$cancellable = false): ?int
     {
         $accountId = $rawAccountId;
         do {
+            $this->displayBankAccounts();
             $accountId = text(
                 label: __('cli.ignore_list.upsert.edit_bank_account_id'),
                 default: $accountId ?? ''
             );
+
+            if ($cancellable && (empty($accountId) || !is_numeric($accountId))) {
+                return null;
+            }
 
             $valid = $this->viewValidatorError(
                 [
@@ -32,19 +48,6 @@ trait SelectAccountId
                     'bank_account_id' => 'required|numeric|exists:de\xovatec\financeAnalyzer\Models\BankAccount,id'
                 ]
             );
-
-            if (!$valid) {
-                $this->emptyLn();
-                $this->table(
-                    [
-                        __('cli.account.list.table.columns.id'),
-                        __('cli.account.list.table.columns.iban'),
-                        __('cli.account.list.table.columns.bic'),
-                        __('cli.account.list.table.columns.count_users')
-                    ],
-                    $this->getAccountListQuery()->createList()->get()->toArray()
-                );
-            }
         } while (!$valid);
 
         return (int)$accountId;
