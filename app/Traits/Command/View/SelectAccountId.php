@@ -2,9 +2,9 @@
 
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
-use function Laravel\Prompts\text;
-
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
+
+use function Laravel\Prompts\text;
 
 trait SelectAccountId
 {
@@ -26,7 +26,7 @@ trait SelectAccountId
      * @param bool $cancellable
      * @return integer
      */
-    protected function viewAccountId(?int $rawAccountId = null, bool$cancellable = false): ?int
+    protected function viewAccountId(?int $rawAccountId = null, bool $cancellable = false): ?int
     {
         $accountId = $rawAccountId;
         do {

@@ -18,8 +18,11 @@ trait BankAccountIdParameter
      * @param bool $cancellable
      * @return BankAccount|null
      */
-    private function getBankAccount(?int $bankAccountId = null, bool $inputFallback = false, bool $cancellable = false): ?BankAccount
-    {
+    private function getBankAccount(
+        ?int $bankAccountId = null,
+        bool $inputFallback = false,
+        bool $cancellable = false
+    ): ?BankAccount {
         $bankAccount = $bankAccountId !== null ? BankAccount::find($bankAccountId) : null;
         if (!$bankAccount instanceof BankAccount) {
             $this->emptyLn();
