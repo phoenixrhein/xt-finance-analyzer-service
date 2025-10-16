@@ -7,6 +7,8 @@ use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 
+use function Laravel\Prompts\select;
+
 class Report extends FinCommand
 {
     use BankAccountIdParameter;
@@ -57,5 +59,22 @@ class Report extends FinCommand
         if (!$account instanceof BankAccount) {
             return;
         }
+
+        $reportType = $this->selectReportType();
+    }
+
+    /**
+     *
+     * @return string
+     */
+    private function selectReportType(): string
+    {
+        return select(
+            __('cli.report.select_type'),
+            [
+                'm' => __('cli.report.type.monthly'),
+                'y' => __('cli.report.type.yearly'),
+            ]
+        );
     }
 }

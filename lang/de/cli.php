@@ -493,5 +493,10 @@ return [
     ],
     'report' => [
         'description' => 'Finanzbericht generieren',
+        'type' => [
+            'monthly' => 'Monatlich',
+            'yearly' => 'Jährlich'
+        ],
+        'select_type' => 'Bitte wählen Sie den Berichtstyp aus',
     ]
 ];
