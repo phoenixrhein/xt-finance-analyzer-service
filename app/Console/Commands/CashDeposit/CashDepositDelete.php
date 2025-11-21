@@ -24,7 +24,7 @@ class CashDepositDelete extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $cashDepositId = (int)$this->argument('cashDepositId');
         $cashDepositEntry = CashDeposit::find($cashDepositId);

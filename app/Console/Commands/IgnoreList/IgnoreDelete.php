@@ -24,7 +24,7 @@ class IgnoreDelete extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $ignoreId = $this->argument('ignoreId');
         $ignoreEntry = IgnoreList::find($ignoreId);

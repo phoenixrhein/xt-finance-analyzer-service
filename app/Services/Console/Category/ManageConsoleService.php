@@ -2,7 +2,6 @@
 
 namespace de\xovatec\financeAnalyzer\Services\Console\Category;
 
-use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\Action;
 use de\xovatec\financeAnalyzer\Models\Cashflow;
 use de\xovatec\financeAnalyzer\Models\Category;
@@ -18,6 +17,7 @@ class ManageConsoleService extends AbstractCategory
      */
     public function __construct(private TreeViewConsoleService $treeViewConsoleService)
     {
+        parent::__construct();
     }
 
     /**
@@ -27,17 +27,6 @@ class ManageConsoleService extends AbstractCategory
     public function getTreeViewConsoleService(): TreeViewConsoleService
     {
         return $this->treeViewConsoleService;
-    }
-
-    /**
-     *
-     * @param FinCommand $command
-     * @return void
-     */
-    public function setIo(FinCommand $command): void
-    {
-        parent::setIo($command);
-        $this->treeViewConsoleService->setIo($command);
     }
 
     /**
@@ -54,26 +43,26 @@ class ManageConsoleService extends AbstractCategory
         $error = false;
 
         if ($category->parent_id == null) {
-            $this->getIo()->emptyLn();
-            $this->getIo()->error(__('cli.category.delete.error.category_is_cashflow'));
+            $this->emptyLn();
+            $this->error(__('cli.category.delete.error.category_is_cashflow'));
             $error = true;
         }
 
         $actionsQuery = Action::where('category_id', $category->id);
         if ($actionsQuery->count() > 0) {
-            $this->getIo()->emptyLn();
-            $this->getIo()->error(__('cli.category.delete.error.has_rules'));
-            $this->getIo()->emptyLn();
-            $this->getIo()->info(__('cli.base.rules') . ':');
+            $this->emptyLn();
+            $this->error(__('cli.category.delete.error.has_rules'));
+            $this->emptyLn();
+            $this->info(__('cli.base.rules') . ':');
             foreach ($actionsQuery->get() as $action) {
-                $this->getIo()->info('  • ' . $action->rule->name . ' [ID:' . $action->id . ']');
+                $this->info('  • ' . $action->rule->name . ' [ID:' . $action->id . ']');
             }
             $error = true;
         }
 
         if (Category::where('parent_id', $category->id)->count() > 0) {
-            $this->getIo()->emptyLn();
-            $this->getIo()->error(__('cli.category.delete.error.has_childs'));
+            $this->emptyLn();
+            $this->error(__('cli.category.delete.error.has_childs'));
             $error = true;
         }
 
@@ -82,12 +71,12 @@ class ManageConsoleService extends AbstractCategory
         }
 
         $promptText = __('cli.category.delete.confirm_question', ['name' => $category->name]);
-        if ($this->getIo()->confirmPrompt($promptText) === false) {
+        if ($this->confirmPrompt($promptText) === false) {
             return;
         }
 
         $category->delete();
-        $this->getIo()->info(__('cli.category.delete.deleted', ['categoryId' => $category->id]));
+        $this->info(__('cli.category.delete.deleted', ['categoryId' => $category->id]));
     }
 
     /**
@@ -111,7 +100,7 @@ class ManageConsoleService extends AbstractCategory
             $this->viewCategoryPath($parentCategory, $name);
 
             if (Category::where('name', $name)->where('parent_id', $parentId)->exists()) {
-                $this->getIo()->error(__('cli.category.base.error.already_exist'));
+                $this->error(__('cli.category.base.error.already_exist'));
                 $valid = false;
             }
 
@@ -144,7 +133,7 @@ class ManageConsoleService extends AbstractCategory
         $category->name = $name;
         $category->parent_id = $parentId;
         $category->save();
-        $this->getIo()->info(__('cli.category.edit.edited', ['categoryId' => $category->id]));
+        $this->info(__('cli.category.edit.edited', ['categoryId' => $category->id]));
     }
 
     /**
@@ -154,7 +143,7 @@ class ManageConsoleService extends AbstractCategory
      */
     public function findAndSelectCategory(Cashflow $cashflow): int
     {
-        $this->getIo()->emptyLn();
+        $this->emptyLn();
         $this->treeViewConsoleService->displayCashflowTrees($cashflow);
         return $this->viewCategoryIdInput('id', __('cli.category.base.select_category'));
     }
@@ -166,13 +155,13 @@ class ManageConsoleService extends AbstractCategory
      */
     private function addCategory(Cashflow $cashflow): void
     {
-        $this->getIo()->emptyLn();
+        $this->emptyLn();
         $this->treeViewConsoleService->displayCashflowTrees($cashflow);
 
         list($name, $parentId) = $this->manageCategory();
 
         $newEntry = Category::create(['name' => $name, 'parent_id' => $parentId]);
-        $this->getIo()->info(__('cli.category.add.created', ['name' => $name, 'id' => $newEntry->id]));
+        $this->info(__('cli.category.add.created', ['name' => $name, 'id' => $newEntry->id]));
     }
 
     /**
@@ -185,8 +174,8 @@ class ManageConsoleService extends AbstractCategory
     {
         $cashflow = Cashflow::where('bank_account_id', $accountId)->first();
         if (!$cashflow instanceof Cashflow) {
-            $this->getIo()->emptyLn();
-            $this->getIo()->error(__('cli.category.base.error.not_found_cashflow', ['bankAccountId' => $accountId]));
+            $this->emptyLn();
+            $this->error(__('cli.category.base.error.not_found_cashflow', ['bankAccountId' => $accountId]));
             return;
         }
 

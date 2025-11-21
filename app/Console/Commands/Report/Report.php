@@ -48,7 +48,7 @@ class Report extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $account = ($this->getBankAccount(
             $this->argument('accountId') ? (int) $this->argument('accountId') : null,

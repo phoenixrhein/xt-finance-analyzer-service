@@ -28,7 +28,7 @@ class CashDepositList extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $accountId = (int)$this->argument('accountId');
 

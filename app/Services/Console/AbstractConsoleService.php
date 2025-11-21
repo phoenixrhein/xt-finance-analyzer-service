@@ -2,32 +2,26 @@
 
 namespace de\xovatec\financeAnalyzer\Services\Console;
 
-use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use Illuminate\Console\Concerns\InteractsWithIO;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use de\xovatec\financeAnalyzer\Traits\Command\View\BaseView;
 
 abstract class AbstractConsoleService
 {
+    use InteractsWithIO;
+    use BaseView;
+    
     /**
      *
-     * @var FinCommand
+     * @param InputInterface $input
+     * @param OutputInterface $output
      */
-    private FinCommand $command;
-
-    /**
-     *
-     * @param FinCommand $command
-     * @return void
-     */
-    public function setIo(FinCommand $command): void
+    public function __construct(?InputInterface $input = null, ?OutputInterface $output = null)
     {
-        $this->command = $command;
-    }
-
-    /**
-     *
-     * @return FinCommand
-     */
-    protected function getIo(): FinCommand
-    {
-        return $this->command;
+        if ($input !== null && $output !== null) {
+            $this->setInput($input);
+            $this->setOutput($output);
+        }
     }
 }

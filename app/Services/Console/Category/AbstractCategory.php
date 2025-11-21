@@ -24,7 +24,7 @@ abstract class AbstractCategory extends AbstractConsoleService
                 default: $name
             );
 
-            $valid = $this->getIo()->viewValidatorError(
+            $valid = $this->viewValidatorError(
                 [
                     'name' => $name
                 ],
@@ -50,7 +50,7 @@ abstract class AbstractCategory extends AbstractConsoleService
             echo $ancestor->name . " [{$ancestor->id}] " . ' \ ';
         }
         echo $category->name . " [{$category->id}] " . ' \ ' . $name . PHP_EOL;
-        $this->getIo()->emptyLn();
+        $this->emptyLn();
     }
 
     /**
@@ -69,7 +69,7 @@ abstract class AbstractCategory extends AbstractConsoleService
                 default: $parentId
             );
 
-            $valid = $this->getIo()->viewValidatorError(
+            $valid = $this->viewValidatorError(
                 [
                     $idField => $parentId
                 ],

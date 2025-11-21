@@ -28,7 +28,7 @@ class UserAdd extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $email = '';
         do {

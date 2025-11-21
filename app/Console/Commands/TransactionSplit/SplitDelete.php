@@ -25,7 +25,7 @@ class SplitDelete extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $splitId = (int)$this->argument('splitId');
         $splitEntry = TransactionSplit::find($splitId);

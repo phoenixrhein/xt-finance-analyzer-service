@@ -25,7 +25,7 @@ class AdjustmentDelete extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $adjustId = (int)$this->argument('adjustId');
         $adjustEntry = TransactionAdjustment::find($adjustId);

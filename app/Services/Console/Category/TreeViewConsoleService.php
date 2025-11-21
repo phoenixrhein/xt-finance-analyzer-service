@@ -28,8 +28,8 @@ class TreeViewConsoleService extends AbstractCategory
      */
     private function displayCategoryWithSubcategories(Category $category): void
     {
-        $this->getIo()->info('<options=bold,underscore;fg=green>' . $category->name . " [{$category->id}]" . '</>');
-        $this->getIo()->info($this->buildTree($category->subCategories));
+        $this->info('<options=bold,underscore;fg=green>' . $category->name . " [{$category->id}]" . '</>');
+        $this->info($this->buildTree($category->subCategories));
     }
 
     /**

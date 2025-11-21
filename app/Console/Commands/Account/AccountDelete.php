@@ -26,7 +26,7 @@ class AccountDelete extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $accountId = $this->argument('accountId');
         $account = BankAccount::find($accountId);

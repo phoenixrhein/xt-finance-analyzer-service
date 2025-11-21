@@ -22,7 +22,7 @@ class UserDelete extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $userId = $this->argument('userId');
         $user = User::find($userId);

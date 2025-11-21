@@ -29,7 +29,7 @@ class UserDetachAccount extends FinCommand
     /**
      * Execute the console command.
      */
-    protected function process(): void
+    public function process(): void
     {
         $user = User::find((int)$this->argument('userId'));
         $this->emptyLn();

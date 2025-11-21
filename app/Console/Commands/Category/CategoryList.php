@@ -16,14 +16,11 @@ class CategoryList extends FinCommand implements ProvidesAccountListQueryInterfa
     /**
      *
      * @param AccountListQuery $accountListQuery
-     * @param TreeViewConsoleService $treeViewConsoleService
      */
     public function __construct(
-        private AccountListQuery $accountListQuery,
-        private TreeViewConsoleService $treeViewConsoleService
+        private AccountListQuery $accountListQuery
     ) {
         parent::__construct();
-        $this->treeViewConsoleService->setIo($this);
     }
 
     /**
@@ -52,8 +49,11 @@ class CategoryList extends FinCommand implements ProvidesAccountListQueryInterfa
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(TreeViewConsoleService $treeViewConsoleService): void
     {
+        $treeViewConsoleService->setInput($this->input);
+        $treeViewConsoleService->setOutput($this->output);
+
         $accountId = ($this->getBankAccount((int)$this->argument('accountId'), true))->id;
 
         $cashflow = Cashflow::where('bank_account_id', $accountId)->first();
@@ -64,6 +64,6 @@ class CategoryList extends FinCommand implements ProvidesAccountListQueryInterfa
         }
 
         $this->emptyLn();
-        $this->treeViewConsoleService->displayCashflowTrees($cashflow);
+        $treeViewConsoleService->displayCashflowTrees($cashflow);
     }
 }

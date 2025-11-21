@@ -48,7 +48,6 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
      * @param CliErrorHighlighter $errorHighlighter
      * @param RuleToConditionTransformer $transformer
      * @param SqlQueryBuilder $sqlQueryBuilder
-     * @param ManageConsoleService $manageConsoleService
      * @param RuleDataManager $ruleDataManager
      */
     public function __construct(
@@ -59,12 +58,10 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         private CliErrorHighlighter $errorHighlighter,
         private RuleToConditionTransformer $transformer,
         private SqlQueryBuilder $sqlQueryBuilder,
-        private ManageConsoleService $manageConsoleService,
         private RuleDataManager $ruleDataManager
     ) {
         parent::__construct();
         $this->setDisplayLimit(7);
-        $this->manageConsoleService->setIo($this);
     }
 
     /**
@@ -140,17 +137,20 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(ManageConsoleService $manageConsoleService): void
     {
-        $this->assignRule();
+        $this->assignRule($manageConsoleService);
     }
 
     /**
      *
      * @return void
      */
-    private function assignRule(): void
+    private function assignRule(ManageConsoleService $manageConsoleService): void
     {
+        $manageConsoleService->setInput($this->input);
+        $manageConsoleService->setOutput($this->output);
+
         $bankAccount = $this->getBankAccount((int)$this->argument('accountId'), true);
         $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
 
@@ -186,9 +186,9 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
             return;
         }
 
-        $this->manageConsoleService->getTreeViewConsoleService()->displayCashflowTrees($cashflow);
-        $this->manageConsoleService->manage($bankAccount->id, __('cli.rule.assign.cat_mgmt_continue_button_text'));
-        $selectedCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow);
+        $manageConsoleService->getTreeViewConsoleService()->displayCashflowTrees($cashflow);
+        $manageConsoleService->manage($bankAccount->id, __('cli.rule.assign.cat_mgmt_continue_button_text'));
+        $selectedCategoryId = $manageConsoleService->findAndSelectCategory($cashflow);
 
         $this->saveRule(
             $this->viewInput('Name der Regel', 'required|min:1|unique:rule,name'),
@@ -212,7 +212,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
             );
 
             if ($continue === 'yes') {
-                $this->assignRule();
+                $this->assignRule($manageConsoleService);
             }
         }
     }
