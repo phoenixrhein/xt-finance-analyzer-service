@@ -74,5 +74,5 @@ trait BaseView
             $validate,
             $hint
         );
-    }    
+    }
 }

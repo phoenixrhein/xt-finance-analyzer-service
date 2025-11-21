@@ -11,7 +11,7 @@ abstract class AbstractConsoleService
 {
     use InteractsWithIO;
     use BaseView;
-    
+
     /**
      *
      * @param InputInterface $input
