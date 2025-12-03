@@ -498,5 +498,18 @@ return [
             'yearly' => 'Jährlich'
         ],
         'select_type' => 'Bitte wählen Sie den Berichtstyp aus',
+        'input_target' => [
+            'month' => [
+                'label' => 'Bitte geben Sie den Monat ein [JJJJMM]',
+                'hint' => 'Format: JJJJMM, z.B. 202403 für März 2024'
+            ],
+            'year' => [
+                'label' => 'Bitte geben Sie das Jahr ein [JJJJ]',
+                'hint' => 'Format: JJJJ, z.B. 2024'
+            ],
+            'error' => [
+                'incomplete_data' => 'Der ausgewählte Zeitraum ist unvollständig. Bitte stellen Sie sicher, dass alle Buchungen bis zum Ende des Zeitraums vorliegen.'
+            ]
+        ]
     ]
 ];

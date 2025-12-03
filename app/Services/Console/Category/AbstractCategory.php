@@ -3,12 +3,12 @@
 namespace de\xovatec\financeAnalyzer\Services\Console\Category;
 
 use de\xovatec\financeAnalyzer\Models\Category;
-use de\xovatec\financeAnalyzer\Services\Console\AbstractConsoleService;
+use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
 
 use function Laravel\Prompts\text;
 use function Laravel\Prompts\intro;
 
-abstract class AbstractCategory extends AbstractConsoleService
+abstract class AbstractCategory extends AbstractIOService
 {
     /**
      *

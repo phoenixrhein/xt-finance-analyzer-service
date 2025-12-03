@@ -2,22 +2,26 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Report;
 
+use de\xovatec\financeAnalyzer\Enums\TimespanType;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
+use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
+use de\xovatec\financeAnalyzer\Services\Console\Actions\Report\SelectTargetPeriodAction;
 
 use function Laravel\Prompts\select;
 
 class Report extends FinCommand
 {
     use BankAccountIdParameter;
+    use SimpleInput;
 
     /**
      *
      * @param AccountListQuery $accountlistQuery
      */
-    public function __construct(private AccountListQuery $accountlistQuery)
+    public function __construct(private AccountListQuery $accountlistQuery, private SelectTargetPeriodAction $selectTargetPeriodAction)
     {
         parent::__construct();
     }
@@ -61,20 +65,23 @@ class Report extends FinCommand
         }
 
         $reportType = $this->selectReportType();
+        $targetPeriod = $this->selectTargetPeriodAction->selectTargetPeriod($reportType, $account);
     }
+
+    
 
     /**
      *
-     * @return string
+     * @return TimespanType
      */
-    private function selectReportType(): string
+    private function selectReportType(): TimespanType
     {
-        return select(
+        return TimespanType::fromName(select(
             __('cli.report.select_type'),
             [
-                'm' => __('cli.report.type.monthly'),
-                'y' => __('cli.report.type.yearly'),
+                TimespanType::month->name => __('cli.report.type.monthly'),
+                TimespanType::year->name => __('cli.report.type.yearly'),
             ]
-        );
+        ));
     }
 }
