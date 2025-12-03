@@ -11,7 +11,6 @@ use de\xovatec\financeAnalyzer\Helpers\TimespanRangeHelper;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
 
-
 class SelectTargetPeriodAction extends AbstractIOService
 {
     use SimpleInput;
@@ -57,7 +56,7 @@ class SelectTargetPeriodAction extends AbstractIOService
         string $label,
         array $rules,
         string $hint
-    ): string {   
+    ): string {
         $to = null;
         do {
             $to = $this->viewInput(

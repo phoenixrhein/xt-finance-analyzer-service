@@ -127,7 +127,8 @@ class SimpleReport extends Command
                 $debit,
                 $credit,
                 $saldo,
-                Carbon::parse($range[DateRangeHelper::FROM])->format('d.m.Y') . ' - ' . Carbon::parse($range[DateRangeHelper::TO])->format('d.m.Y')
+                Carbon::parse($range[DateRangeHelper::FROM])->format('d.m.Y') . ' - '
+                . Carbon::parse($range[DateRangeHelper::TO])->format('d.m.Y')
             ];
 
             $totalDebit = round($totalDebit + $debit, 2);

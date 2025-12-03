@@ -36,6 +36,5 @@ abstract class AbstractIOService
         $io = new OutputStyle($input, $output);
         $this->setOutput($io);
         $this->setInput($input);
-
     }
 }

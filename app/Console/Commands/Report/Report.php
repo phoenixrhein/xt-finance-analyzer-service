@@ -21,8 +21,10 @@ class Report extends FinCommand
      *
      * @param AccountListQuery $accountlistQuery
      */
-    public function __construct(private AccountListQuery $accountlistQuery, private SelectTargetPeriodAction $selectTargetPeriodAction)
-    {
+    public function __construct(
+        private AccountListQuery $accountlistQuery,
+        private SelectTargetPeriodAction $selectTargetPeriodAction
+    ) {
         parent::__construct();
     }
 
@@ -67,8 +69,6 @@ class Report extends FinCommand
         $reportType = $this->selectReportType();
         $targetPeriod = $this->selectTargetPeriodAction->selectTargetPeriod($reportType, $account);
     }
-
-    
 
     /**
      *
