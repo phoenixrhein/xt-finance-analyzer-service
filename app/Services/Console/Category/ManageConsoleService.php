@@ -22,15 +22,6 @@ class ManageConsoleService extends AbstractCategory
 
     /**
      *
-     * @return TreeViewConsoleService
-     */
-    public function getTreeViewConsoleService(): TreeViewConsoleService
-    {
-        return $this->treeViewConsoleService;
-    }
-
-    /**
-     *
      * @param Cashflow $cashflow
      * @return void
      */

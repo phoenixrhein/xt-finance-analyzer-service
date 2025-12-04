@@ -17,7 +17,8 @@ class CategoryManagement extends FinCommand implements ProvidesAccountListQueryI
      * @param AccountListQuery $accountListQuery
      */
     public function __construct(
-        private AccountListQuery $accountListQuery
+        private AccountListQuery $accountListQuery,
+        private ManageConsoleService $manageConsoleService
     ) {
         parent::__construct();
     }
@@ -48,13 +49,11 @@ class CategoryManagement extends FinCommand implements ProvidesAccountListQueryI
     /**
      * @inheritDoc
      */
-    public function process(ManageConsoleService $manageConsoleService): void
+    public function process(): void
     {
-        $manageConsoleService->setInput($this->input);
-        $manageConsoleService->setOutput($this->output);
-
-        $accountId = ($this->getBankAccount((int)$this->argument('accountId'), true))->id;
-
-        $manageConsoleService->manage($accountId, __('cli.category.manage.action.finish'));
+        $this->manageConsoleService->manage(
+            ($this->getBankAccount((int)$this->argument('accountId'), true))->id,
+            __('cli.category.manage.action.finish')
+        );
     }
 }

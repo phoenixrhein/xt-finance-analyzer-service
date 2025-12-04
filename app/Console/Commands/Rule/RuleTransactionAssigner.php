@@ -5,6 +5,7 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 use Throwable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use function Laravel\Prompts\select;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use de\xovatec\financeAnalyzer\Models\Cashflow;
@@ -14,24 +15,24 @@ use de\xovatec\financeAnalyzer\Models\Transactions;
 use Illuminate\Support\Collection as SupportCollection;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleDataManager;
 use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
-use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
-use de\xovatec\financeAnalyzer\Services\Rule\RuleDataManager;
 use de\xovatec\financeAnalyzer\Services\UnmatchedTransactionsService;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 use de\xovatec\financeAnalyzer\Helpers\FilterTransactionDurationHelper;
-use de\xovatec\financeAnalyzer\Services\Rule\Expression\CliErrorHighlighter;
-use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
 use de\xovatec\financeAnalyzer\Console\Commands\Transaction\TransactionList;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\CliErrorHighlighter;
 use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByManualCreator;
 use de\xovatec\financeAnalyzer\Services\Console\Category\ManageConsoleService;
 use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByFinQueryCreator;
-use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
 
-use function Laravel\Prompts\select;
+use de\xovatec\financeAnalyzer\Services\Console\Category\TreeViewConsoleService;
+use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
 class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQueryInterface
 {
@@ -58,7 +59,9 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         private CliErrorHighlighter $errorHighlighter,
         private RuleToConditionTransformer $transformer,
         private SqlQueryBuilder $sqlQueryBuilder,
-        private RuleDataManager $ruleDataManager
+        private RuleDataManager $ruleDataManager,
+        private ManageConsoleService $manageConsoleService,
+        private TreeViewConsoleService $treeViewConsoleService
     ) {
         parent::__construct();
         $this->setDisplayLimit(7);
@@ -137,20 +140,17 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
     /**
      * @inheritDoc
      */
-    public function process(ManageConsoleService $manageConsoleService): void
+    public function process(): void
     {
-        $this->assignRule($manageConsoleService);
+        $this->assignRule();
     }
 
     /**
      *
      * @return void
      */
-    private function assignRule(ManageConsoleService $manageConsoleService): void
+    private function assignRule(): void
     {
-        $manageConsoleService->setInput($this->input);
-        $manageConsoleService->setOutput($this->output);
-
         $bankAccount = $this->getBankAccount((int)$this->argument('accountId'), true);
         $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
 
@@ -186,9 +186,9 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
             return;
         }
 
-        $manageConsoleService->getTreeViewConsoleService()->displayCashflowTrees($cashflow);
-        $manageConsoleService->manage($bankAccount->id, __('cli.rule.assign.cat_mgmt_continue_button_text'));
-        $selectedCategoryId = $manageConsoleService->findAndSelectCategory($cashflow);
+        $this->treeViewConsoleService->displayCashflowTrees($cashflow);
+        $this->manageConsoleService->manage($bankAccount->id, __('cli.rule.assign.cat_mgmt_continue_button_text'));
+        $selectedCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow);
 
         $this->saveRule(
             $this->viewInput('Name der Regel', 'required|min:1|unique:rule,name'),
@@ -212,7 +212,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
             );
 
             if ($continue === 'yes') {
-                $this->assignRule($manageConsoleService);
+                $this->assignRule();
             }
         }
     }
