@@ -5,7 +5,6 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 use Throwable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use function Laravel\Prompts\select;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use de\xovatec\financeAnalyzer\Models\Cashflow;
@@ -30,9 +29,10 @@ use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByManualCreator;
 use de\xovatec\financeAnalyzer\Services\Console\Category\ManageConsoleService;
 use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByFinQueryCreator;
 use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
-
 use de\xovatec\financeAnalyzer\Services\Console\Category\TreeViewConsoleService;
 use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
+
+use function Laravel\Prompts\select;
 
 class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQueryInterface
 {
