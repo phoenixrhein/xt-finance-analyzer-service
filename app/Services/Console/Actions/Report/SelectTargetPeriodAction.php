@@ -104,6 +104,6 @@ class SelectTargetPeriodAction extends AbstractIOService
             ]
         )->where('bank_account_iban', $bankAccount->iban)->count();
 
-        return $countOfLast > 0 || $maxTo > Carbon::now();
+        return $countOfLast > 0;
     }
 }
