@@ -510,6 +510,23 @@ return [
             'error' => [
                 'incomplete_data' => 'Der ausgewählte Zeitraum ist unvollständig. Bitte stellen Sie sicher, dass alle Buchungen bis zum Ende des Zeitraums vorliegen.'
             ]
+        ],
+        'select_time_span' => [
+            'label' => 'Wie viele vorausgegangene :span sollen berücksichtigt werden?',
+            'only_current_month' => 'Nur aktueller Monat',
+            'only_current_year' => 'Nur aktuelles Jahr',
+            'time_span_options' => [
+                '0' => 'Keine (:only_current)',
+                '1' => '1 :span',
+                '2' => '2 :span',
+                '3' => '3 :span'
+            ],
+            'span' => [
+                'months' => 'Monate',
+                'years' => 'Jahre',
+                'month' => 'Monat',
+                'year' => 'Jahr'
+            ]
         ]
     ]
 ];
