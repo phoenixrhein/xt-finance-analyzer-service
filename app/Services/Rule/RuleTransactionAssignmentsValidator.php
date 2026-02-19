@@ -113,7 +113,7 @@ class RuleTransactionAssignmentsValidator
         }
 
         if (!$hasErrors) {
-            $this->io->info( __('cli.rule.validator.validate_assignments_finished') );
+            $this->io->info( __('cli.rule.validator.validate_assignments_finished'));
         }
     }
 }

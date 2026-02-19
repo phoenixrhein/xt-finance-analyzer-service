@@ -15,7 +15,7 @@ trait InteractsWithIOExtended
      */
     public function infoInLn(string $string): void
     {
-        $this->output->write('<info>'.$string.'</info>');
+        $this->output->writeln('<info>' . $string . '</info>');
     }
 
     /**
@@ -24,6 +24,6 @@ trait InteractsWithIOExtended
      */
     public function separatorLine(): void
     {
-        $this->comment('—————————————————————————————————————————————————————————————————————————————————————————————————');
+        $this->comment('—————————————————————————————————————————————————————————————————————————————————————————————');
     }
 }
