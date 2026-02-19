@@ -59,4 +59,12 @@ interface ConsoleOutputInterface
      * @return void
      */
     public function emptyLn(): void;
+
+    /**
+     * Outputs an informational message without a newline at the end.
+     *
+     * @param string $string The message to output.
+     * @return void
+     */
+    public function infoInLn(string $string): void;
 }

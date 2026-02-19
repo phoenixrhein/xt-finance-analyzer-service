@@ -482,12 +482,14 @@ return [
         'refresh_index' => [
             'description' => 'Regel-Index aktualisieren',
             'not_considering_ignore_ibans' => 'Die Aktualisierung des Indexes berücksichtigt nicht die Ignore-IBANs',
-            'summary' => 'Es wurden :total Regeln verarbeitet. :updated Regeln aktualisiert, :zero Regeln ohne Treffer.'
+            'summary' => 'Es wurden :total Regeln verarbeitet. :updated Regeln aktualisiert, :zero Regeln ohne Treffer.',
+            'starts' => 'Beginne mit der Aktualisierung des Regel-Index...'
         ],
         'validator' => [
             'description' => 'Regel validieren',
             'not_considering_ignore_ibans' => 'Die Validierung der Regeln berücksichtigt nicht die Ignore-IBANs',
-            'validate_assignments' => 'Validierung der Buchungen für das Bankkonto: :iban (:id) ...',
+            'validate_assignments' => 'Validierung der Buchungen für das Bankkonto: :iban (:id)... ',
+            'validate_assignments_finished' => 'Beendet',
             'validate_assignments_overlaps' => 'Buchung mit der ID :id würde mehreren Regeln zugeordnet: :ruleIds',
         ]
     ],
@@ -508,7 +510,8 @@ return [
                 'hint' => 'Format: JJJJ, z.B. 2024'
             ],
             'error' => [
-                'incomplete_data' => 'Der ausgewählte Zeitraum ist unvollständig. Bitte stellen Sie sicher, dass alle Buchungen bis zum Ende des Zeitraums vorliegen.'
+                'incomplete_data' => 'Der ausgewählte Zeitraum ist unvollständig. Bitte stellen Sie sicher, dass alle Buchungen bis zum Ende des Zeitraums vorliegen.',
+                'unknown_report_type' => 'Unbekannter Berichtstyp'
             ]
         ],
         'select_time_span' => [

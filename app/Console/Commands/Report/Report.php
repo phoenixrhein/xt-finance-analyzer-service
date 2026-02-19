@@ -2,28 +2,27 @@
 
 namespace de\xovatec\financeAnalyzer\Console\Commands\Report;
 
-use de\xovatec\financeAnalyzer\Enums\TimespanType;
-use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Models\BankAccount;
+use de\xovatec\financeAnalyzer\Services\Console\Report\ReportConfiguratorWizard;
+use de\xovatec\financeAnalyzer\Services\Console\Report\RuleTransactionPreparer;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
-use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
-use de\xovatec\financeAnalyzer\Services\Console\Actions\Report\SelectTargetPeriodAction;
-
-use function Laravel\Prompts\select;
 
 class Report extends FinCommand
 {
     use BankAccountIdParameter;
-    use SimpleInput;
 
     /**
      *
      * @param AccountListQuery $accountlistQuery
+     * @param ReportConfiguratorWizard $reportConfiguratorWizard
+     * @param RuleTransactionPreparer $ruleTransactionPreparer
      */
     public function __construct(
         private AccountListQuery $accountlistQuery,
-        private SelectTargetPeriodAction $selectTargetPeriodAction
+        private ReportConfiguratorWizard $reportConfiguratorWizard,
+        private RuleTransactionPreparer $ruleTransactionPreparer
     ) {
         parent::__construct();
     }
@@ -33,7 +32,8 @@ class Report extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:report {accountId? : [:cli.base.param.account_id:]}';
+    protected $signature = 'fin:report {accountId? : [:cli.base.param.account_id:]}' .
+        '{--considerIgnoreIbans : [:cli.base.param.consider_ignore_ibans:]}';
 
     /**
      * The console command description.
@@ -66,68 +66,7 @@ class Report extends FinCommand
             return;
         }
 
-        $reportType = $this->selectReportType();
-        $targetPeriod = $this->selectTargetPeriodAction->selectTargetPeriod($reportType, $account);
-        $timeSpan = $this->selectTimeSpan($reportType);
-    }
-
-    /**
-     *
-     * @param TimespanType $reportType
-     * @return integer
-     */
-    private function selectTimeSpan(TimespanType $reportType): int
-    {
-        $months = __('cli.report.select_time_span.span.months');
-        $years = __('cli.report.select_time_span.span.years');
-        return (int)select(
-            label: __(
-                'cli.report.select_time_span.label',
-                ['span' => $reportType === TimespanType::month ? $months : $years]
-            ),
-            options: [
-                '0' => __(
-                    'cli.report.select_time_span.time_span_options.0',
-                    [
-                        'only_current' => $reportType === TimespanType::month
-                            ? __('cli.report.select_time_span.only_current_month')
-                            : __('cli.report.select_time_span.only_current_year')
-                    ]
-                ),
-                '1' => __(
-                    'cli.report.select_time_span.time_span_options.1',
-                    [
-                        'span' => $reportType === TimespanType::month
-                            ? __('cli.report.select_time_span.span.month')
-                            : __('cli.report.select_time_span.span.year')
-                    ]
-                ),
-                '2' => __(
-                    'cli.report.select_time_span.time_span_options.2',
-                    ['span' => $reportType === TimespanType::month ? $months : $years]
-                ),
-                '3' => __(
-                    'cli.report.select_time_span.time_span_options.3',
-                    ['span' => $reportType === TimespanType::month ? $months : $years]
-                ),
-            ],
-            default: '0',
-            scroll: 5
-        );
-    }
-
-    /**
-     *
-     * @return TimespanType
-     */
-    private function selectReportType(): TimespanType
-    {
-        return TimespanType::fromName(select(
-            __('cli.report.select_type'),
-            [
-                TimespanType::month->name => __('cli.report.type.monthly'),
-                TimespanType::year->name => __('cli.report.type.yearly'),
-            ]
-        ));
+        $this->reportConfiguratorWizard->runWizard($account);
+        $this->ruleTransactionPreparer->prepareForReport($account, $this->option('considerIgnoreIbans'));
     }
 }

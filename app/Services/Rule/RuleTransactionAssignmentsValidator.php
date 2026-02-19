@@ -2,13 +2,15 @@
 
 namespace de\xovatec\financeAnalyzer\Services\Rule;
 
-use Illuminate\Database\Eloquent\Builder;
-use de\xovatec\financeAnalyzer\Models\IgnoreList;
-use de\xovatec\financeAnalyzer\Models\BankAccount;
-use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
-use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
+use de\xovatec\financeAnalyzer\Models\BankAccount;
+use de\xovatec\financeAnalyzer\Models\IgnoreList;
+use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Services\Console\Output\ConsoleOutputInterface;
+use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleListService;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
+use Illuminate\Database\Eloquent\Builder;
 
 class RuleTransactionAssignmentsValidator
 {
@@ -67,7 +69,7 @@ class RuleTransactionAssignmentsValidator
         BankAccount $bankAccount,
         bool $considerIgnoreIbans
     ): void {
-        $this->io->info(
+        $this->io->infoInLn(
             __('cli.rule.validator.validate_assignments', ['iban' => $bankAccount->iban, 'id' => $bankAccount->id])
         );
         $query->where('bank_account_iban', $bankAccount->iban);
@@ -94,8 +96,13 @@ class RuleTransactionAssignmentsValidator
             }
         }
 
+        $hasErrors = false;
         foreach ($transactionRuleMap as $tid => $ruleIds) {
             if (count($ruleIds) > 1) {
+                if (!$hasErrors) {
+                    $this->io->emptyLn();
+                    $hasErrors = true;
+                }
                 $this->io->error(
                     __(
                         'cli.rule.validator.validate_assignments_overlaps',
@@ -103,6 +110,10 @@ class RuleTransactionAssignmentsValidator
                     )
                 );
             }
+        }
+
+        if (!$hasErrors) {
+            $this->io->info( __('cli.rule.validator.validate_assignments_finished') );
         }
     }
 }

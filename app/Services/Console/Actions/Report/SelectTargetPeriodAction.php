@@ -10,6 +10,7 @@ use de\xovatec\financeAnalyzer\Helpers\DateRangeHelper;
 use de\xovatec\financeAnalyzer\Helpers\TimespanRangeHelper;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
+use InvalidArgumentException;
 
 class SelectTargetPeriodAction extends AbstractIOService
 {
@@ -28,17 +29,16 @@ class SelectTargetPeriodAction extends AbstractIOService
         } elseif ($reportType === TimespanType::year) {
             $rules = ['required', 'regex:/^([0-9]{4})$/'];
         } else {
-            throw new \InvalidArgumentException('Ungültiger Berichtstyp ausgewählt.');
+            throw new InvalidArgumentException(__('cli.report.input_target.error.unknown_report_type'));
         }
 
-        $to = $this->selectTarget(
+        return $this->selectTarget(
             $reportType,
             $bankAccount,
             __('cli.report.input_target.' . $reportType->name . '.label'),
             $rules,
             __('cli.report.input_target.' . $reportType->name . '.hint'),
         );
-        return $to;
     }
 
     /**
