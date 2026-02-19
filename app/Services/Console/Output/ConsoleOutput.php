@@ -12,7 +12,7 @@ class ConsoleOutput implements ConsoleOutputInterface
 {
     use InteractsWithIOExtended;
     use InitViewIO;
-    
+
     /**
      *
      * @param SymfonyStyle $io
