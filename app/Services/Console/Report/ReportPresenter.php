@@ -19,6 +19,10 @@ class ReportPresenter extends AbstractIOService
     private int $decimals;
     private bool $showEmptyCategories;
     private int $maxCategoryDepth;
+    private array $columnWidths = [];
+    private string $tableSeparator = '';
+    private string $headerSeparator = '';
+    private const CATEGORY_COL_WIDTH = 28;
 
     public function __construct()
     {
@@ -44,6 +48,9 @@ class ReportPresenter extends AbstractIOService
         $hasSavingsData = $reportData->some(fn (PeriodReportData $p) =>
             $p->toIgnoredIban !== 0.0 || $p->fromIgnoredIban !== 0.0
         );
+
+        // Calculate column widths and separators once
+        $this->initializeColumnWidths($reportData);
 
         // Render income table
         $this->renderCategoryTable(
@@ -74,6 +81,44 @@ class ReportPresenter extends AbstractIOService
     }
 
     /**
+     * Initialize column widths and separator lines.
+     * Dynamically calculates widths based on period headers and typical currency amounts.
+     */
+    private function initializeColumnWidths(Collection $reportData): void
+    {
+        $this->columnWidths = [];
+
+        // Calculate width for each column based on header and typical currency format
+        // Example format: "-1.234.567,89 €" (max ~15 chars with separators)
+        foreach ($reportData as $period) {
+            $headerLength = strlen($period->getPeriodHeader());
+            // Minimum width should accommodate both header and formatted currency amounts
+            // Using max of header + 2 or 14 (typical max currency width with € symbol)
+            $this->columnWidths[] = max($headerLength + 2, 14);
+        }
+
+        // Build separator lines
+        $this->buildSeparators();
+    }
+
+    /**
+     * Build table separator strings.
+     */
+    private function buildSeparators(): void
+    {
+        $tableLine = str_repeat('─', self::CATEGORY_COL_WIDTH);
+        $headerLine = str_repeat('─', self::CATEGORY_COL_WIDTH);
+
+        foreach ($this->columnWidths as $width) {
+            $tableLine .= '┼' . str_repeat('─', $width + 2);
+            $headerLine .= '┼' . str_repeat('─', $width + 2);
+        }
+
+        $this->tableSeparator = $tableLine;
+        $this->headerSeparator = $headerLine;
+    }
+
+    /**
      * Render a category table with hierarchical structure across multiple periods.
      */
     private function renderCategoryTable(
@@ -83,152 +128,93 @@ class ReportPresenter extends AbstractIOService
         callable $getTotalCallback
     ): void {
         $this->line($title);
-        $this->line(str_repeat('─', 80));
+        $this->line($this->tableSeparator);
 
-        // Build header row with period names
-        $headers = ['Kategorie'];
-        foreach ($reportData as $period) {
-            $headers[] = $period->getPeriodHeader();
-        }
-        $this->renderTableHeader($headers);
+        // Render header
+        $this->renderTableHeader($reportData);
 
         // Get the first period's categories as reference for hierarchy
         $firstPeriodCategories = $getCategoriesCallback($reportData->first());
 
         foreach ($firstPeriodCategories as $category) {
-            $this->renderCategoryWithData($reportData, $category, $getCategoriesCallback, 0);
+            $this->renderCategoryRows($reportData, $category, $getCategoriesCallback, '');
         }
 
         // Render total row
-        $this->line(str_repeat('─', 28) . '┼' . str_repeat('─', 52));
-        $totalRow = ['GESAMT ' . $title];
-        foreach ($reportData as $period) {
-            $totalRow[] = $this->formatAmount($getTotalCallback($period));
-        }
-        $this->renderTableRow($totalRow, true);
+        $this->line($this->tableSeparator);
+        $this->renderTotalRow($reportData, 'GESAMT ' . $title, $getTotalCallback);
     }
 
     /**
-     * Render a category with its data from all periods.
+     * Render category and its detail rows recursively.
      */
-    private function renderCategoryWithData(
+    private function renderCategoryRows(
         Collection $reportData,
         CategoryNode $category,
         callable $getCategoriesCallback,
-        int $depth
+        string $prefix
     ): void {
         if (!$category->shouldDisplay($this->showEmptyCategories, $this->maxCategoryDepth)) {
             return;
         }
 
-        $indent = $this->getIndent($depth);
+        // Handle "Unzugeordnet" (unassigned) categories - just show one line
+        if ($category->categoryId === null) {
+            $nameRow = ['(unzugeordnet)'];
+            foreach ($reportData as $period) {
+                $categories = $getCategoriesCallback($period);
+                $found = $categories->firstWhere('categoryId', null);
+                $nameRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
+            }
+            $this->renderDataRow($nameRow);
+            return;
+        }
 
-        // Show parent category name
-        $nameRow = [$indent . $category->name];
+        // Show category name
+        $nameRow = [$prefix . $category->name];
         foreach ($reportData as $period) {
             $categories = $getCategoriesCallback($period);
             $found = $categories->firstWhere('categoryId', $category->categoryId);
-            $nameRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '0 €';
+            $nameRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
         }
-        $this->renderTableRow($nameRow, false);
+        $this->renderDataRow($nameRow);
 
-        // Show subcategories
-        $visibleChildren = $category->getVisibleChildren($this->showEmptyCategories, $this->maxCategoryDepth);
-        foreach ($visibleChildren as $child) {
-            $this->renderSubcategoryWithDetails($reportData, $child, $getCategoriesCallback, $depth + 1);
-        }
-    }
-
-    /**
-     * Render subcategory with direct/subtotal breakdown.
-     */
-    private function renderSubcategoryWithDetails(
-        Collection $reportData,
-        CategoryNode $category,
-        callable $getCategoriesCallback,
-        int $depth
-    ): void {
-        if (!$category->shouldDisplay($this->showEmptyCategories, $this->maxCategoryDepth)) {
-            return;
-        }
-
-        $indent = $this->getIndent($depth);
+        // Show sub-rows (zugeordnet, Summe Unterkategorien, Gesamt)
+        $nextPrefix = $prefix . '  ';
 
         // Direct amount row
-        $directRow = [$indent . '  ├─ zugeordnet'];
+        $directRow = [$nextPrefix . '├─ zugeordnet'];
         foreach ($reportData as $period) {
             $categories = $getCategoriesCallback($period);
             $found = $categories->firstWhere('categoryId', $category->categoryId);
-            $directRow[] = $found ? $this->formatAmount($found->directAmount) : '0 €';
+            $directRow[] = $found ? $this->formatAmount($found->directAmount) : '-';
         }
-        $this->renderTableRow($directRow, false);
+        $this->renderDataRow($directRow);
 
         // Children sum row
-        $childrenRow = [$indent . '  ├─ Summe Unterkategorien'];
+        $childrenRow = [$nextPrefix . '├─ Summe Unterkategorien'];
         foreach ($reportData as $period) {
             $categories = $getCategoriesCallback($period);
             $found = $categories->firstWhere('categoryId', $category->categoryId);
-            $childrenRow[] = $found ? $this->formatAmount($found->childrenAmount) : '0 €';
+            $childrenRow[] = $found ? $this->formatAmount($found->childrenAmount) : '-';
         }
-        $this->renderTableRow($childrenRow, false);
+        $this->renderDataRow($childrenRow);
 
         // Total row
-        $totalRow = [$indent . '  └─ Gesamt'];
+        $totalRow = [$nextPrefix . '└─ Gesamt'];
         foreach ($reportData as $period) {
             $categories = $getCategoriesCallback($period);
             $found = $categories->firstWhere('categoryId', $category->categoryId);
-            $totalRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '0 €';
+            $totalRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
         }
-        $this->renderTableRow($totalRow, false);
+        $this->renderDataRow($totalRow);
 
-        // Show nested children (3rd level)
+        // Render child categories
         $visibleChildren = $category->getVisibleChildren($this->showEmptyCategories, $this->maxCategoryDepth);
+        $childrenWithVertical = $nextPrefix . '│';
         foreach ($visibleChildren as $child) {
-            $this->renderNestedChild($reportData, $child, $getCategoriesCallback, $depth + 1);
+            $this->renderCategoryRows($reportData, $child, $getCategoriesCallback, $childrenWithVertical . '  ├─ ');
         }
-    }
-
-    /**
-     * Render nested child category (3rd+ level).
-     */
-    private function renderNestedChild(
-        Collection $reportData,
-        CategoryNode $category,
-        callable $getCategoriesCallback,
-        int $depth
-    ): void {
-        if (!$category->shouldDisplay($this->showEmptyCategories, $this->maxCategoryDepth)) {
-            return;
-        }
-
-        $indent = $this->getIndent($depth);
-
-        // Direct amount row
-        $directRow = [$indent . '  ├─ zugeordnet'];
-        foreach ($reportData as $period) {
-            $categories = $getCategoriesCallback($period);
-            $found = $categories->firstWhere('categoryId', $category->categoryId);
-            $directRow[] = $found ? $this->formatAmount($found->directAmount) : '0 €';
-        }
-        $this->renderTableRow($directRow, false);
-
-        // Children sum row
-        $childrenRow = [$indent . '  ├─ Summe Unterkategorien'];
-        foreach ($reportData as $period) {
-            $categories = $getCategoriesCallback($period);
-            $found = $categories->firstWhere('categoryId', $category->categoryId);
-            $childrenRow[] = $found ? $this->formatAmount($found->childrenAmount) : '0 €';
-        }
-        $this->renderTableRow($childrenRow, false);
-
-        // Total row
-        $totalRow = [$indent . '  └─ Gesamt'];
-        foreach ($reportData as $period) {
-            $categories = $getCategoriesCallback($period);
-            $found = $categories->firstWhere('categoryId', $category->categoryId);
-            $totalRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '0 €';
-        }
-        $this->renderTableRow($totalRow, false);
     }
 
     /**
@@ -237,37 +223,33 @@ class ReportPresenter extends AbstractIOService
     private function renderSavingsTable(Collection $reportData): void
     {
         $this->line('SPARBUCH (nicht in Einnahmen/Ausgaben enthalten)');
-        $this->line(str_repeat('─', 71));
+        $this->line($this->tableSeparator);
 
-        // Build header row
-        $headers = ['Richtung'];
-        foreach ($reportData as $period) {
-            $headers[] = $period->getPeriodHeader();
-        }
-        $this->renderTableHeader($headers);
+        // Render header
+        $this->renderTableHeader($reportData);
 
         // Bankkonto → Sparbuch row
         $toRow = ['Bankkonto → Sparbuch'];
         foreach ($reportData as $period) {
             $toRow[] = $this->formatAmount($period->toIgnoredIban);
         }
-        $this->renderTableRow($toRow, false);
+        $this->renderDataRow($toRow);
 
         // Sparbuch → Bankkonto row
         $fromRow = ['Sparbuch → Bankkonto'];
         foreach ($reportData as $period) {
             $fromRow[] = $this->formatAmount($period->fromIgnoredIban);
         }
-        $this->renderTableRow($fromRow, false);
+        $this->renderDataRow($fromRow);
 
         // Saldoveränderung row
-        $this->line(str_repeat('─', 28) . '┼' . str_repeat('─', 43));
+        $this->line($this->tableSeparator);
         $balanceRow = ['Saldoveränderung'];
         foreach ($reportData as $period) {
             $balance = $period->toIgnoredIban + $period->fromIgnoredIban;
             $balanceRow[] = $this->formatAmount($balance);
         }
-        $this->renderTableRow($balanceRow, true);
+        $this->renderTotalRowData($balanceRow);
     }
 
     /**
@@ -276,85 +258,87 @@ class ReportPresenter extends AbstractIOService
     private function renderSummary(Collection $reportData): void
     {
         $this->line('ZUSAMMENFASSUNG');
-        $this->line(str_repeat('─', 71));
+        $this->line($this->tableSeparator);
 
-        // Build header row
-        $headers = ['Kategorie'];
-        foreach ($reportData as $period) {
-            $headers[] = $period->getPeriodHeader();
-        }
-        $this->renderTableHeader($headers);
+        // Render header
+        $this->renderTableHeader($reportData);
 
         // Income row
         $incomeRow = ['Einnahmen'];
         foreach ($reportData as $period) {
             $incomeRow[] = $this->formatAmount($period->totalIncome);
         }
-        $this->renderTableRow($incomeRow, false);
+        $this->renderDataRow($incomeRow);
 
         // Expenses row
         $expenseRow = ['Ausgaben'];
         foreach ($reportData as $period) {
             $expenseRow[] = $this->formatAmount(-$period->totalOutgoing);
         }
-        $this->renderTableRow($expenseRow, false);
+        $this->renderDataRow($expenseRow);
 
         // Balance row
-        $this->line(str_repeat('─', 28) . '┼' . str_repeat('─', 43));
+        $this->line($this->tableSeparator);
         $balanceRow = ['Saldo'];
         foreach ($reportData as $period) {
             $balanceRow[] = $this->formatAmount($period->balance);
         }
-        $this->renderTableRow($balanceRow, true);
+        $this->renderTotalRowData($balanceRow);
     }
 
     /**
      * Render table header.
      */
-    private function renderTableHeader(array $headers): void
+    private function renderTableHeader(Collection $reportData): void
     {
-        $line = '';
-        foreach ($headers as $i => $header) {
-            if ($i === 0) {
-                $line .= str_pad($header, 28);
-            } else {
-                $line .= '│ ' . str_pad($header, 11);
-            }
+        $line = str_pad('Kategorie', self::CATEGORY_COL_WIDTH);
+        $i = 0;
+        foreach ($reportData as $period) {
+            $header = $period->getPeriodHeader();
+            $width = $this->columnWidths[$i] ?? 12;
+            $line .= '│ ' . str_pad($header, $width, ' ', STR_PAD_BOTH);
+            $i++;
         }
         $this->line($line);
-        $this->line(str_repeat('─', 28) . '┼' . str_repeat('─', 52));
+        $this->line($this->headerSeparator);
     }
 
     /**
-     * Render table row.
+     * Render data row with right-aligned amounts.
      */
-    private function renderTableRow(array $row, bool $isBold = false): void
+    private function renderDataRow(array $row): void
     {
-        $line = '';
-        foreach ($row as $i => $cell) {
-            $cell = (string) $cell;
-            if ($i === 0) {
-                $line .= str_pad($cell, 28);
-            } else {
-                $line .= '│ ' . str_pad($cell, 11);
-            }
+        $line = str_pad($row[0], self::CATEGORY_COL_WIDTH);
+        foreach ($this->columnWidths as $i => $width) {
+            $amount = $row[$i + 1] ?? '-';
+            $line .= '│ ' . str_pad((string) $amount, $width, ' ', STR_PAD_LEFT);
         }
-        if ($isBold) {
-            $this->line('<info>' . $line . '</info>');
-        } else {
-            $this->line($line);
-        }
+        $this->line($line);
     }
 
     /**
-     * Get indentation string for category depth.
+     * Render total row (bold).
      */
-    private function getIndent(int $depth): string
+    private function renderTotalRow(Collection $reportData, string $label, callable $getTotalCallback): void
     {
-        if ($depth === 0) {
-            return '';
+        $row = [$label];
+        foreach ($reportData as $period) {
+            $row[] = $this->formatAmount($getTotalCallback($period));
         }
-        return str_repeat('  ', $depth - 1) . '  ';
+        $this->renderTotalRowData($row);
+    }
+
+    /**
+     * Render total row data (bold).
+     */
+    private function renderTotalRowData(array $row): void
+    {
+        $line = str_pad($row[0], self::CATEGORY_COL_WIDTH);
+        foreach ($this->columnWidths as $i => $width) {
+            $amount = $row[$i + 1] ?? '-';
+            $line .= '│ ' . str_pad((string) $amount, $width, ' ', STR_PAD_LEFT);
+        }
+        $this->line('<info>' . $line . '</info>');
     }
 
     /**
@@ -362,6 +346,10 @@ class ReportPresenter extends AbstractIOService
      */
     private function formatAmount(float $amount): string
     {
+        if ($amount === 0.0) {
+            return '0 €';
+        }
+
         $isNegative = $amount < 0;
         $absolute = abs($amount);
 
