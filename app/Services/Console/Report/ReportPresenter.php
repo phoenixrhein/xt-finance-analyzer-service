@@ -22,7 +22,7 @@ class ReportPresenter extends AbstractIOService
     private array $columnWidths = [];
     private string $tableSeparator = '';
     private string $headerSeparator = '';
-    private const CATEGORY_COL_WIDTH = 28;
+    private int $categoryColWidth = 28;
 
     public function __construct()
     {
@@ -32,6 +32,50 @@ class ReportPresenter extends AbstractIOService
         $this->decimals = config('report.display.currency_decimals', 2);
         $this->showEmptyCategories = config('report.display.show_empty_categories', false);
         $this->maxCategoryDepth = config('report.display.max_category_depth', 2);
+    }
+
+    /**
+     * UTF-8 aware string padding.
+     * Pads string to the specified number of VISIBLE CHARACTERS (not bytes).
+     */
+    private function strPadUtf8(string $input, int $padLength, string $padString = ' ', int $padType = STR_PAD_RIGHT): string
+    {
+        $inputLength = mb_strlen($input, 'UTF-8');
+        if ($padLength <= $inputLength) {
+            return $input;
+        }
+
+        $padStringLength = mb_strlen($padString, 'UTF-8');
+        $padNeeded = $padLength - $inputLength;
+        $fullPads = (int) ($padNeeded / $padStringLength);
+        $remainder = $padNeeded % $padStringLength;
+        $repeatString = str_repeat($padString, $fullPads) . mb_substr($padString, 0, $remainder, 'UTF-8');
+
+        return match ($padType) {
+            STR_PAD_LEFT => $repeatString . $input,
+            STR_PAD_RIGHT => $input . $repeatString,
+            STR_PAD_BOTH => $this->padBoth($input, $padLength, $padString, $padNeeded),
+            default => $input,
+        };
+    }
+
+    /**
+     * Helper for STR_PAD_BOTH UTF-8 padding.
+     */
+    private function padBoth(string $input, int $padLength, string $padString, int $padNeeded): string
+    {
+        $padStringLength = mb_strlen($padString, 'UTF-8');
+        $leftPad = (int) ($padNeeded / 2);
+        $rightPad = $padNeeded - $leftPad;
+        $leftFullPads = (int) ($leftPad / $padStringLength);
+        $leftRemainder = $leftPad % $padStringLength;
+        $rightFullPads = (int) ($rightPad / $padStringLength);
+        $rightRemainder = $rightPad % $padStringLength;
+
+        $leftString = str_repeat($padString, $leftFullPads) . mb_substr($padString, 0, $leftRemainder, 'UTF-8');
+        $rightString = str_repeat($padString, $rightFullPads) . mb_substr($padString, 0, $rightRemainder, 'UTF-8');
+
+        return $leftString . $input . $rightString;
     }
 
     /**
@@ -82,23 +126,62 @@ class ReportPresenter extends AbstractIOService
 
     /**
      * Initialize column widths and separator lines.
-     * Dynamically calculates widths based on period headers and typical currency amounts.
+     * Dynamically calculates widths based on period headers, typical currency amounts, and category name lengths.
      */
     private function initializeColumnWidths(Collection $reportData): void
     {
         $this->columnWidths = [];
 
-        // Calculate width for each column based on header and typical currency format
-        // Example format: "-1.234.567,89 €" (max ~15 chars with separators)
+        // Use a fixed width of 16 characters for all amount columns
+        // This ensures perfect alignment across header, data, and separator rows
+        // 16 chars accommodates: "  -5.942,37 €" (12 chars) plus padding
+        $columnWidth = 16;
+
         foreach ($reportData as $period) {
-            $headerLength = strlen($period->getPeriodHeader());
-            // Minimum width should accommodate both header and formatted currency amounts
-            // Using max of header + 2 or 14 (typical max currency width with € symbol)
-            $this->columnWidths[] = max($headerLength + 2, 14);
+            $this->columnWidths[] = $columnWidth;
         }
+
+        // Calculate maximum category column width by finding longest category name
+        $maxCategoryLength = 9; // Minimum for "Kategorie" header
+        foreach ($reportData as $period) {
+            $maxCategoryLength = max($maxCategoryLength, $this->findMaxCategoryLength($period->incomingCategories, '', 0));
+            $maxCategoryLength = max($maxCategoryLength, $this->findMaxCategoryLength($period->outgoingCategories, '', 0));
+        }
+
+        // Ensure minimum width of 35 to safely accommodate tree symbols and sub-item labels
+        $this->categoryColWidth = max($maxCategoryLength, 35);
 
         // Build separator lines
         $this->buildSeparators();
+    }
+
+    /**
+     * Find the maximum length of category names including prefixes.
+     */
+    private function findMaxCategoryLength(Collection $categories, string $prefix, int $depth): int
+    {
+        $maxLength = 0;
+
+        foreach ($categories as $category) {
+            // Category name line
+            $nameLength = mb_strlen($prefix . $category->name, 'UTF-8');
+            $maxLength = max($maxLength, $nameLength);
+
+            // Sub-items (zugeordnet, Summe Unterkategorien, Gesamt)
+            $nextPrefix = $prefix . '  ';
+            $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ zugeordnet', 'UTF-8'));
+            $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ Summe Unterkategorien', 'UTF-8'));
+            $maxLength = max($maxLength, mb_strlen($nextPrefix . '└─ Gesamt', 'UTF-8'));
+
+            // Recursively check children
+            if ($category->children->isNotEmpty() && $depth < 3) {
+                $childPrefix = $nextPrefix . '│  ├─ ';
+                $childMax = $this->findMaxCategoryLength($category->children, $childPrefix, $depth + 1);
+                $maxLength = max($maxLength, $childMax);
+            }
+        }
+
+        return $maxLength;
     }
 
     /**
@@ -106,12 +189,16 @@ class ReportPresenter extends AbstractIOService
      */
     private function buildSeparators(): void
     {
-        $tableLine = str_repeat('─', self::CATEGORY_COL_WIDTH);
-        $headerLine = str_repeat('─', self::CATEGORY_COL_WIDTH);
+        // For the category column: create the right number of dashes
+        // We need categoryColWidth dashes to visually match the category column width
+        $tableLine = str_repeat('─', $this->categoryColWidth);
+        $headerLine = str_repeat('─', $this->categoryColWidth);
 
         foreach ($this->columnWidths as $width) {
-            $tableLine .= '┼' . str_repeat('─', $width + 2);
-            $headerLine .= '┼' . str_repeat('─', $width + 2);
+            // Each data column is: '│' (1 char) + ' ' (1 char) + content ($width chars) = (2 + $width) visible chars total
+            // So we need the same visible character count: '┼' (1 char) + dashes (1 + $width chars)
+            $tableLine .= '┼' . str_repeat('─', $width + 1);
+            $headerLine .= '┼' . str_repeat('─', $width + 1);
         }
 
         $this->tableSeparator = $tableLine;
@@ -293,14 +380,14 @@ class ReportPresenter extends AbstractIOService
     {
         $categoryText = 'Kategorie';
         $categoryLength = mb_strlen($categoryText, 'UTF-8');
-        $padding = max(0, self::CATEGORY_COL_WIDTH - $categoryLength);
+        $padding = max(0, $this->categoryColWidth - $categoryLength);
         $line = $categoryText . str_repeat(' ', $padding);
 
         $i = 0;
         foreach ($reportData as $period) {
             $header = $period->getPeriodHeader();
             $width = $this->columnWidths[$i] ?? 12;
-            $line .= '│ ' . str_pad($header, $width, ' ', STR_PAD_BOTH);
+            $line .= '│ ' . $this->strPadUtf8($header, $width, ' ', STR_PAD_BOTH);
             $i++;
         }
         $this->line($line);
@@ -314,12 +401,12 @@ class ReportPresenter extends AbstractIOService
     {
         $categoryText = $row[0];
         $categoryLength = mb_strlen($categoryText, 'UTF-8');
-        $padding = max(0, self::CATEGORY_COL_WIDTH - $categoryLength);
+        $padding = max(0, $this->categoryColWidth - $categoryLength);
         $line = $categoryText . str_repeat(' ', $padding);
 
         foreach ($this->columnWidths as $i => $width) {
             $amount = $row[$i + 1] ?? '-';
-            $line .= '│ ' . str_pad((string) $amount, $width, ' ', STR_PAD_LEFT);
+            $line .= '│ ' . $this->strPadUtf8((string) $amount, $width, ' ', STR_PAD_LEFT);
         }
         $this->line($line);
     }
@@ -343,12 +430,12 @@ class ReportPresenter extends AbstractIOService
     {
         $categoryText = $row[0];
         $categoryLength = mb_strlen($categoryText, 'UTF-8');
-        $padding = max(0, self::CATEGORY_COL_WIDTH - $categoryLength);
+        $padding = max(0, $this->categoryColWidth - $categoryLength);
         $line = $categoryText . str_repeat(' ', $padding);
 
         foreach ($this->columnWidths as $i => $width) {
             $amount = $row[$i + 1] ?? '-';
-            $line .= '│ ' . str_pad((string) $amount, $width, ' ', STR_PAD_LEFT);
+            $line .= '│ ' . $this->strPadUtf8((string) $amount, $width, ' ', STR_PAD_LEFT);
         }
         $this->line('<info>' . $line . '</info>');
     }
