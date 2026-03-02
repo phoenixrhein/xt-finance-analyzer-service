@@ -291,7 +291,11 @@ class ReportPresenter extends AbstractIOService
      */
     private function renderTableHeader(Collection $reportData): void
     {
-        $line = str_pad('Kategorie', self::CATEGORY_COL_WIDTH);
+        $categoryText = 'Kategorie';
+        $categoryLength = mb_strlen($categoryText, 'UTF-8');
+        $padding = max(0, self::CATEGORY_COL_WIDTH - $categoryLength);
+        $line = $categoryText . str_repeat(' ', $padding);
+
         $i = 0;
         foreach ($reportData as $period) {
             $header = $period->getPeriodHeader();
@@ -308,7 +312,11 @@ class ReportPresenter extends AbstractIOService
      */
     private function renderDataRow(array $row): void
     {
-        $line = str_pad($row[0], self::CATEGORY_COL_WIDTH);
+        $categoryText = $row[0];
+        $categoryLength = mb_strlen($categoryText, 'UTF-8');
+        $padding = max(0, self::CATEGORY_COL_WIDTH - $categoryLength);
+        $line = $categoryText . str_repeat(' ', $padding);
+
         foreach ($this->columnWidths as $i => $width) {
             $amount = $row[$i + 1] ?? '-';
             $line .= '│ ' . str_pad((string) $amount, $width, ' ', STR_PAD_LEFT);
@@ -333,7 +341,11 @@ class ReportPresenter extends AbstractIOService
      */
     private function renderTotalRowData(array $row): void
     {
-        $line = str_pad($row[0], self::CATEGORY_COL_WIDTH);
+        $categoryText = $row[0];
+        $categoryLength = mb_strlen($categoryText, 'UTF-8');
+        $padding = max(0, self::CATEGORY_COL_WIDTH - $categoryLength);
+        $line = $categoryText . str_repeat(' ', $padding);
+
         foreach ($this->columnWidths as $i => $width) {
             $amount = $row[$i + 1] ?? '-';
             $line .= '│ ' . str_pad((string) $amount, $width, ' ', STR_PAD_LEFT);
