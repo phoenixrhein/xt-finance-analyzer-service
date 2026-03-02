@@ -3,6 +3,7 @@
 namespace de\xovatec\financeAnalyzer\Services\Console\Report;
 
 use de\xovatec\financeAnalyzer\Enums\TimespanType;
+use de\xovatec\financeAnalyzer\Helpers\TimespanRangeHelper;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
 use de\xovatec\financeAnalyzer\Services\Console\Actions\Report\SelectTargetPeriodAction;
@@ -23,13 +24,15 @@ class ReportConfiguratorWizard extends AbstractIOService
     /**
      *
      * @param BankAccount $bankAccount
-     * @return void
+     * @return array
      */
-    public function runWizard(BankAccount $bankAccount): void
+    public function runWizard(BankAccount $bankAccount): array
     {
         $reportType = $this->selectReportType();
         $targetPeriod = $this->selectTargetPeriodAction->selectTargetPeriod($reportType, $bankAccount);
-        $timeSpanTT = $this->selectTimeSpan($reportType);
+        $timeSpan = $this->selectTimeSpan($reportType);
+
+        return TimespanRangeHelper::calculateRange($targetPeriod, $timeSpan, $reportType);
     }
 
     /**
