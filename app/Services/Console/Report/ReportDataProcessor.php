@@ -58,6 +58,25 @@ class ReportDataProcessor
     ): PeriodReportData {
         $transactions = $this->loadTransactions($bankAccount, $start, $end, $considerIgnoreIbans);
 
+        // Load ignored IBAN transactions if needed for reporting
+        $ignoredIbanTransactions = collect();
+        $ignoredIbans = [];
+        if ($considerIgnoreIbans) {
+            $ignoredIbans = $bankAccount
+                ->ignoreList()
+                ->where('type', 'iban')
+                ->pluck('value')
+                ->toArray();
+
+            if (!empty($ignoredIbans)) {
+                $ignoredIbanTransactions = $bankAccount
+                    ->transactions()
+                    ->whereBetween('transaction_date', [$start, $end])
+                    ->whereIn('creditor_iban', $ignoredIbans)
+                    ->get();
+            }
+        }
+
         // Separate transactions by income/expense
         $incomingTransactions = $transactions->filter(fn (Transactions $t) => $t->amount > 0);
         $outgoingTransactions = $transactions->filter(fn (Transactions $t) => $t->amount < 0);
@@ -78,6 +97,10 @@ class ReportDataProcessor
         $totalIncome = $incomingTransactions->sum('amount');
         $totalOutgoing = abs($outgoingTransactions->sum('amount'));
 
+        // Calculate ignored IBAN transfers
+        $toIgnoredIban = $ignoredIbanTransactions->filter(fn (Transactions $t) => $t->amount < 0)->sum('amount');
+        $fromIgnoredIban = $ignoredIbanTransactions->filter(fn (Transactions $t) => $t->amount > 0)->sum('amount');
+
         return new PeriodReportData(
             $start,
             $end,
@@ -85,7 +108,9 @@ class ReportDataProcessor
             $outgoingTree,
             $totalIncome,
             $totalOutgoing,
-            $totalIncome - $totalOutgoing
+            $totalIncome - $totalOutgoing,
+            $toIgnoredIban,
+            $fromIgnoredIban
         );
     }
 
