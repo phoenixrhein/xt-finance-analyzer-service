@@ -93,8 +93,8 @@ class ReportPresenter extends AbstractIOService
         }
 
         // Check if savings account data exists
-        $hasSavingsData = $reportData->some(fn (PeriodReportData $p) =>
-            $p->toIgnoredIban !== 0.0 || $p->fromIgnoredIban !== 0.0
+        $hasSavingsData = $reportData->some(
+            fn (PeriodReportData $p) => $p->toIgnoredIban !== 0.0 || $p->fromIgnoredIban !== 0.0
         );
 
         // Calculate column widths and separators once
