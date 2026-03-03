@@ -105,7 +105,8 @@ class ReportPresenter extends AbstractIOService
             $reportData,
             'EINNAHMEN',
             fn (PeriodReportData $p) => $p->incomingCategories,
-            fn (PeriodReportData $p) => $p->totalIncome);
+            fn (PeriodReportData $p) => $p->totalIncome
+        );
         $this->newLine();
 
         // Render expenses table
@@ -113,7 +114,8 @@ class ReportPresenter extends AbstractIOService
             $reportData,
             'AUSGABEN',
             fn (PeriodReportData $p) => $p->outgoingCategories,
-            fn (PeriodReportData $p) => -$p->totalOutgoing);
+            fn (PeriodReportData $p) => -$p->totalOutgoing
+        );
         $this->newLine();
 
         // Render savings account table if applicable
@@ -203,7 +205,7 @@ class ReportPresenter extends AbstractIOService
         $headerLine = str_repeat('─', $this->categoryColWidth);
 
         foreach ($this->columnWidths as $width) {
-            // Each data column is: '│' (1 char) + ' ' (1 char) + content ($width chars) = 
+            // Each data column is: '│' (1 char) + ' ' (1 char) + content ($width chars) =
             // (2 + $width) visible chars total
             // So we need the same visible character count: '┼' (1 char) + dashes (1 + $width chars)
             $tableLine .= '┼' . str_repeat('─', $width + 1);
