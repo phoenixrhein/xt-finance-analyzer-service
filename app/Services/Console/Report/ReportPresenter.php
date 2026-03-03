@@ -38,8 +38,12 @@ class ReportPresenter extends AbstractIOService
      * UTF-8 aware string padding.
      * Pads string to the specified number of VISIBLE CHARACTERS (not bytes).
      */
-    private function strPadUtf8(string $input, int $padLength, string $padString = ' ', int $padType = STR_PAD_RIGHT): string
-    {
+    private function strPadUtf8(
+        string $input,
+        int $padLength,
+        string $padString = ' ',
+        int $padType = STR_PAD_RIGHT
+    ): string {
         $inputLength = mb_strlen($input, 'UTF-8');
         if ($padLength <= $inputLength) {
             return $input;
@@ -101,8 +105,7 @@ class ReportPresenter extends AbstractIOService
             $reportData,
             'EINNAHMEN',
             fn (PeriodReportData $p) => $p->incomingCategories,
-            fn (PeriodReportData $p) => $p->totalIncome
-        );
+            fn (PeriodReportData $p) => $p->totalIncome);
         $this->newLine();
 
         // Render expenses table
@@ -110,8 +113,7 @@ class ReportPresenter extends AbstractIOService
             $reportData,
             'AUSGABEN',
             fn (PeriodReportData $p) => $p->outgoingCategories,
-            fn (PeriodReportData $p) => -$p->totalOutgoing
-        );
+            fn (PeriodReportData $p) => -$p->totalOutgoing);
         $this->newLine();
 
         // Render savings account table if applicable
@@ -144,8 +146,14 @@ class ReportPresenter extends AbstractIOService
         // Calculate maximum category column width by finding longest category name
         $maxCategoryLength = 9; // Minimum for "Kategorie" header
         foreach ($reportData as $period) {
-            $maxCategoryLength = max($maxCategoryLength, $this->findMaxCategoryLength($period->incomingCategories, '', 0));
-            $maxCategoryLength = max($maxCategoryLength, $this->findMaxCategoryLength($period->outgoingCategories, '', 0));
+            $maxCategoryLength = max(
+                $maxCategoryLength,
+                $this->findMaxCategoryLength($period->incomingCategories, '', 0)
+            );
+            $maxCategoryLength = max(
+                $maxCategoryLength,
+                $this->findMaxCategoryLength($period->outgoingCategories, '', 0)
+            );
         }
 
         // Ensure minimum width of 35 to safely accommodate tree symbols and sub-item labels
@@ -195,7 +203,8 @@ class ReportPresenter extends AbstractIOService
         $headerLine = str_repeat('─', $this->categoryColWidth);
 
         foreach ($this->columnWidths as $width) {
-            // Each data column is: '│' (1 char) + ' ' (1 char) + content ($width chars) = (2 + $width) visible chars total
+            // Each data column is: '│' (1 char) + ' ' (1 char) + content ($width chars) = 
+            // (2 + $width) visible chars total
             // So we need the same visible character count: '┼' (1 char) + dashes (1 + $width chars)
             $tableLine .= '┼' . str_repeat('─', $width + 1);
             $headerLine .= '┼' . str_repeat('─', $width + 1);

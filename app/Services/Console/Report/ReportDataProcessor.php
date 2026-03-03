@@ -41,8 +41,7 @@ class ReportDataProcessor
                 $cashflow->in_category_id,
                 $cashflow->out_category_id,
                 $considerIgnoreIbans
-            )
-        );
+            ));
     }
 
     /**
@@ -165,8 +164,7 @@ class ReportDataProcessor
                     $category,
                     $transactionsByCategory,
                     $unassignedLabel
-                )
-            )
+                ))
             ->flatMap(fn (CategoryNode $node) => [
                 ...$node->children,
                 ...($node->hasAmount() || $node->children->isNotEmpty() ? [new CategoryNode(

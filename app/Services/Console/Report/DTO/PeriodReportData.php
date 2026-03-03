@@ -41,8 +41,10 @@ class PeriodReportData
      */
     public function getPeriodLabel(): string
     {
-        if ($this->periodStart->month === $this->periodEnd->month &&
-            $this->periodStart->year === $this->periodEnd->year) {
+        if (
+            $this->periodStart->month === $this->periodEnd->month &&
+            $this->periodStart->year === $this->periodEnd->year
+        ) {
             return $this->periodStart->translatedFormat('F Y');
         }
 
