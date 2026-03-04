@@ -78,7 +78,7 @@ class Report extends FinCommand
         $reportData = $this->reportDataProcessor->process(
             $account,
             $periods,
-            (bool) $this->option('considerIgnoreIbans')
+            !(bool) $this->option('considerIgnoreIbans')
         );
 
         $this->reportPresenter->render($reportData, $account->cashflow?->timespanType ?? null);
