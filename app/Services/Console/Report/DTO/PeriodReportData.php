@@ -56,10 +56,18 @@ class PeriodReportData
     }
 
     /**
-     * Get period range for table output (e.g., "Mai", "Juni", "Juli").
+     * Get period range for table output (e.g., "Mai", "Juni", "Juli" for monthly, "2025" for yearly).
      */
     public function getPeriodHeader(): string
     {
+        $durationDays = $this->periodStart->diffInDays($this->periodEnd);
+
+        // Yearly report (roughly 365 days)
+        if ($durationDays >= 350) {
+            return $this->periodStart->translatedFormat('Y');
+        }
+
+        // Monthly or shorter period (show month name)
         return $this->periodStart->translatedFormat('F');
     }
 }
