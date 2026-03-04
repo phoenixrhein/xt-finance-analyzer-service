@@ -353,25 +353,26 @@ class ReportPresenter extends AbstractIOService
         // Render header
         $this->renderTableHeader($reportData);
 
-        // Bankkonto → Sparbuch row
+        // Bankkonto → Sparbuch row (invert sign: money coming in is positive)
         $toRow = ['Bankkonto → Sparbuch'];
         foreach ($reportData as $period) {
-            $toRow[] = $this->formatAmount($period->toIgnoredIban);
+            $toRow[] = $this->formatAmount(-$period->toIgnoredIban);
         }
         $this->renderDataRow($toRow);
 
-        // Sparbuch → Bankkonto row
+        // Sparbuch → Bankkonto row (invert sign: money going out is negative)
         $fromRow = ['Sparbuch → Bankkonto'];
         foreach ($reportData as $period) {
-            $fromRow[] = $this->formatAmount($period->fromIgnoredIban);
+            $fromRow[] = $this->formatAmount(-$period->fromIgnoredIban);
         }
         $this->renderDataRow($fromRow);
 
-        // Saldoveränderung row
+        // Saldoveränderung row (total change in savings account)
         $this->line($this->tableSeparator);
         $balanceRow = ['Saldoveränderung'];
         foreach ($reportData as $period) {
-            $balance = $period->toIgnoredIban + $period->fromIgnoredIban;
+            // Balance change = money in + money out (with inverted signs)
+            $balance = -$period->toIgnoredIban + (-$period->fromIgnoredIban);
             $balanceRow[] = $this->formatAmount($balance);
         }
         $this->renderTotalRowData($balanceRow);
