@@ -44,39 +44,41 @@ class ReportConfiguratorWizard extends AbstractIOService
     {
         $months = __('cli.report.select_time_span.span.months');
         $years = __('cli.report.select_time_span.span.years');
+        $options = [
+            __(
+                'cli.report.select_time_span.time_span_options.0',
+                [
+                    'only_current' => $reportType === TimespanType::month
+                        ? __('cli.report.select_time_span.only_current_month')
+                        : __('cli.report.select_time_span.only_current_year')
+                ]
+            ),
+            __(
+                'cli.report.select_time_span.time_span_options.1',
+                [
+                    'span' => $reportType === TimespanType::month
+                        ? __('cli.report.select_time_span.span.month')
+                        : __('cli.report.select_time_span.span.year')
+                ]
+            ),
+            __(
+                'cli.report.select_time_span.time_span_options.2',
+                ['span' => $reportType === TimespanType::month ? $months : $years]
+            ),
+            __(
+                'cli.report.select_time_span.time_span_options.3',
+                ['span' => $reportType === TimespanType::month ? $months : $years]
+            ),
+        ];
+
         return (int)select(
-            label: __(
+            __(
                 'cli.report.select_time_span.label',
                 ['span' => $reportType === TimespanType::month ? $months : $years]
             ),
-            options: [
-                '0' => __(
-                    'cli.report.select_time_span.time_span_options.0',
-                    [
-                        'only_current' => $reportType === TimespanType::month
-                            ? __('cli.report.select_time_span.only_current_month')
-                            : __('cli.report.select_time_span.only_current_year')
-                    ]
-                ),
-                '1' => __(
-                    'cli.report.select_time_span.time_span_options.1',
-                    [
-                        'span' => $reportType === TimespanType::month
-                            ? __('cli.report.select_time_span.span.month')
-                            : __('cli.report.select_time_span.span.year')
-                    ]
-                ),
-                '2' => __(
-                    'cli.report.select_time_span.time_span_options.2',
-                    ['span' => $reportType === TimespanType::month ? $months : $years]
-                ),
-                '3' => __(
-                    'cli.report.select_time_span.time_span_options.3',
-                    ['span' => $reportType === TimespanType::month ? $months : $years]
-                ),
-            ],
-            default: '0',
-            scroll: 5
+            $options,
+            $options[2] ?? null,
+            5
         );
     }
 
