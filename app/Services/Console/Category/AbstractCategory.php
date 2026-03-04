@@ -4,12 +4,14 @@ namespace de\xovatec\financeAnalyzer\Services\Console\Category;
 
 use de\xovatec\financeAnalyzer\Models\Category;
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
+use de\xovatec\financeAnalyzer\Traits\Utils\CategoryPath;
 
-use function Laravel\Prompts\text;
 use function Laravel\Prompts\intro;
+use function Laravel\Prompts\text;
 
 abstract class AbstractCategory extends AbstractIOService
 {
+    use CategoryPath;
     /**
      *
      * @param string $rawName
@@ -44,12 +46,7 @@ abstract class AbstractCategory extends AbstractIOService
     protected function viewCategoryPath(Category $category, string $name): void
     {
         intro(__('cli.category.base.category_path'));
-        $ancestors = $category->ancestors();
-
-        foreach ($ancestors->reverse() as $ancestor) {
-            echo $ancestor->name . " [{$ancestor->id}] " . ' \ ';
-        }
-        echo $category->name . " [{$category->id}] " . ' \ ' . $name . PHP_EOL;
+        echo $this->buildPathAsString($category) . ' \ ' . $name . PHP_EOL;
         $this->emptyLn();
     }
 
