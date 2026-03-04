@@ -32,7 +32,7 @@ class ReportConfiguratorWizard extends AbstractIOService
         $targetPeriod = $this->selectTargetPeriodAction->selectTargetPeriod($reportType, $bankAccount);
         $timeSpan = $this->selectTimeSpan($reportType);
 
-        return TimespanRangeHelper::calculateRange($targetPeriod, $timeSpan, $reportType);
+        return TimespanRangeHelper::calculateRange($targetPeriod, $timeSpan + 1, $reportType);
     }
 
     /**
