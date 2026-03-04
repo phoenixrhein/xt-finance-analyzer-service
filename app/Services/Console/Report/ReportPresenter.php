@@ -182,7 +182,6 @@ class ReportPresenter extends AbstractIOService
                 $nextPrefix = $prefix . '  ';
                 $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ zugeordnet', 'UTF-8'));
                 $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ Summe Unterkategorien', 'UTF-8'));
-                $maxLength = max($maxLength, mb_strlen($nextPrefix . '└─ Gesamt', 'UTF-8'));
 
                 // Recursively check children
                 if ($depth < 3) {
@@ -330,7 +329,7 @@ class ReportPresenter extends AbstractIOService
             foreach ($visibleChildren as $index => $child) {
                 $isLast = $index === $visibleChildren->count() - 1;
                 $childSymbol = $isLast ? '└─ ' : '├─ ';
-                // Always use vertical line under children because "Gesamt" comes after
+                // Always use vertical line to connect to Summe Unterkategorien
                 $childrenWithVertical = $nextPrefix . '│  ';
 
                 $this->renderCategoryRows(
@@ -340,15 +339,6 @@ class ReportPresenter extends AbstractIOService
                     $childrenWithVertical . $childSymbol
                 );
             }
-
-            // Total row (after children)
-            $totalRow = [$nextPrefix . '└─ Gesamt'];
-            foreach ($reportData as $period) {
-                $categories = $getCategoriesCallback($period);
-                $found = $this->findCategoryInTree($categories, $category->categoryId);
-                $totalRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
-            }
-            $this->renderDataRow($totalRow);
         }
     }
 
