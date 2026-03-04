@@ -49,7 +49,8 @@ class CategoryNode
      */
     public function shouldDisplay(bool $showEmptyCategories, int $maxDepth): bool
     {
-        if ($this->depth >= $maxDepth) {
+        // Allow display up to maxDepth (inclusive)
+        if ($this->depth > $maxDepth) {
             return false;
         }
 

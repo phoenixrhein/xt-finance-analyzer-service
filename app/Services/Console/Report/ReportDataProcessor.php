@@ -150,33 +150,37 @@ class ReportDataProcessor
         int $rootCategoryId,
         string $unassignedLabel
     ): Collection {
-        // Load root category with all relationships
-        $rootCategory = Category::with('subCategories')
-            ->findOrFail($rootCategoryId);
+        // Load root category (eager loading will happen in buildCategoryNode)
+        $rootCategory = Category::findOrFail($rootCategoryId);
 
         // Group transactions by assigned category
         $transactionsByCategory = $this->groupTransactionsByCategory($transactions);
 
         // Build tree recursively
-        return collect([$rootCategory])
+        $rootNode = collect([$rootCategory])
             ->map(fn (Category $category) =>
                 $this->buildCategoryNode(
                     $category,
                     $transactionsByCategory,
                     $unassignedLabel
                 ))
-            ->flatMap(fn (CategoryNode $node) => [
-                ...$node->children,
-                ...($node->hasAmount() || $node->children->isNotEmpty() ? [new CategoryNode(
-                    null,
-                    $unassignedLabel,
-                    $transactionsByCategory['_unassigned'] ?? 0.0,
-                    0.0,
-                    collect(),
-                    0
-                )] : [])
-            ])
-            ->filter(fn (CategoryNode $node) => $node->hasAmount());
+            ->first();
+
+        // Add unassigned category if needed
+        $children = $rootNode->children->toArray();
+        if ($rootNode->hasAmount() || $rootNode->children->isNotEmpty()) {
+            $children[] = new CategoryNode(
+                null,
+                $unassignedLabel,
+                $transactionsByCategory['_unassigned'] ?? 0.0,
+                0.0,
+                collect(),
+                0
+            );
+        }
+
+        // Return collection with all direct children of root
+        return collect($children)->filter(fn (CategoryNode $node) => $node->hasAmount());
     }
 
     /**
@@ -191,19 +195,37 @@ class ReportDataProcessor
         $directAmount = $transactionsByCategory[$category->id] ?? 0.0;
         $childrenAmount = 0.0;
 
-        $children = $category->subCategories
-            ->map(function (Category $child) use ($transactionsByCategory, $unassignedLabel, $depth, &$childrenAmount) {
-                $childNode = $this->buildCategoryNode(
+        // Always load subcategories (ensures they're available)
+        $category->load('subCategories');
+
+        $subCategories = $category->subCategories ?? collect();
+
+        // Build all child nodes first
+        $allChildren = $subCategories
+            ->map(function (Category $child) use ($transactionsByCategory, $unassignedLabel, $depth) {
+                return $this->buildCategoryNode(
                     $child,
                     $transactionsByCategory,
                     $unassignedLabel,
                     $depth + 1
                 );
-                $childrenAmount += $childNode->getTotalAmount();
-                return $childNode;
             })
-            ->filter(fn (CategoryNode $node) => $node->hasAmount())
             ->values();
+
+        // Separate children into two groups: those with amounts and those without
+        $childrenWithAmount = $allChildren->filter(fn (CategoryNode $node) => $node->hasAmount())->values();
+        $childrenWithoutAmount = $allChildren->filter(fn (CategoryNode $node) => !$node->hasAmount())->values();
+
+        // Only include children that have amounts themselves OR those that are parents of children with amounts
+        // Children without amounts that have no children can be filtered out
+        $children = $childrenWithAmount->merge(
+            $childrenWithoutAmount->filter(fn (CategoryNode $node) => $node->children->isNotEmpty())
+        )->values();
+
+        // Calculate children amount from all children (including those with and without direct amounts)
+        foreach ($children as $child) {
+            $childrenAmount += $child->getTotalAmount();
+        }
 
         return new CategoryNode(
             $category->id,

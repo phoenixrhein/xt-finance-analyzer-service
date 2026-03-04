@@ -177,17 +177,19 @@ class ReportPresenter extends AbstractIOService
             $nameLength = mb_strlen($prefix . $category->name, 'UTF-8');
             $maxLength = max($maxLength, $nameLength);
 
-            // Sub-items (zugeordnet, Summe Unterkategorien, Gesamt)
-            $nextPrefix = $prefix . '  ';
-            $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ zugeordnet', 'UTF-8'));
-            $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ Summe Unterkategorien', 'UTF-8'));
-            $maxLength = max($maxLength, mb_strlen($nextPrefix . '└─ Gesamt', 'UTF-8'));
+            // Only add sub-item lengths if category has children
+            if ($category->children->isNotEmpty()) {
+                $nextPrefix = $prefix . '  ';
+                $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ zugeordnet', 'UTF-8'));
+                $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ Summe Unterkategorien', 'UTF-8'));
+                $maxLength = max($maxLength, mb_strlen($nextPrefix . '└─ Gesamt', 'UTF-8'));
 
-            // Recursively check children
-            if ($category->children->isNotEmpty() && $depth < 3) {
-                $childPrefix = $nextPrefix . '│  ├─ ';
-                $childMax = $this->findMaxCategoryLength($category->children, $childPrefix, $depth + 1);
-                $maxLength = max($maxLength, $childMax);
+                // Recursively check children
+                if ($depth < 3) {
+                    $childPrefix = $nextPrefix . '│  ├─ ';
+                    $childMax = $this->findMaxCategoryLength($category->children, $childPrefix, $depth + 1);
+                    $maxLength = max($maxLength, $childMax);
+                }
             }
         }
 
@@ -244,6 +246,28 @@ class ReportPresenter extends AbstractIOService
     }
 
     /**
+     * Find a category node recursively in the tree.
+     */
+    private function findCategoryInTree(Collection $categories, int $categoryId): ?CategoryNode
+    {
+        foreach ($categories as $category) {
+            if ($category->categoryId === $categoryId) {
+                return $category;
+            }
+
+            // Search in children recursively
+            if ($category->children->isNotEmpty()) {
+                $found = $this->findCategoryInTree($category->children, $categoryId);
+                if ($found !== null) {
+                    return $found;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Render category and its detail rows recursively.
      */
     private function renderCategoryRows(
@@ -272,46 +296,54 @@ class ReportPresenter extends AbstractIOService
         $nameRow = [$prefix . $category->name];
         foreach ($reportData as $period) {
             $categories = $getCategoriesCallback($period);
-            $found = $categories->firstWhere('categoryId', $category->categoryId);
+            $found = $this->findCategoryInTree($categories, $category->categoryId);
             $nameRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
         }
         $this->renderDataRow($nameRow);
 
-        // Show sub-rows (zugeordnet, Summe Unterkategorien, Gesamt)
-        $nextPrefix = $prefix . '  ';
+        // Only show sub-rows (zugeordnet, Summe Unterkategorien, Gesamt) if category has children
+        if ($category->children->isNotEmpty()) {
+            $nextPrefix = $prefix . '  ';
 
-        // Direct amount row
-        $directRow = [$nextPrefix . '├─ zugeordnet'];
-        foreach ($reportData as $period) {
-            $categories = $getCategoriesCallback($period);
-            $found = $categories->firstWhere('categoryId', $category->categoryId);
-            $directRow[] = $found ? $this->formatAmount($found->directAmount) : '-';
-        }
-        $this->renderDataRow($directRow);
+            // Direct amount row
+            $directRow = [$nextPrefix . '├─ zugeordnet'];
+            foreach ($reportData as $period) {
+                $categories = $getCategoriesCallback($period);
+                $found = $this->findCategoryInTree($categories, $category->categoryId);
+                $directRow[] = $found ? $this->formatAmount($found->directAmount) : '-';
+            }
+            $this->renderDataRow($directRow);
 
-        // Children sum row
-        $childrenRow = [$nextPrefix . '├─ Summe Unterkategorien'];
-        foreach ($reportData as $period) {
-            $categories = $getCategoriesCallback($period);
-            $found = $categories->firstWhere('categoryId', $category->categoryId);
-            $childrenRow[] = $found ? $this->formatAmount($found->childrenAmount) : '-';
-        }
-        $this->renderDataRow($childrenRow);
+            // Children sum row
+            $childrenRow = [$nextPrefix . '├─ Summe Unterkategorien'];
+            foreach ($reportData as $period) {
+                $categories = $getCategoriesCallback($period);
+                $found = $this->findCategoryInTree($categories, $category->categoryId);
+                $childrenRow[] = $found ? $this->formatAmount($found->childrenAmount) : '-';
+            }
+            $this->renderDataRow($childrenRow);
 
-        // Total row
-        $totalRow = [$nextPrefix . '└─ Gesamt'];
-        foreach ($reportData as $period) {
-            $categories = $getCategoriesCallback($period);
-            $found = $categories->firstWhere('categoryId', $category->categoryId);
-            $totalRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
-        }
-        $this->renderDataRow($totalRow);
+            // Render child categories (under "Summe Unterkategorien")
+            $visibleChildren = $category->getVisibleChildren($this->showEmptyCategories, $this->maxCategoryDepth);
 
-        // Render child categories
-        $visibleChildren = $category->getVisibleChildren($this->showEmptyCategories, $this->maxCategoryDepth);
-        $childrenWithVertical = $nextPrefix . '│';
-        foreach ($visibleChildren as $child) {
-            $this->renderCategoryRows($reportData, $child, $getCategoriesCallback, $childrenWithVertical . '  ├─ ');
+            // Determine tree symbols based on position
+            foreach ($visibleChildren as $index => $child) {
+                $isLast = $index === $visibleChildren->count() - 1;
+                $childSymbol = $isLast ? '└─ ' : '├─ ';
+                // Always use vertical line under children because "Gesamt" comes after
+                $childrenWithVertical = $nextPrefix . '│  ';
+
+                $this->renderCategoryRows($reportData, $child, $getCategoriesCallback, $childrenWithVertical . $childSymbol);
+            }
+
+            // Total row (after children)
+            $totalRow = [$nextPrefix . '└─ Gesamt'];
+            foreach ($reportData as $period) {
+                $categories = $getCategoriesCallback($period);
+                $found = $this->findCategoryInTree($categories, $category->categoryId);
+                $totalRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
+            }
+            $this->renderDataRow($totalRow);
         }
     }
 
