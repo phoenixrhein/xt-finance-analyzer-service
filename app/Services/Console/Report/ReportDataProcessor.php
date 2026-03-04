@@ -124,7 +124,7 @@ class ReportDataProcessor
     ): Collection {
         $query = $bankAccount
             ->transactions()
-            ->whereBetween('transaction_date', [$start, $end])
+            ->whereBetween('transaction_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
             ->select('transactions.*');
 
         if ($considerIgnoreIbans) {
