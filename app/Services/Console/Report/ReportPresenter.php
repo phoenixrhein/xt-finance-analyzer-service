@@ -22,7 +22,7 @@ class ReportPresenter extends AbstractIOService
     private array $columnWidths = [];
     private string $tableSeparator = '';
     private string $headerSeparator = '';
-    private int $categoryColWidth = 28;
+    private int $categoryColWidth = 18;
 
     public function __construct()
     {
@@ -159,7 +159,7 @@ class ReportPresenter extends AbstractIOService
         }
 
         // Ensure minimum width of 35 to safely accommodate tree symbols and sub-item labels
-        $this->categoryColWidth = max($maxCategoryLength, 35);
+        $this->categoryColWidth = max($maxCategoryLength, 15);
 
         // Build separator lines
         $this->buildSeparators();
@@ -174,14 +174,14 @@ class ReportPresenter extends AbstractIOService
 
         foreach ($categories as $category) {
             // Category name line
-            $nameLength = mb_strlen($prefix . $category->name, 'UTF-8');
+            $nameLength = mb_strlen($prefix . $category->name . ' ', 'UTF-8');
             $maxLength = max($maxLength, $nameLength);
 
             // Only add sub-item lengths if category has children
             if ($category->children->isNotEmpty()) {
                 $nextPrefix = $prefix . '  ';
                 $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ zugeordnet', 'UTF-8'));
-                $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ Summe Unterkategorien', 'UTF-8'));
+                $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ Summe Unterkategorien ', 'UTF-8'));
 
                 // Recursively check children
                 if ($depth < 3) {
