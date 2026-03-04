@@ -20,7 +20,7 @@ trait CategoryPath
         foreach ($ancestors->reverse() as $ancestor) {
             $path .= $ancestor->name . " [{$ancestor->id}] " . ' \ ';
         }
-        
+
         return $path . $category->name . " [{$category->id}] ";
     }
 }
