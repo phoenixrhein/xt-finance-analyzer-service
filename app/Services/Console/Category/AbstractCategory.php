@@ -12,6 +12,7 @@ use function Laravel\Prompts\text;
 abstract class AbstractCategory extends AbstractIOService
 {
     use CategoryPath;
+
     /**
      *
      * @param string $rawName

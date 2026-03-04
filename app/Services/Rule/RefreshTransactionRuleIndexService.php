@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 class RefreshTransactionRuleIndexService
 {
     use CategoryPath;
-    
+
     /**
      *
      * @param SqlQueryBuilder $sqlQueryBuilder
