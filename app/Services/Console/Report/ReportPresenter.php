@@ -333,7 +333,12 @@ class ReportPresenter extends AbstractIOService
                 // Always use vertical line under children because "Gesamt" comes after
                 $childrenWithVertical = $nextPrefix . '│  ';
 
-                $this->renderCategoryRows($reportData, $child, $getCategoriesCallback, $childrenWithVertical . $childSymbol);
+                $this->renderCategoryRows(
+                    $reportData,
+                    $child,
+                    $getCategoriesCallback,
+                    $childrenWithVertical . $childSymbol
+                );
             }
 
             // Total row (after children)
