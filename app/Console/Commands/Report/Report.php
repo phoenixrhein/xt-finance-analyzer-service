@@ -74,6 +74,9 @@ class Report extends FinCommand
 
         $periods = $this->reportConfiguratorWizard->runWizard($account);
         $this->ruleTransactionPreparer->prepareForReport($account, $this->option('considerIgnoreIbans'));
+        
+        $this->emptyLn();
+        $this->emptyLn();
 
         $reportData = $this->reportDataProcessor->process(
             $account,
