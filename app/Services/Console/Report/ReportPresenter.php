@@ -152,7 +152,11 @@ class ReportPresenter extends AbstractIOService
 
         // Render total row
         $this->tableRenderer->renderTableSeparator();
-        $this->tableRenderer->renderTotalRow($reportData, __('cli.report.presentation.label_total') . ' ' . $title, $getTotalCallback);
+        $this->tableRenderer->renderTotalRow(
+            $reportData,
+            __('cli.report.presentation.label_total') . ' ' . $title,
+            $getTotalCallback
+        );
     }
 
     /**
