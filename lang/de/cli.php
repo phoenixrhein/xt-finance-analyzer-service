@@ -530,6 +530,24 @@ return [
                 'month' => 'Monat',
                 'year' => 'Jahr'
             ]
+        ],
+        'presentation' => [
+            'title_income' => 'EINNAHMEN',
+            'title_expenses' => 'AUSGABEN',
+            'title_savings_account' => 'SPARBUCH (nicht in Einnahmen/Ausgaben enthalten)',
+            'title_summary' => 'ZUSAMMENFASSUNG',
+            'label_income' => 'Einnahmen',
+            'label_expenses' => 'Ausgaben',
+            'label_balance' => 'Saldo',
+            'label_total' => 'GESAMT',
+            'label_transfer_to_savings' => 'Bankkonto → Sparbuch',
+            'label_transfer_from_savings' => 'Sparbuch → Bankkonto',
+            'label_balance_change' => 'Saldoveränderung',
+            'label_direct_amount' => 'zugeordnet',
+            'label_subcategories_sum' => 'Summe Unterkategorien',
+            'label_unassigned' => 'unzugeordnet',
+            'label_category' => 'Kategorie',
+            'no_data' => 'Keine Daten für den gewählten Zeitraum vorhanden.'
         ]
     ]
 ];

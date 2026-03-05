@@ -33,7 +33,7 @@ class ReportTableRenderer extends AbstractIOService
      */
     public function renderTableHeader(Collection $reportData): void
     {
-        $categoryText = 'Kategorie';
+        $categoryText = __('cli.report.presentation.label_category');
         $categoryLength = mb_strlen($categoryText, 'UTF-8');
         $padding = max(0, $this->metrics->getCategoryColumnWidth() - $categoryLength);
         $line = $categoryText . str_repeat(' ', $padding);

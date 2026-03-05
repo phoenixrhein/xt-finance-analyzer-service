@@ -48,7 +48,7 @@ class CategoryTreeRenderer extends AbstractIOService
 
         // Handle "Unzugeordnet" (unassigned) categories - just show one line
         if ($category->categoryId === null) {
-            $nameRow = ['(unzugeordnet)'];
+            $nameRow = ['(' . __('cli.report.presentation.label_unassigned') . ')'];
             foreach ($reportData as $period) {
                 $categories = $getCategoriesCallback($period);
                 $found = $categories->firstWhere('categoryId', null);
@@ -92,7 +92,7 @@ class CategoryTreeRenderer extends AbstractIOService
         $nextPrefix = $prefix . '  ';
 
         // Direct amount row
-        $directRow = [$nextPrefix . '├─ zugeordnet'];
+        $directRow = [$nextPrefix . '├─ ' . __('cli.report.presentation.label_direct_amount')];
         foreach ($reportData as $period) {
             $categories = $getCategoriesCallback($period);
             $found = $this->findCategoryInTree($categories, $category->categoryId);
@@ -101,7 +101,7 @@ class CategoryTreeRenderer extends AbstractIOService
         $this->tableRenderer->renderDataRow($directRow);
 
         // Children sum row
-        $childrenRow = [$nextPrefix . '├─ Summe Unterkategorien'];
+        $childrenRow = [$nextPrefix . '├─ ' . __('cli.report.presentation.label_subcategories_sum')];
         foreach ($reportData as $period) {
             $categories = $getCategoriesCallback($period);
             $found = $this->findCategoryInTree($categories, $category->categoryId);

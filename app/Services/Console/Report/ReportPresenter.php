@@ -82,7 +82,7 @@ class ReportPresenter extends AbstractIOService
     public function render(Collection $reportData, ?TimespanType $timespanType = null): void
     {
         if ($reportData->isEmpty()) {
-            $this->info('Keine Daten für den gewählten Zeitraum vorhanden.');
+            $this->info(__('cli.report.presentation.no_data'));
             return;
         }
 
@@ -97,7 +97,7 @@ class ReportPresenter extends AbstractIOService
         // Render income table
         $this->renderCategoryTable(
             $reportData,
-            'EINNAHMEN',
+            __('cli.report.presentation.title_income'),
             fn (PeriodReportData $p) => $p->incomingCategories,
             fn (PeriodReportData $p) => $p->totalIncome
         );
@@ -106,7 +106,7 @@ class ReportPresenter extends AbstractIOService
         // Render expenses table
         $this->renderCategoryTable(
             $reportData,
-            'AUSGABEN',
+            __('cli.report.presentation.title_expenses'),
             fn (PeriodReportData $p) => $p->outgoingCategories,
             fn (PeriodReportData $p) => -$p->totalOutgoing
         );
@@ -152,7 +152,7 @@ class ReportPresenter extends AbstractIOService
 
         // Render total row
         $this->tableRenderer->renderTableSeparator();
-        $this->tableRenderer->renderTotalRow($reportData, 'GESAMT ' . $title, $getTotalCallback);
+        $this->tableRenderer->renderTotalRow($reportData, __('cli.report.presentation.label_total') . ' ' . $title, $getTotalCallback);
     }
 
     /**
@@ -163,21 +163,21 @@ class ReportPresenter extends AbstractIOService
      */
     private function renderSavingsTable(Collection $reportData): void
     {
-        $this->line('SPARBUCH (nicht in Einnahmen/Ausgaben enthalten)');
+        $this->line(__('cli.report.presentation.title_savings_account'));
         $this->tableRenderer->renderTableSeparator();
 
         // Render header
         $this->tableRenderer->renderTableHeader($reportData);
 
         // Bankkonto → Sparbuch row (invert sign: money coming in is positive)
-        $toRow = ['Bankkonto → Sparbuch'];
+        $toRow = [__('cli.report.presentation.label_transfer_to_savings')];
         foreach ($reportData as $period) {
             $toRow[] = $this->formatAmount(-$period->toIgnoredIban);
         }
         $this->tableRenderer->renderDataRow($toRow);
 
         // Sparbuch → Bankkonto row (invert sign: money going out is negative)
-        $fromRow = ['Sparbuch → Bankkonto'];
+        $fromRow = [__('cli.report.presentation.label_transfer_from_savings')];
         foreach ($reportData as $period) {
             $fromRow[] = $this->formatAmount(-$period->fromIgnoredIban);
         }
@@ -185,7 +185,7 @@ class ReportPresenter extends AbstractIOService
 
         // Saldoveränderung row (total change in savings account)
         $this->tableRenderer->renderTableSeparator();
-        $balanceRow = ['Saldoveränderung'];
+        $balanceRow = [__('cli.report.presentation.label_balance_change')];
         foreach ($reportData as $period) {
             // Balance change = money in + money out (with inverted signs)
             $balance = -$period->toIgnoredIban + (-$period->fromIgnoredIban);
@@ -202,21 +202,21 @@ class ReportPresenter extends AbstractIOService
      */
     private function renderSummary(Collection $reportData): void
     {
-        $this->line('ZUSAMMENFASSUNG');
+        $this->line(__('cli.report.presentation.title_summary'));
         $this->tableRenderer->renderTableSeparator();
 
         // Render header
         $this->tableRenderer->renderTableHeader($reportData);
 
         // Income row
-        $incomeRow = ['Einnahmen'];
+        $incomeRow = [__('cli.report.presentation.label_income')];
         foreach ($reportData as $period) {
             $incomeRow[] = $this->formatAmount($period->totalIncome);
         }
         $this->tableRenderer->renderDataRow($incomeRow);
 
         // Expenses row
-        $expenseRow = ['Ausgaben'];
+        $expenseRow = [__('cli.report.presentation.label_expenses')];
         foreach ($reportData as $period) {
             $expenseRow[] = $this->formatAmount(-$period->totalOutgoing);
         }
@@ -224,7 +224,7 @@ class ReportPresenter extends AbstractIOService
 
         // Balance row
         $this->tableRenderer->renderTableSeparator();
-        $balanceRow = ['Saldo'];
+        $balanceRow = [__('cli.report.presentation.label_balance')];
         foreach ($reportData as $period) {
             $balanceRow[] = $this->formatAmount($period->balance);
         }

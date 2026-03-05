@@ -104,8 +104,10 @@ class ReportTableMetrics
             // Only add sub-item lengths if category has children
             if ($category->children->isNotEmpty()) {
                 $nextPrefix = $prefix . '  ';
-                $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ zugeordnet', 'UTF-8'));
-                $maxLength = max($maxLength, mb_strlen($nextPrefix . '├─ Summe Unterkategorien ', 'UTF-8'));
+                // Use maximum expected lengths for direct amount and subcategories labels
+                // '├─ zugeordnet' = 18 chars, '├─ Summe Unterkategorien ' = 27 chars
+                $maxLength = max($maxLength, mb_strlen($nextPrefix . str_repeat('─', 18), 'UTF-8'));
+                $maxLength = max($maxLength, mb_strlen($nextPrefix . str_repeat('─', 27), 'UTF-8'));
 
                 // Recursively check children
                 if ($depth < $this->maxCategoryDepth) {
