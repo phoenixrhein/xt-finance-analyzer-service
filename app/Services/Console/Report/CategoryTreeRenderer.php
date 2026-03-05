@@ -19,8 +19,11 @@ class CategoryTreeRenderer extends AbstractIOService
      * @param int $maxCategoryDepth
      * @param bool $showEmptyCategories
      */
-    public function __construct(private ReportTableRenderer $tableRenderer, private int $maxCategoryDepth = 2, private bool $showEmptyCategories = false)
-    {
+    public function __construct(
+        private ReportTableRenderer $tableRenderer,
+        private int $maxCategoryDepth = 2,
+        private bool $showEmptyCategories = false
+    ) {
         parent::__construct();
         $this->initializeCurrencyFormatter();
     }

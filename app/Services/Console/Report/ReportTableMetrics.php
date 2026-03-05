@@ -2,7 +2,6 @@
 
 namespace de\xovatec\financeAnalyzer\Services\Console\Report;
 
-
 use Illuminate\Support\Collection;
 
 /**
