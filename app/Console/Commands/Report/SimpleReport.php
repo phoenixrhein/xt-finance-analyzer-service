@@ -59,11 +59,12 @@ class SimpleReport extends Command
             Assert::numeric($this->option('timespan'));
         } catch (Exception $e) {
             $this->error($e->getMessage());
+            return;
         }
 
         $type = substr(strtolower($this->argument('type')), 0, 1) === 'y' ? TimespanType::year : TimespanType::month;
         $to = $this->option('to') ?? Carbon::now()->format('dmY');
-        $ranges = $this->calculateTimeRanges($to, $this->option('timespan'), $type);
+        $ranges = $this->calculateTimeRanges($to, (int)$this->option('timespan'), $type);
 
         if (empty($ranges)) {
             throw new RuntimeException('No ranges found');

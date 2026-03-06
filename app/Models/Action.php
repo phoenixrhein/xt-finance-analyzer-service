@@ -19,7 +19,7 @@ class Action extends Model
 
     /**
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = ['rule_id', 'category_id'];
 

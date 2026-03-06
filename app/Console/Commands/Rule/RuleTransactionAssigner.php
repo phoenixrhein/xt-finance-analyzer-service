@@ -12,6 +12,7 @@ use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Database\Eloquent\Model;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Services\Rule\RuleDataManager;
@@ -295,7 +296,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
 
             if ($total === null) {
                 $this->emptyLn();
-                $total = (clone $unmatchedTransactions)->toBase()->get()->count();
+                $total = (clone $unmatchedTransactions)->toBase()->count();
                 $this->line(__('cli.rule.assign.total_found', ['count' => $total]));
             }
 
@@ -344,15 +345,13 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
     }
 
     /**
-     *
-     * @param Collection $data
-     * @return Collection
+     * @param SupportCollection<int, Model> $data
+     * @return SupportCollection<int, Model>
      */
     protected function formatData(SupportCollection $data): SupportCollection
     {
-
         return $data->map(function ($row) {
-            $coloring = $row->rule_id > 0;
+            $coloring = ($row->getAttribute('rule_id') ?? 0) > 0;
             $attributes = collect($row->getAttributes())->map(function ($item, $key) use ($coloring) {
                 if ($key === 'id' || $coloring === false) {
                     return $item;

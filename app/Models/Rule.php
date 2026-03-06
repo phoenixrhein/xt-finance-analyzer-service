@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property string $name
+ * @property int $bank_account_id
+ */
 class Rule extends Model
 {
     use HasFactory;
@@ -22,7 +26,7 @@ class Rule extends Model
 
     /**
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = ['name', 'condition_link_id', 'bank_account_id'];
 

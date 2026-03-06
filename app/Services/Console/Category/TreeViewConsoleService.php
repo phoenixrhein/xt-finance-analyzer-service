@@ -34,7 +34,7 @@ class TreeViewConsoleService extends AbstractCategory
 
     /**
      *
-     * @param Collection $categories
+     * @param Collection<int, Category> $categories
      * @param string $prefix
      * @return string
      */

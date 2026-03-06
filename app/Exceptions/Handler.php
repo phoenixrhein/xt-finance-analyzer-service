@@ -81,7 +81,7 @@ class Handler extends ExceptionHandler
      *
      * @param mixed $method
      * @param mixed $parameters
-     * @return void
+     * @return mixed
      */
     public function __call($method, $parameters)
     {

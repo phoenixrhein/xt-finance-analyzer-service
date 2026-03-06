@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $in_category_id
+ * @property int $out_category_id
+ */
 class Cashflow extends Model
 {
     use SoftDeletes;
@@ -18,7 +22,7 @@ class Cashflow extends Model
 
     /**
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = [
         'bank_account_id',
@@ -66,7 +70,7 @@ class Cashflow extends Model
         $attributes['in_category_id'] = $inCategory->id;
         $attributes['out_category_id'] = $outCategory->id;
 
-        return static::create($attributes);
+        static::create($attributes);
     }
 
     /**

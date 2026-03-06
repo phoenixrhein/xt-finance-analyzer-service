@@ -184,7 +184,7 @@ class TransactionList extends FinCommand
 
         $viewConfig = static::$compactView;
         if ($this->option('full')) {
-            $viewConfig = static::$fullView;
+            $viewConfig = self::$fullView;
         }
 
         $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
