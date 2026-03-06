@@ -34,7 +34,7 @@ class AccountList extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $accountId = $this->option('accountId');
         $accounts = $this->listQuery->createList();

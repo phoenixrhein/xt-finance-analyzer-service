@@ -2,19 +2,24 @@
 
 namespace de\xovatec\financeAnalyzer\Services\Rule;
 
-use Illuminate\Support\Facades\DB;
-use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
+use de\xovatec\financeAnalyzer\Models\Category;
+use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Services\Console\Output\ConsoleOutputInterface;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleListService;
 use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
+use de\xovatec\financeAnalyzer\Traits\Utils\CategoryPath;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class RefreshTransactionRuleIndexService
 {
+    use CategoryPath;
+
     /**
      *
      * @param SqlQueryBuilder $sqlQueryBuilder
@@ -38,6 +43,7 @@ class RefreshTransactionRuleIndexService
      */
     public function refreshAll(BankAccount $bankAccount, bool $considerIgnoreIbans = true): void
     {
+        $this->io->info(__('cli.rule.refresh_index.starts'));
         $ignoreIbans = new Collection();
         DB::table('rule_transaction')
             ->where('bank_account_id', $bankAccount->id)
@@ -66,7 +72,8 @@ class RefreshTransactionRuleIndexService
                 $this->io->line(
                     '<info>' . $rule['name'] . '</info>' .
                     ' [<comment>' . $rule['expression'] . '</comment>]: ' .
-                    "<{$countStyle}>" . count($transactionIds) . "</{$countStyle}>"
+                    "<{$countStyle}>" . count($transactionIds) . "</{$countStyle}>" .
+                    ' -> ' . $this->buildPathAsString(Category::find($rule['actions']['category_id']))
                 );
             }
 

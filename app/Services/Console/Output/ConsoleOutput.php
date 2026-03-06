@@ -2,18 +2,24 @@
 
 namespace de\xovatec\financeAnalyzer\Services\Console\Output;
 
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Console\Output\OutputInterface;
+use de\xovatec\financeAnalyzer\Traits\Command\View\InitViewIO;
+use de\xovatec\financeAnalyzer\Traits\Command\View\InteractsWithIOExtended;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ConsoleOutput implements ConsoleOutputInterface
 {
+    use InteractsWithIOExtended;
+    use InitViewIO;
+
     /**
      *
      * @param SymfonyStyle $io
      */
     public function __construct(private SymfonyStyle $io)
     {
+        $this->initViewIO();
     }
 
     /**

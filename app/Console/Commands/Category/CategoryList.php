@@ -16,14 +16,12 @@ class CategoryList extends FinCommand implements ProvidesAccountListQueryInterfa
     /**
      *
      * @param AccountListQuery $accountListQuery
-     * @param TreeViewConsoleService $treeViewConsoleService
      */
     public function __construct(
         private AccountListQuery $accountListQuery,
         private TreeViewConsoleService $treeViewConsoleService
     ) {
         parent::__construct();
-        $this->treeViewConsoleService->setIo($this);
     }
 
     /**
@@ -52,7 +50,7 @@ class CategoryList extends FinCommand implements ProvidesAccountListQueryInterfa
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $accountId = ($this->getBankAccount((int)$this->argument('accountId'), true))->id;
 

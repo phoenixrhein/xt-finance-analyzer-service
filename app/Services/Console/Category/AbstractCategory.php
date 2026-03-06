@@ -3,13 +3,16 @@
 namespace de\xovatec\financeAnalyzer\Services\Console\Category;
 
 use de\xovatec\financeAnalyzer\Models\Category;
-use de\xovatec\financeAnalyzer\Services\Console\AbstractConsoleService;
+use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
+use de\xovatec\financeAnalyzer\Traits\Utils\CategoryPath;
 
-use function Laravel\Prompts\text;
 use function Laravel\Prompts\intro;
+use function Laravel\Prompts\text;
 
-abstract class AbstractCategory extends AbstractConsoleService
+abstract class AbstractCategory extends AbstractIOService
 {
+    use CategoryPath;
+
     /**
      *
      * @param string $rawName
@@ -24,7 +27,7 @@ abstract class AbstractCategory extends AbstractConsoleService
                 default: $name
             );
 
-            $valid = $this->getIo()->viewValidatorError(
+            $valid = $this->viewValidatorError(
                 [
                     'name' => $name
                 ],
@@ -44,13 +47,8 @@ abstract class AbstractCategory extends AbstractConsoleService
     protected function viewCategoryPath(Category $category, string $name): void
     {
         intro(__('cli.category.base.category_path'));
-        $ancestors = $category->ancestors();
-
-        foreach ($ancestors->reverse() as $ancestor) {
-            echo $ancestor->name . " [{$ancestor->id}] " . ' \ ';
-        }
-        echo $category->name . " [{$category->id}] " . ' \ ' . $name . PHP_EOL;
-        $this->getIo()->emptyLn();
+        echo $this->buildPathAsString($category) . ' \ ' . $name . PHP_EOL;
+        $this->emptyLn();
     }
 
     /**
@@ -69,7 +67,7 @@ abstract class AbstractCategory extends AbstractConsoleService
                 default: $parentId
             );
 
-            $valid = $this->getIo()->viewValidatorError(
+            $valid = $this->viewValidatorError(
                 [
                     $idField => $parentId
                 ],

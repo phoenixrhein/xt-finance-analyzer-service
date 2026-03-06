@@ -59,7 +59,7 @@ class SplitUpsert extends FinCommand implements ProvidesAccountListQueryInterfac
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $valid = true;
         do {

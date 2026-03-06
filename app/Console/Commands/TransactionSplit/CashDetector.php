@@ -40,7 +40,7 @@ class CashDetector extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $range = [];
         if (strlen($this->option('range')) > 0) {

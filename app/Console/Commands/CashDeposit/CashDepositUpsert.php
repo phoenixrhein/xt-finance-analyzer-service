@@ -56,7 +56,7 @@ class CashDepositUpsert extends FinCommand implements ProvidesAccountListQueryIn
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $valid = true;
         do {

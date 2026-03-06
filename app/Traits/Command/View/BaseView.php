@@ -3,8 +3,11 @@
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Console\Concerns\InteractsWithIO;
+
+use function Laravel\Prompts\confirm;
 
 trait BaseView
 {
@@ -40,5 +43,36 @@ trait BaseView
     public function emptyLn(): void
     {
         $this->line('');
+    }
+
+    /**
+     *
+     * @param string $label
+     * @param boolean $default
+     * @param string $yes
+     * @param string $no
+     * @param boolean $required
+     * @param mixed $validate
+     * @param string $hint
+     * @return boolean
+     */
+    public function confirmPrompt(
+        string $label,
+        bool $default = true,
+        string $yes = '',
+        string $no = '',
+        bool|string $required = false,
+        mixed $validate = null,
+        string $hint = ''
+    ): bool {
+        return confirm(
+            $label,
+            $default,
+            Str::length($yes) ? $yes : __('cli.base.button.yes'),
+            Str::length($no) ? $no : __('cli.base.button.no'),
+            $required,
+            $validate,
+            $hint
+        );
     }
 }

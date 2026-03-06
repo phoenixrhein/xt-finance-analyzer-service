@@ -14,21 +14,22 @@ use de\xovatec\financeAnalyzer\Models\Transactions;
 use Illuminate\Support\Collection as SupportCollection;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleDataManager;
 use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
-use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
-use de\xovatec\financeAnalyzer\Services\Rule\RuleDataManager;
 use de\xovatec\financeAnalyzer\Services\UnmatchedTransactionsService;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 use de\xovatec\financeAnalyzer\Helpers\FilterTransactionDurationHelper;
-use de\xovatec\financeAnalyzer\Services\Rule\Expression\CliErrorHighlighter;
-use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
+use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
 use de\xovatec\financeAnalyzer\Console\Commands\Transaction\TransactionList;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\CliErrorHighlighter;
 use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByManualCreator;
 use de\xovatec\financeAnalyzer\Services\Console\Category\ManageConsoleService;
 use de\xovatec\financeAnalyzer\Traits\Command\View\ConditionByFinQueryCreator;
+use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
+use de\xovatec\financeAnalyzer\Services\Console\Category\TreeViewConsoleService;
 use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
 use function Laravel\Prompts\select;
@@ -48,7 +49,6 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
      * @param CliErrorHighlighter $errorHighlighter
      * @param RuleToConditionTransformer $transformer
      * @param SqlQueryBuilder $sqlQueryBuilder
-     * @param ManageConsoleService $manageConsoleService
      * @param RuleDataManager $ruleDataManager
      */
     public function __construct(
@@ -59,12 +59,12 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         private CliErrorHighlighter $errorHighlighter,
         private RuleToConditionTransformer $transformer,
         private SqlQueryBuilder $sqlQueryBuilder,
+        private RuleDataManager $ruleDataManager,
         private ManageConsoleService $manageConsoleService,
-        private RuleDataManager $ruleDataManager
+        private TreeViewConsoleService $treeViewConsoleService
     ) {
         parent::__construct();
         $this->setDisplayLimit(7);
-        $this->manageConsoleService->setIo($this);
     }
 
     /**
@@ -140,7 +140,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $this->assignRule();
     }
@@ -186,7 +186,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
             return;
         }
 
-        $this->manageConsoleService->getTreeViewConsoleService()->displayCashflowTrees($cashflow);
+        $this->treeViewConsoleService->displayCashflowTrees($cashflow);
         $this->manageConsoleService->manage($bankAccount->id, __('cli.rule.assign.cat_mgmt_continue_button_text'));
         $selectedCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow);
 

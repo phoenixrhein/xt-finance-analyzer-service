@@ -482,13 +482,72 @@ return [
         'refresh_index' => [
             'description' => 'Regel-Index aktualisieren',
             'not_considering_ignore_ibans' => 'Die Aktualisierung des Indexes berücksichtigt nicht die Ignore-IBANs',
-            'summary' => 'Es wurden :total Regeln verarbeitet. :updated Regeln aktualisiert, :zero Regeln ohne Treffer.'
+            'summary' => 'Es wurden :total Regeln verarbeitet. :updated Regeln aktualisiert, :zero Regeln ohne Treffer.',
+            'starts' => 'Beginne mit der Aktualisierung des Regel-Index...'
         ],
         'validator' => [
             'description' => 'Regel validieren',
             'not_considering_ignore_ibans' => 'Die Validierung der Regeln berücksichtigt nicht die Ignore-IBANs',
-            'validate_assignments' => 'Validierung der Buchungen für das Bankkonto: :iban (:id) ...',
+            'validate_assignments' => 'Validierung der Buchungen für das Bankkonto: :iban (:id)... ',
+            'validate_assignments_finished' => 'Beendet',
             'validate_assignments_overlaps' => 'Buchung mit der ID :id würde mehreren Regeln zugeordnet: :ruleIds',
+        ]
+    ],
+    'report' => [
+        'description' => 'Finanzbericht generieren',
+        'type' => [
+            'monthly' => 'Monatlich',
+            'yearly' => 'Jährlich'
+        ],
+        'select_type' => 'Bitte wählen Sie den Berichtstyp aus',
+        'input_target' => [
+            'month' => [
+                'label' => 'Bitte geben Sie den Monat ein [JJJJMM]',
+                'hint' => 'Format: JJJJMM, z.B. 202403 für März 2024'
+            ],
+            'year' => [
+                'label' => 'Bitte geben Sie das Jahr ein [JJJJ]',
+                'hint' => 'Format: JJJJ, z.B. 2024'
+            ],
+            'error' => [
+                'incomplete_data' => 'Der ausgewählte Zeitraum ist unvollständig. Bitte stellen Sie sicher, dass alle Buchungen bis zum Ende des Zeitraums vorliegen.',
+                'unknown_report_type' => 'Unbekannter Berichtstyp'
+            ]
+        ],
+        'select_time_span' => [
+            'label' => 'Wie viele vorausgegangene :span sollen berücksichtigt werden?',
+            'only_current_month' => 'Nur aktueller Monat',
+            'only_current_year' => 'Nur aktuelles Jahr',
+            'time_span_options' => [
+                '0' => 'Keine (:only_current)',
+                '1' => '1 :span',
+                '2' => '2 :span',
+                '3' => '3 :span'
+            ],
+            'span' => [
+                'months' => 'Monate',
+                'years' => 'Jahre',
+                'month' => 'Monat',
+                'year' => 'Jahr'
+            ]
+        ],
+        'presentation' => [
+            'title_income' => 'EINNAHMEN',
+            'title_expenses' => 'AUSGABEN',
+            'title_savings_account' => 'SPARBUCH (nicht in Einnahmen/Ausgaben enthalten)',
+            'title_summary' => 'ZUSAMMENFASSUNG',
+            'label_income' => 'Einnahmen',
+            'label_expenses' => 'Ausgaben',
+            'label_balance' => 'Saldo',
+            'label_total' => 'GESAMT',
+            'label_transfer_to_savings' => 'Bankkonto → Sparbuch',
+            'label_transfer_from_savings' => 'Sparbuch → Bankkonto',
+            'label_balance_change' => 'Saldoveränderung',
+            'label_direct_amount' => 'zugeordnet',
+            'label_subcategories_sum' => 'Summe Unterkategorien',
+            'label_unassigned' => 'unzugeordnet',
+            'label_category' => 'Kategorie',
+            'no_data' => 'Keine Daten für den gewählten Zeitraum vorhanden.'
         ]
     ]
 ];

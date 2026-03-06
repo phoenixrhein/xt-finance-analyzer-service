@@ -30,7 +30,7 @@ class CommentEdit extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $transactionId = $this->argument('transactionId');
         $transaction = Transactions::where('id', $this->argument('transactionId'))

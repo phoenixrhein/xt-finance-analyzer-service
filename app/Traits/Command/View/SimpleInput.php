@@ -19,7 +19,7 @@ trait SimpleInput
      * @param string|array $rules
      * @param mixed $rawInput
      * @param string $type
-     * @param string $hint
+     * @param string|null $hint
      * @return integer|float|string
      */
     protected function viewInput(
@@ -27,7 +27,7 @@ trait SimpleInput
         string|array $rules,
         mixed $rawInput = null,
         string $type = self::VALUE_TYPE_TEXT,
-        string $hint = null,
+        ?string $hint = null,
     ): int|float|string {
         $input = $rawInput;
         do {
@@ -45,6 +45,10 @@ trait SimpleInput
                     __('cli.base.value') => $rules
                 ]
             );
+
+            if (!$valid) {
+                $this->emptyLn();
+            }
         } while (!$valid);
 
         return $type != self::VALUE_TYPE_DECIMAL ? $input : Str::replace(',', '.', $input);

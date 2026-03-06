@@ -27,7 +27,7 @@ class AccountAdd extends AbstractAccountEdit
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $iban = $this->viewIbanInput();
         $bic = $this->viewBicInput();

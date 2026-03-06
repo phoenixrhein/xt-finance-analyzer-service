@@ -21,7 +21,7 @@ class IgnoreList extends AbstractIgnoreList
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $this->displayIgnoreList((int)$this->argument('accountId'));
     }

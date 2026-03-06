@@ -51,7 +51,7 @@ class IgnoreEdit extends AbstractIgnoreList implements ProvidesAccountListQueryI
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $ignoreId = (int)$this->argument('ignoreId');
         $isAdd = $ignoreId <= 0;

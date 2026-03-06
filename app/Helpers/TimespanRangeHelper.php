@@ -2,7 +2,9 @@
 
 namespace de\xovatec\financeAnalyzer\Helpers;
 
+use Carbon\Carbon;
 use de\xovatec\financeAnalyzer\Enums\TimespanType;
+use de\xovatec\financeAnalyzer\Helpers\DateRangeHelper;
 
 class TimespanRangeHelper
 {
@@ -18,6 +20,7 @@ class TimespanRangeHelper
         $length = strlen($to);
         $ranges = DateRangeHelper::parseDateRange($to);
         $to = $ranges[DateRangeHelper::TO];
+        $to = Carbon::createFromFormat('Y-m-d', $to);
 
         $ranges = [];
 
@@ -29,7 +32,10 @@ class TimespanRangeHelper
                 $from = $from->startOfMonth();
             }
 
-            $ranges[] = [$from->format('Y-m-d'), $to->format('Y-m-d')];
+            $ranges[] = [
+                DateRangeHelper::FROM => $from->format('Y-m-d'),
+                DateRangeHelper::TO => $to->format('Y-m-d')
+            ];
 
             if ($length == 8) {
                 if ($type == TimespanType::year) {

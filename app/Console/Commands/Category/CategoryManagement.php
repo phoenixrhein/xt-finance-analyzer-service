@@ -6,7 +6,6 @@ use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 use de\xovatec\financeAnalyzer\Services\Console\Category\ManageConsoleService;
-use de\xovatec\financeAnalyzer\Services\Console\Category\CategoryConsoleService;
 use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
 class CategoryManagement extends FinCommand implements ProvidesAccountListQueryInterface
@@ -16,14 +15,12 @@ class CategoryManagement extends FinCommand implements ProvidesAccountListQueryI
     /**
      *
      * @param AccountListQuery $accountListQuery
-     * @param CategoryConsoleService $categoryConsoleService
      */
     public function __construct(
         private AccountListQuery $accountListQuery,
         private ManageConsoleService $manageConsoleService
     ) {
         parent::__construct();
-        $this->manageConsoleService->setIo($this);
     }
 
     /**
@@ -52,10 +49,11 @@ class CategoryManagement extends FinCommand implements ProvidesAccountListQueryI
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
-        $accountId = ($this->getBankAccount((int)$this->argument('accountId'), true))->id;
-
-        $this->manageConsoleService->manage($accountId, __('cli.category.manage.action.finish'));
+        $this->manageConsoleService->manage(
+            ($this->getBankAccount((int)$this->argument('accountId'), true))->id,
+            __('cli.category.manage.action.finish')
+        );
     }
 }

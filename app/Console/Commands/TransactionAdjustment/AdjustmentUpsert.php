@@ -60,7 +60,7 @@ class AdjustmentUpsert extends FinCommand implements ProvidesAccountListQueryInt
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $valid = true;
         do {

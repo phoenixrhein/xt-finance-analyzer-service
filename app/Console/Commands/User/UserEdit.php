@@ -28,7 +28,7 @@ class UserEdit extends FinCommand
     /**
      * Execute the console command.
      */
-    protected function process(): void
+    public function process(): void
     {
         $userId = (int)$this->argument('userId');
         $user = User::find($userId);

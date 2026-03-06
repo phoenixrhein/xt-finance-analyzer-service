@@ -38,7 +38,7 @@ class RuleList extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $bankAccount = $this->getBankAccount((int)$this->argument('accountId'), true);
         if (!$bankAccount instanceof BankAccount) {

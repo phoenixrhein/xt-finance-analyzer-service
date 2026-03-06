@@ -33,7 +33,7 @@ class RefreshTransactionRuleIndex extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $considerIgnoreIbans = $this->option('considerIgnoreIbans');
         if (!$considerIgnoreIbans) {

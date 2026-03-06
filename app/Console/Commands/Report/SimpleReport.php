@@ -8,6 +8,7 @@ use Webmozart\Assert\Assert;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use de\xovatec\financeAnalyzer\Enums\TimespanType;
+use de\xovatec\financeAnalyzer\Helpers\DateRangeHelper;
 use de\xovatec\financeAnalyzer\Helpers\TimespanRangeHelper;
 use de\xovatec\financeAnalyzer\Models\IgnoreList;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
@@ -68,7 +69,7 @@ class SimpleReport extends Command
             throw new RuntimeException('No ranges found');
         }
 
-        $maxTo = Carbon::parse($ranges[0][1]);
+        $maxTo = Carbon::parse($ranges[0][DateRangeHelper::TO]);
 
         $countOfLast = Transactions::whereBetween(
             'transaction_date',
@@ -92,8 +93,8 @@ class SimpleReport extends Command
             $transactions = Transactions::whereBetween(
                 'transaction_date',
                 [
-                    Carbon::parse($range[0])->format('Y-m-d'),
-                    Carbon::parse($range[1])->format('Y-m-d')
+                    Carbon::parse($range[DateRangeHelper::FROM])->format('Y-m-d'),
+                    Carbon::parse($range[DateRangeHelper::TO])->format('Y-m-d')
                 ]
             )->where('bank_account_iban', $bankAccount->iban);
             $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
@@ -112,21 +113,22 @@ class SimpleReport extends Command
             $saldo = round($credit + $debit, 2);
             if (strlen($to) === 8) {
                 if ($type === TimespanType::year) {
-                    $name = Carbon::parse($range[1])->format('d. F Y');
+                    $name = Carbon::parse($range[DateRangeHelper::TO])->format('d. F Y');
                 } else {
-                    $name = Carbon::parse($range[1])->format('d. F');
+                    $name = Carbon::parse($range[DateRangeHelper::TO])->format('d. F');
                 }
             } elseif ($type === TimespanType::year) {
-                $name = Carbon::parse($range[1])->format('Y');
+                $name = Carbon::parse($range[DateRangeHelper::TO])->format('Y');
             } else {
-                $name = Carbon::parse($range[1])->format('F');
+                $name = Carbon::parse($range[DateRangeHelper::TO])->format('F');
             }
             $rows[] = [
                 '<info>' . $name . '</info>',
                 $debit,
                 $credit,
                 $saldo,
-                Carbon::parse($range[0])->format('d.m.Y') . ' - ' . Carbon::parse($range[1])->format('d.m.Y')
+                Carbon::parse($range[DateRangeHelper::FROM])->format('d.m.Y') . ' - '
+                . Carbon::parse($range[DateRangeHelper::TO])->format('d.m.Y')
             ];
 
             $totalDebit = round($totalDebit + $debit, 2);

@@ -29,7 +29,7 @@ class AdjustmentList extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $bankAccount = $this->getBankAccount((int)$this->argument('accountId'));
         if (!$bankAccount instanceof BankAccount) {

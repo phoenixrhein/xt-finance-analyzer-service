@@ -35,7 +35,7 @@ class RuleDelete extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $ruleId = $this->argument('ruleId');
         $rule = Rule::find($ruleId);

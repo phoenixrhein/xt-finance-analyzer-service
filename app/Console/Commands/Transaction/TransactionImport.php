@@ -47,7 +47,7 @@ class TransactionImport extends FinCommand
     /**
      * @inheritDoc
      */
-    protected function process(): void
+    public function process(): void
     {
         $this->importTransactionService->getFileValidator()->validate(
             $this->argument('file')

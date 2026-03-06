@@ -8,8 +8,6 @@ use de\xovatec\financeAnalyzer\Traits\Command\View\BaseView;
 use de\xovatec\financeAnalyzer\Traits\Command\DateRangeParameter;
 use de\xovatec\financeAnalyzer\Traits\Command\View\TableConsolePagination;
 
-use function Laravel\Prompts\confirm;
-
 abstract class FinCommand extends Command
 {
     use TableConsolePagination;
@@ -54,52 +52,16 @@ abstract class FinCommand extends Command
     }
 
     /**
-     * Process the console command
-     *
-     * @return void
-     */
-    abstract protected function process(): void;
-
-    /**
      * Handle console command
      *
-     * @return void
+     * @return int
      */
-    final public function handle(): void
+    final public function handle(): int
     {
         $this->header();
-        $this->process();
+        $method = method_exists($this, 'process') ? 'process' : '__invoke';
+        $returnValue = (int) $this->laravel->call([$this, $method]);
         $this->emptyLn();
-    }
-
-    /**
-     *
-     * @param string $label
-     * @param boolean $default
-     * @param string $yes
-     * @param string $no
-     * @param boolean $required
-     * @param mixed $validate
-     * @param string $hint
-     * @return boolean
-     */
-    public function confirmPrompt(
-        string $label,
-        bool $default = true,
-        string $yes = '',
-        string $no = '',
-        bool|string $required = false,
-        mixed $validate = null,
-        string $hint = ''
-    ): bool {
-        return confirm(
-            $label,
-            $default,
-            Str::length($yes) ? $yes : __('cli.base.button.yes'),
-            Str::length($no) ? $no : __('cli.base.button.no'),
-            $required,
-            $validate,
-            $hint
-        );
+        return $returnValue;
     }
 }
