@@ -3,6 +3,7 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\Account;
 
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
+use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 
 use function Laravel\Prompts\intro;
@@ -53,13 +54,17 @@ class AccountList extends FinCommand
             $accounts->get()->toArray()
         );
         if ($accountId) {
+            $bankAccount = $accounts->first();
+            if (!$bankAccount instanceof BankAccount) {
+                return;
+            }
             intro(__('cli.account.list.linked_user_title'));
             $this->table(
                 [
                     __('cli.user.list.table.columns.id'),
                     __('cli.user.list.table.columns.mail'),
                 ],
-                $accounts->first()->users->map(function ($user) {
+                $bankAccount->users->map(function ($user) {
                     return collect($user->toArray())
                             ->only('id', 'email')
                             ->all();

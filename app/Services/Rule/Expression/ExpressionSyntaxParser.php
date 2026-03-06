@@ -256,6 +256,7 @@ class ExpressionSyntaxParser
     private function buildCondition(string $condition, int $sectionPositionFrom): ?Condition
     {
         $trimmedCondition = trim($condition);
+        $value = null;
 
         $fields = array_keys(FieldConfig::getAvailableFieldsWithColumnKey());
 

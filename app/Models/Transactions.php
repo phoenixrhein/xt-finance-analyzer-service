@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property float $amount
+ * @property string $currency
+ * @property string $bank_account_iban
+ * @property string $note
+ */
 class Transactions extends Model
 {
     public const UPDATED_AT = null;

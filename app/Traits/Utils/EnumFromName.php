@@ -7,7 +7,6 @@ trait EnumFromName
     /**
      *
      * @param string $name
-     * @param class-string<static> $enumClass
      * @return static|null
      */
     public static function tryFromName(string $name): ?static

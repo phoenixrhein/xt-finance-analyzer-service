@@ -136,7 +136,7 @@ class ManageConsoleService extends AbstractCategory
     {
         $this->emptyLn();
         $this->treeViewConsoleService->displayCashflowTrees($cashflow);
-        return $this->viewCategoryIdInput('id', __('cli.category.base.select_category'));
+        return (int)$this->viewCategoryIdInput('id', __('cli.category.base.select_category'));
     }
 
     /**

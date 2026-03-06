@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * @property string $condition_type
+ */
 class ConditionLink extends Model
 {
     use HasFactory;
@@ -21,7 +24,7 @@ class ConditionLink extends Model
 
     /**
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = [
         'foreign_id',
@@ -59,7 +62,7 @@ class ConditionLink extends Model
 
     /**
      *
-     * @return BelongsTo
+     * @return HasOne
      */
     public function rule(): HasOne
     {

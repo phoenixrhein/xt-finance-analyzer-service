@@ -3,7 +3,7 @@
 namespace de\xovatec\financeAnalyzer\Traits\Command\View;
 
 use Illuminate\Support\Arr;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
@@ -50,11 +50,12 @@ trait ConditionByFinQueryCreator
     private function viewConditionByFinQueryCreator(Builder $transactions): ConditionList
     {
         $confirmation = null;
+        $conditionList = new ConditionList();
         $start = 0;
         do {
             if ($confirmation !== 'more') {
                 $conditionList = $this->inputFinQuery(
-                    $this->getFinQueryBuilder()->build($conditionList ?? new ConditionList())
+                    $this->getFinQueryBuilder()->build($conditionList)
                 );
             }
             $hasMore = $this->displayInterimResult(

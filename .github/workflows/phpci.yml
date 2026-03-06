@@ -10,4 +10,6 @@ permissions: {}
 
 jobs:
   php_test:
-    uses: phoenixrhein/xt-github-action/.github/workflows/phpci.yml@1.0.0
+    uses: phoenixrhein/xt-github-action/.github/workflows/phpci.yml@1.2.0
+    secrets:
+      REPO_READ_TOKEN: ${{ secrets.REPO_READ_TOKEN }}   

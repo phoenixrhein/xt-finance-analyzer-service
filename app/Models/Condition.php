@@ -20,7 +20,7 @@ class Condition extends Model
 
     /**
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = [
         'field_identifier',

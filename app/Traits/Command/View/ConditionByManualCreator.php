@@ -28,7 +28,7 @@ trait ConditionByManualCreator
     private const LOGICAL_OPERATOR_NONE = 'none';
 
     /**
-     * @var bool
+     * @var string
      */
     private const LOGICAL_MODIFY_CONDITION = 'modify_condition';
 
@@ -149,7 +149,6 @@ trait ConditionByManualCreator
     /**
      *
      * @param Condition|null $condition
-     * @param string $logicalOperator
      * @return Condition
      */
     private function inputCondition(?Condition $condition): Condition

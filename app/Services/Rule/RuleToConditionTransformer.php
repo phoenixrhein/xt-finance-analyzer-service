@@ -63,7 +63,7 @@ class RuleToConditionTransformer
         } elseif ($condition instanceof ConditionList) {
             $conditionData = [
                 'conditionType' => ConditionType::group,
-                'condition' => $this->transformToArray($condition, $condition->getLogicalOperator()),
+                'condition' => $this->transformToArray($condition),
                 'logicOperator' => $logicalOperator?->value,
                 'linkTo' => null
             ];
@@ -85,7 +85,7 @@ class RuleToConditionTransformer
 
         /**
      *
-     * @param array $ruleCondition
+     * @param array $conditionLink
      * @return ConditionList
      */
     public function transformToConditionList(array $conditionLink): ConditionList

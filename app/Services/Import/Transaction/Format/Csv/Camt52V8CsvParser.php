@@ -3,9 +3,10 @@
 namespace de\xovatec\financeAnalyzer\Services\Import\Transaction\Format\Csv;
 
 use Carbon\Carbon;
+use de\xovatec\financeAnalyzer\Dto\Import\FileRecord\Camt52V8CsvSetter;
+use Exception;
 use League\Csv\Reader;
 use League\Csv\Serializer\Denormalizer;
-use de\xovatec\financeAnalyzer\Dto\Import\FileRecord\Camt52V8CsvSetter;
 
 class Camt52V8CsvParser implements CsvParserInterface
 {
@@ -89,13 +90,17 @@ class Camt52V8CsvParser implements CsvParserInterface
      */
     private function registerFormatDate(): void
     {
-        Denormalizer::registerAlias('@format_date', 'string', function (?string $value): ?string {
-            if (trim($value) === '') {
-                return null;
-            }
+        try {
+            Denormalizer::registerAlias('@format_date', 'string', function (?string $value): ?string {
+                if (trim($value) === '') {
+                    return null;
+                }
 
-            return Carbon::createFromFormat('d.m.y', $value)->format('Y-m-d');
-        });
+                return Carbon::createFromFormat('d.m.y', $value)->format('Y-m-d');
+            });
+        } catch (Exception $e) {
+            // Handle exception if needed
+        }
     }
 
     /**
@@ -104,13 +109,17 @@ class Camt52V8CsvParser implements CsvParserInterface
      */
     private function registerUtf8Encode(): void
     {
-        Denormalizer::registerAlias('@utf8_encode', 'string', function (?string $value): ?string {
-            if (trim($value) === '') {
-                return null;
-            }
+        try {
+            Denormalizer::registerAlias('@utf8_encode', 'string', function (?string $value): ?string {
+                if (trim($value) === '') {
+                    return null;
+                }
 
-            return mb_convert_encoding($value, "UTF-8", "ISO-8859-1");
-        });
+                return mb_convert_encoding($value, "UTF-8", "ISO-8859-1");
+            });
+        } catch (Exception $e) {
+            // Handle exception if needed
+        }
     }
 
     /**
@@ -119,17 +128,21 @@ class Camt52V8CsvParser implements CsvParserInterface
      */
     private function registerCommaReplace(): void
     {
-        Denormalizer::registerAlias('@replace_comma', 'float', function (?string $value): ?float {
-            if (trim($value) === '') {
-                return null;
-            }
+        try {
+            Denormalizer::registerAlias('@replace_comma', 'float', function (?string $value): ?float {
+                if (trim($value) === '') {
+                    return null;
+                }
 
-            $normalized = preg_replace('/[^0-9,-.]/', '', $value);
-            $normalized = str_replace('.', '', $normalized);
-            $normalized = str_replace(',', '.', $normalized);
+                $normalized = preg_replace('/[^0-9,-.]/', '', $value);
+                $normalized = str_replace('.', '', $normalized);
+                $normalized = str_replace(',', '.', $normalized);
 
-            return is_numeric($normalized) ? (float) $normalized : null;
-        });
+                return is_numeric($normalized) ? (float) $normalized : null;
+            });
+        } catch (Exception $e) {
+            // Handle exception if needed
+        }
     }
 
     /**
