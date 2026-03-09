@@ -23,22 +23,12 @@ class AccountList extends FinCommand
     protected $description = 'cli.account.list.description';
 
     /**
-     *
-     * @param AccountListQuery $listQuery
-     */
-    public function __construct(
-        private AccountListQuery $listQuery
-    ) {
-        parent::__construct();
-    }
-
-    /**
      * @inheritDoc
      */
-    public function process(): void
+    public function process(AccountListQuery $listQuery): void
     {
         $accountId = $this->option('accountId');
-        $accounts = $this->listQuery->createList();
+        $accounts = $listQuery->createList();
         if ($accountId) {
             $accounts->where('id', $accountId);
             intro(__('cli.account.list.details_title'));

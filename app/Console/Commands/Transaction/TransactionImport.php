@@ -16,16 +16,37 @@ class TransactionImport extends FinCommand
 
     /**
      *
+     * @var ImportTransactionService
+     */
+    protected ImportTransactionService $importTransactionService;
+
+    /**
+     *
+     * @var RefreshTransactionRuleIndexService
+     */
+    protected RefreshTransactionRuleIndexService $indexService;
+
+    /**
+     *
+     * @var RuleTransactionAssignmentsValidator
+     */
+    protected RuleTransactionAssignmentsValidator $validator;
+
+    /**
+     *
      * @param ImportTransactionService $importTransactionService
      * @param RefreshTransactionRuleIndexService $indexService
      * @param RuleTransactionAssignmentsValidator $validator
+     * @return void
      */
-    public function __construct(
-        private ImportTransactionService $importTransactionService,
-        private RefreshTransactionRuleIndexService $indexService,
-        private RuleTransactionAssignmentsValidator $validator
-    ) {
-        parent::__construct();
+    public function init(
+        ImportTransactionService $importTransactionService,
+        RefreshTransactionRuleIndexService $indexService,
+        RuleTransactionAssignmentsValidator $validator
+    ): void {
+        $this->importTransactionService = $importTransactionService;
+        $this->indexService = $indexService;
+        $this->validator = $validator;
     }
 
     /**

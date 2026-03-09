@@ -14,11 +14,17 @@ class RuleList extends FinCommand
 
     /**
      *
+     * @var RuleListService
+     */
+    protected RuleListService $ruleListService;
+    
+    /**
+     *
      * @param RuleListService $ruleListService
      */
-    public function __construct(private RuleListService $ruleListService)
+    public function init(RuleListService $ruleListService): void
     {
-        parent::__construct();
+        $this->ruleListService = $ruleListService;
     }
 
     /**

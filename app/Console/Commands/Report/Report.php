@@ -10,27 +10,62 @@ use de\xovatec\financeAnalyzer\Services\Console\Report\ReportPresenter;
 use de\xovatec\financeAnalyzer\Services\Console\Report\RuleTransactionPreparer;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
+use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
-class Report extends FinCommand
+class Report extends FinCommand implements ProvidesAccountListQueryInterface
 {
     use BankAccountIdParameter;
 
     /**
      *
-     * @param AccountListQuery $accountlistQuery
+     * @var AccountListQuery
+     */
+    protected AccountListQuery $accountListQuery;
+
+    /**
+     *
+     * @var ReportConfiguratorWizard
+     */
+    protected ReportConfiguratorWizard $reportConfiguratorWizard;
+
+    /**
+     *
+     * @var RuleTransactionPreparer
+     */
+    protected RuleTransactionPreparer $ruleTransactionPreparer;
+
+    /**
+     *
+     * @var ReportDataProcessor
+     */
+    protected ReportDataProcessor $reportDataProcessor;
+
+    /**
+     *
+     * @var ReportPresenter
+     */
+    protected ReportPresenter $reportPresenter;
+
+    /**
+     *
+     * @param AccountListQuery $accountListQuery
      * @param ReportConfiguratorWizard $reportConfiguratorWizard
      * @param RuleTransactionPreparer $ruleTransactionPreparer
      * @param ReportDataProcessor $reportDataProcessor
      * @param ReportPresenter $reportPresenter
      */
-    public function __construct(
-        private AccountListQuery $accountlistQuery,
-        private ReportConfiguratorWizard $reportConfiguratorWizard,
-        private RuleTransactionPreparer $ruleTransactionPreparer,
-        private ReportDataProcessor $reportDataProcessor,
-        private ReportPresenter $reportPresenter
+    public function init(
+        AccountListQuery $accountListQuery,
+        ReportConfiguratorWizard $reportConfiguratorWizard,
+        RuleTransactionPreparer $ruleTransactionPreparer,
+        ReportDataProcessor $reportDataProcessor,
+        ReportPresenter $reportPresenter
     ) {
-        parent::__construct();
+        $this->accountListQuery = $accountListQuery;
+        $this->reportConfiguratorWizard = $reportConfiguratorWizard;
+        $this->ruleTransactionPreparer = $ruleTransactionPreparer;
+        $this->reportDataProcessor = $reportDataProcessor;
+        $this->reportPresenter = $reportPresenter;
     }
 
     /**
@@ -50,11 +85,11 @@ class Report extends FinCommand
 
     /**
      *
-     * @return AccountListQuery|null
+     * @return AccountListQuery
      */
-    protected function getAccountListQuery(): ?AccountListQuery
+    public function getAccountListQuery(): AccountListQuery
     {
-        return $this->accountlistQuery;
+        return $this->accountListQuery;
     }
 
     /**

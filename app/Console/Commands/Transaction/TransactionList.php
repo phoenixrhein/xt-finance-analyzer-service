@@ -33,20 +33,55 @@ class TransactionList extends FinCommand
 
     /**
      *
+     * @var FinQueryBuilder
+     */
+    protected FinQueryBuilder $finQueryBuilder;
+
+    /**
+     *
+     * @var SqlQueryBuilder
+     */
+    protected SqlQueryBuilder $sqlQueryBuilder;
+
+    /**
+     *
+     * @var ExpressionSyntaxParser
+     */
+    protected ExpressionSyntaxParser $parser;
+
+    /**
+     *
+     * @var CliErrorHighlighter
+     */
+    protected CliErrorHighlighter $errorHighlighter;
+
+    /**
+     *
+     * @var RuleToConditionTransformer
+     */
+    protected RuleToConditionTransformer $transformer;
+
+    /**
+     *
      * @param FinQueryBuilder $finQueryBuilder
      * @param SqlQueryBuilder $sqlQueryBuilder
      * @param ExpressionSyntaxParser $parser
      * @param CliErrorHighlighter $errorHighlighter
      * @param RuleToConditionTransformer $transformer
+     * @return void
      */
-    public function __construct(
-        private FinQueryBuilder $finQueryBuilder,
-        private SqlQueryBuilder $sqlQueryBuilder,
-        private ExpressionSyntaxParser $parser,
-        private CliErrorHighlighter $errorHighlighter,
-        private RuleToConditionTransformer $transformer
-    ) {
-        parent::__construct();
+    public function init(
+        FinQueryBuilder $finQueryBuilder,
+        SqlQueryBuilder $sqlQueryBuilder,
+        ExpressionSyntaxParser $parser,
+        CliErrorHighlighter $errorHighlighter,
+        RuleToConditionTransformer $transformer
+    ): void {
+        $this->finQueryBuilder = $finQueryBuilder;
+        $this->sqlQueryBuilder = $sqlQueryBuilder;
+        $this->parser = $parser;
+        $this->errorHighlighter = $errorHighlighter;
+        $this->transformer = $transformer;
     }
 
     /**

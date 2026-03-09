@@ -37,20 +37,25 @@ class CashDepositUpsert extends FinCommand implements ProvidesAccountListQueryIn
 
     /**
      *
+     * @var AccountListQuery
+     */
+    protected AccountListQuery $accountListQuery;
+
+    /**
+     *
      * @param AccountListQuery $accountlistQuery
      */
-    public function __construct(private AccountListQuery $accountlistQuery)
+    public function init(AccountListQuery $accountlistQuery): void
     {
-        parent::__construct();
+        $this->accountListQuery = $accountlistQuery;
     }
-
     /**
      *
      * @return AccountListQuery
      */
     public function getAccountListQuery(): AccountListQuery
     {
-        return $this->accountlistQuery;
+        return $this->accountListQuery;
     }
 
     /**
@@ -99,7 +104,7 @@ class CashDepositUpsert extends FinCommand implements ProvidesAccountListQueryIn
             $cashDepositEntry->deposit_date  = $this->viewInput(
                 __('cli.cash_deposit.upsert.deposit_date'),
                 ['required', 'date_format:d.m.Y'],
-                $cashDepositEntry->deposit_date->format('d.m.Y')
+                Carbon::parse($cashDepositEntry->deposit_date)->format('d.m.Y')
             );
             $cashDepositEntry->note  = $this->viewInput(
                 __('cli.cash_deposit.upsert.note'),

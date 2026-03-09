@@ -15,13 +15,27 @@ class CategoryList extends FinCommand implements ProvidesAccountListQueryInterfa
 
     /**
      *
-     * @param AccountListQuery $accountListQuery
+     * @var AccountListQuery
      */
-    public function __construct(
-        private AccountListQuery $accountListQuery,
-        private TreeViewConsoleService $treeViewConsoleService
-    ) {
-        parent::__construct();
+    protected AccountListQuery $accountListQuery;
+
+    /**
+     *
+     * @var TreeViewConsoleService
+     */
+    protected TreeViewConsoleService $treeViewConsoleService;
+
+    /**
+     *
+     * @param AccountListQuery $accountListQuery
+     * @param TreeViewConsoleService $treeViewConsoleService
+     */
+    public function init(
+        AccountListQuery $accountListQuery,
+        TreeViewConsoleService $treeViewConsoleService
+    ): void {
+        $this->accountListQuery = $accountListQuery;
+        $this->treeViewConsoleService = $treeViewConsoleService;
     }
 
     /**

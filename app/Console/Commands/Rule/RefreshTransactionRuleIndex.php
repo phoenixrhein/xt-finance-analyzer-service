@@ -10,9 +10,20 @@ class RefreshTransactionRuleIndex extends FinCommand
 {
     use BankAccountIdParameter;
 
-    public function __construct(private RefreshTransactionRuleIndexService $indexService)
+    /**
+     *
+     * @var RefreshTransactionRuleIndexService
+     */
+    protected RefreshTransactionRuleIndexService $indexService;
+
+    /**
+     *
+     * @param RefreshTransactionRuleIndexService $indexService
+     * @return void
+     */
+    public function init(RefreshTransactionRuleIndexService $indexService): void
     {
-        parent::__construct();
+        $this->indexService = $indexService;
     }
 
     /**

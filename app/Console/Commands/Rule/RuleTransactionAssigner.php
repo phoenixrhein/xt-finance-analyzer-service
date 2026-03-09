@@ -43,6 +43,66 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
 
     /**
      *
+     * @var AccountListQuery
+     */
+    protected AccountListQuery $accountListQuery;
+
+    /**
+     *
+     * @var UnmatchedTransactionsService
+     */
+    protected UnmatchedTransactionsService $unmatchedTransactionsService;
+
+    /**
+     *
+     * @var FinQueryBuilder
+     */
+    protected FinQueryBuilder $finQueryBuilder;
+
+    /**
+     *
+     * @var ExpressionSyntaxParser
+     */
+    protected ExpressionSyntaxParser $parser;
+
+    /**
+     *
+     * @var CliErrorHighlighter
+     */
+    protected CliErrorHighlighter $errorHighlighter;
+
+    /**
+     *
+     * @var RuleToConditionTransformer
+     */
+    protected RuleToConditionTransformer $transformer;
+
+    /**
+     *
+     * @var SqlQueryBuilder
+     */
+    protected SqlQueryBuilder $sqlQueryBuilder;
+
+    /**
+     *
+     * @var RuleDataManager
+     */
+    protected RuleDataManager $ruleDataManager;
+
+    /**
+     *
+     * @var ManageConsoleService
+     */
+    protected ManageConsoleService $manageConsoleService;
+
+    /**
+     *
+     * @var TreeViewConsoleService
+     */
+    protected TreeViewConsoleService $treeViewConsoleService;
+    
+    /**
+     *
      * @param AccountListQuery $accountListQuery
      * @param UnmatchedTransactionsService $unmatchedTransactionsService
      * @param FinQueryBuilder $finQueryBuilder
@@ -51,20 +111,32 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
      * @param RuleToConditionTransformer $transformer
      * @param SqlQueryBuilder $sqlQueryBuilder
      * @param RuleDataManager $ruleDataManager
+     * @param ManageConsoleService $manageConsoleService
+     * @param TreeViewConsoleService $treeViewConsoleService
+     * @return void
      */
-    public function __construct(
-        private AccountListQuery $accountListQuery,
-        private UnmatchedTransactionsService $unmatchedTransactionsService,
-        private FinQueryBuilder $finQueryBuilder,
-        private ExpressionSyntaxParser $parser,
-        private CliErrorHighlighter $errorHighlighter,
-        private RuleToConditionTransformer $transformer,
-        private SqlQueryBuilder $sqlQueryBuilder,
-        private RuleDataManager $ruleDataManager,
-        private ManageConsoleService $manageConsoleService,
-        private TreeViewConsoleService $treeViewConsoleService
-    ) {
-        parent::__construct();
+    public function init(
+        AccountListQuery $accountListQuery,
+        UnmatchedTransactionsService $unmatchedTransactionsService,
+        FinQueryBuilder $finQueryBuilder,
+        ExpressionSyntaxParser $parser,
+        CliErrorHighlighter $errorHighlighter,
+        RuleToConditionTransformer $transformer,
+        SqlQueryBuilder $sqlQueryBuilder,
+        RuleDataManager $ruleDataManager,
+        ManageConsoleService $manageConsoleService,
+        TreeViewConsoleService $treeViewConsoleService
+    ): void {
+        $this->accountListQuery = $accountListQuery;
+        $this->unmatchedTransactionsService = $unmatchedTransactionsService;
+        $this->finQueryBuilder = $finQueryBuilder;
+        $this->parser = $parser;
+        $this->errorHighlighter = $errorHighlighter;
+        $this->transformer = $transformer;
+        $this->sqlQueryBuilder = $sqlQueryBuilder;
+        $this->ruleDataManager = $ruleDataManager;
+        $this->manageConsoleService = $manageConsoleService;
+        $this->treeViewConsoleService = $treeViewConsoleService;
         $this->setDisplayLimit(7);
     }
 
