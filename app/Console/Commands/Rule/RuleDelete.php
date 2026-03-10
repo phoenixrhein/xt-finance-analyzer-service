@@ -10,11 +10,17 @@ class RuleDelete extends FinCommand
 {
     /**
      *
+     * @var RefreshTransactionRuleIndexService
+     */
+    protected RefreshTransactionRuleIndexService $refreshService;
+
+    /**
+     *
      * @param RefreshTransactionRuleIndexService $refreshService
      */
-    public function __construct(private RefreshTransactionRuleIndexService $refreshService)
+    public function init(RefreshTransactionRuleIndexService $refreshService): void
     {
-        parent::__construct();
+        $this->refreshService = $refreshService;
     }
 
     /**

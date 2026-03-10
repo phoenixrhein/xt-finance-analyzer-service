@@ -13,11 +13,17 @@ class RuleTransactionAssignmentsValidator extends FinCommand
 
     /**
      *
+     * @var RuleTransactionAssignmentsValidatorService
+     */
+    protected RuleTransactionAssignmentsValidatorService $validator;
+
+    /**
+     *
      * @param RuleTransactionAssignmentsValidatorService $validator
      */
-    public function __construct(private RuleTransactionAssignmentsValidatorService $validator)
+    public function init(RuleTransactionAssignmentsValidatorService $validator): void
     {
-        parent::__construct();
+        $this->validator = $validator;
     }
 
     /**

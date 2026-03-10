@@ -27,7 +27,9 @@ class Handler extends ExceptionHandler
     public function __construct()
     {
         parent::__construct(app());
-        $this->collisionHandler = new CollisionHandler(app(), $this);
+        if (class_exists(\NunoMaduro\Collision\Adapters\Laravel\ExceptionHandler::class)) {
+            $this->collisionHandler = new \NunoMaduro\Collision\Adapters\Laravel\ExceptionHandler(app(), $this);
+        }
     }
 
     /**
@@ -71,8 +73,10 @@ class Handler extends ExceptionHandler
         } else {
             if ($exception instanceof SymfonyConsoleExceptionInterface) {
                 parent::renderForConsole($output, $exception);
-            } else {
+            } elseif ($this->collisionHandler) {
                 $this->collisionHandler->renderForConsole($output, $exception);
+            } else {
+                parent::renderForConsole($output, $exception);
             }
         }
     }
@@ -85,7 +89,7 @@ class Handler extends ExceptionHandler
      */
     public function __call($method, $parameters)
     {
-        if (method_exists($this->collisionHandler, $method)) {
+        if ($this->collisionHandler && method_exists($this->collisionHandler, $method)) {
             return call_user_func_array([$this->collisionHandler, $method], $parameters);
         }
 

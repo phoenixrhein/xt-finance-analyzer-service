@@ -41,11 +41,17 @@ class AdjustmentUpsert extends FinCommand implements ProvidesAccountListQueryInt
 
     /**
      *
+     * @var AccountListQuery
+     */
+    protected AccountListQuery $accountListQuery;
+
+    /**
+     *
      * @param AccountListQuery $accountlistQuery
      */
-    public function __construct(private AccountListQuery $accountlistQuery)
+    public function init(AccountListQuery $accountlistQuery): void
     {
-        parent::__construct();
+        $this->accountListQuery = $accountlistQuery;
     }
 
     /**
@@ -54,7 +60,7 @@ class AdjustmentUpsert extends FinCommand implements ProvidesAccountListQueryInt
      */
     public function getAccountListQuery(): AccountListQuery
     {
-        return $this->accountlistQuery;
+        return $this->accountListQuery;
     }
 
     /**
@@ -124,7 +130,7 @@ class AdjustmentUpsert extends FinCommand implements ProvidesAccountListQueryInt
             $adjustmentEntry->transaction_date  = $this->viewInput(
                 __('cli.transaction_adjustment.upsert.new_date'),
                 ['required', 'date_format:d.m.Y'],
-                $adjustmentEntry->transaction_date->format('d.m.Y')
+                Carbon::parse($adjustmentEntry->transaction_date)->format('d.m.Y')
             );
             $adjustmentEntry->note  = $this->viewInput(
                 __('cli.transaction_adjustment.upsert.note'),

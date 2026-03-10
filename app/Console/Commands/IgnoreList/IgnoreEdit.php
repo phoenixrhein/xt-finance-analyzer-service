@@ -32,11 +32,17 @@ class IgnoreEdit extends AbstractIgnoreList implements ProvidesAccountListQueryI
 
     /**
      *
+     * @var AccountListQuery
+     */
+    protected AccountListQuery $accountListQuery;
+
+    /**
+     *
      * @param AccountListQuery $accountlistQuery
      */
-    public function __construct(private AccountListQuery $accountlistQuery)
+    public function init(AccountListQuery $accountlistQuery): void
     {
-        parent::__construct();
+        $this->accountListQuery = $accountlistQuery;
     }
 
     /**
@@ -45,7 +51,7 @@ class IgnoreEdit extends AbstractIgnoreList implements ProvidesAccountListQueryI
      */
     public function getAccountListQuery(): AccountListQuery
     {
-        return $this->accountlistQuery;
+        return $this->accountListQuery;
     }
 
     /**

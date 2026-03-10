@@ -40,11 +40,17 @@ class SplitUpsert extends FinCommand implements ProvidesAccountListQueryInterfac
 
     /**
      *
-     * @param AccountListQuery $accountlistQuery
+     * @var AccountListQuery
      */
-    public function __construct(private AccountListQuery $accountlistQuery)
+    protected AccountListQuery $accountListQuery;
+
+    /**
+     *
+     * @param AccountListQuery $accountListQuery
+     */
+    public function init(AccountListQuery $accountListQuery): void
     {
-        parent::__construct();
+        $this->accountListQuery = $accountListQuery;
     }
 
     /**
@@ -53,7 +59,7 @@ class SplitUpsert extends FinCommand implements ProvidesAccountListQueryInterfac
      */
     public function getAccountListQuery(): AccountListQuery
     {
-        return $this->accountlistQuery;
+        return $this->accountListQuery;
     }
 
     /**

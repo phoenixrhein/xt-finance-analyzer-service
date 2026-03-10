@@ -17,21 +17,32 @@ abstract class FinCommand extends Command
     /**
      * @inheritDoc
      */
-    public function __construct()
+    final public function __construct()
     {
+        parent::__construct();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function configure()
+    {
+        parent::configure();
+
         if (Str::contains($this->signature, '[:')) {
             $this->signature = Str::replaceMatches(
                 '/\[:([A-Za-z._])+:\]/',
                 function (array $matches) {
-                    return __(Str::replace(['[:', ':]'], '', $matches[0]));
+                    $key = Str::replace(['[:', ':]'], '', $matches[0]);
+                    return app()->bound('translator') ? __($key) : $key;
                 },
                 $this->signature
             );
         }
+
         if (Str::startsWith($this->description, 'cli.')) {
-            $this->description = __($this->description);
+            $this->description = app()->bound('translator') ? __($this->description) : $this->description;
         }
-        parent::__construct();
     }
 
     /**
@@ -59,6 +70,9 @@ abstract class FinCommand extends Command
     final public function handle(): int
     {
         $this->header();
+        if (method_exists($this, 'init')) {
+            $this->laravel->call([$this, 'init']);
+        }
         $method = method_exists($this, 'process') ? 'process' : '__invoke';
         $returnValue = (int) $this->laravel->call([$this, $method]);
         $this->emptyLn();
