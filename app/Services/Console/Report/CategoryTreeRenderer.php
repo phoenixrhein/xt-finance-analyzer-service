@@ -3,7 +3,7 @@
 namespace de\xovatec\financeAnalyzer\Services\Console\Report;
 
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
-use de\xovatec\financeAnalyzer\Services\Console\Report\DTO\CategoryNode;
+use de\xovatec\financeAnalyzer\Dto\Report\CategoryNode;
 use de\xovatec\financeAnalyzer\Services\Console\Report\ReportTableRenderer;
 use de\xovatec\financeAnalyzer\Traits\Console\CurrencyFormatterTrait;
 use Illuminate\Support\Collection;

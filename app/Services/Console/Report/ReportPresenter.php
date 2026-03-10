@@ -5,7 +5,7 @@ namespace de\xovatec\financeAnalyzer\Services\Console\Report;
 use de\xovatec\financeAnalyzer\Enums\TimespanType;
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
 use de\xovatec\financeAnalyzer\Services\Console\Report\CategoryTreeRenderer;
-use de\xovatec\financeAnalyzer\Services\Console\Report\DTO\PeriodReportData;
+use de\xovatec\financeAnalyzer\Dto\Report\PeriodReportData;
 use de\xovatec\financeAnalyzer\Services\Console\Report\ReportTableMetrics;
 use de\xovatec\financeAnalyzer\Services\Console\Report\ReportTableRenderer;
 use de\xovatec\financeAnalyzer\Traits\Console\CurrencyFormatterTrait;

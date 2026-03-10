@@ -6,8 +6,8 @@ use Carbon\Carbon;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Category;
 use de\xovatec\financeAnalyzer\Models\Transactions;
-use de\xovatec\financeAnalyzer\Services\Console\Report\DTO\CategoryNode;
-use de\xovatec\financeAnalyzer\Services\Console\Report\DTO\PeriodReportData;
+use de\xovatec\financeAnalyzer\Dto\Report\CategoryNode;
+use de\xovatec\financeAnalyzer\Dto\Report\PeriodReportData;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 

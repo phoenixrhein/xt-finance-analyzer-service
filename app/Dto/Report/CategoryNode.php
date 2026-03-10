@@ -1,6 +1,6 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Services\Console\Report\DTO;
+namespace de\xovatec\financeAnalyzer\Dto\Report;
 
 use Illuminate\Support\Collection;
 

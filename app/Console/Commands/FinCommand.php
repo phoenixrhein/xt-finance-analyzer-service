@@ -52,7 +52,8 @@ abstract class FinCommand extends Command
      */
     private function header(): void
     {
-        $appName = '<bg=green;fg=black> FIN </> <fg=green>Finance Analyzer</>';
+        $appName = '<bg=green;fg=black> FIN </> <fg=green>Finance Analyzer</> <fg=gray>' .
+            config('app.version') . '</>';
 
         $this->line('<fg=green>/</><fg=gray>/</><fg=green>/</><fg=gray>/</><fg=green>/</>');
         $this->line('<fg=gray>/</><fg=green>/</><fg=gray>/</><fg=green>/</> <fg=green>█ █</> <fg=gray>▀▀█▀▀</>');
