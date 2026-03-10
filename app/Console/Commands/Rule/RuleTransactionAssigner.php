@@ -100,7 +100,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
      * @var TreeViewConsoleService
      */
     protected TreeViewConsoleService $treeViewConsoleService;
-    
+
     /**
      *
      * @param AccountListQuery $accountListQuery

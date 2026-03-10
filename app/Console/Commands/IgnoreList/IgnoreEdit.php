@@ -31,7 +31,7 @@ class IgnoreEdit extends AbstractIgnoreList implements ProvidesAccountListQueryI
     protected $description = 'cli.ignore_list.upsert.description';
 
     /**
-     * 
+     *
      * @var AccountListQuery
      */
     protected AccountListQuery $accountListQuery;

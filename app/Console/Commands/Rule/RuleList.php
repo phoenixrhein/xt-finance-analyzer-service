@@ -17,7 +17,7 @@ class RuleList extends FinCommand
      * @var RuleListService
      */
     protected RuleListService $ruleListService;
-    
+
     /**
      *
      * @param RuleListService $ruleListService
