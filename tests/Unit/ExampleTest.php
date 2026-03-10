@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace de\xovatec\Tests\financeAnalyzer\Unit;
 
 use PHPUnit\Framework\TestCase;
 

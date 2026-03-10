@@ -46,7 +46,7 @@ class SplitUpsert extends FinCommand implements ProvidesAccountListQueryInterfac
 
     /**
      *
-     * @param AccountListQuery $accountlistQuery
+     * @param AccountListQuery $accountListQuery
      */
     public function init(AccountListQuery $accountListQuery): void
     {
