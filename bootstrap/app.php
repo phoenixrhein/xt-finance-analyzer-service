@@ -1,4 +1,6 @@
 <?php
+ini_set('error_log', __DIR__.'/../storage/logs/php_error.log');
+ini_set('log_errors', '1');
 
 /*
 |--------------------------------------------------------------------------
