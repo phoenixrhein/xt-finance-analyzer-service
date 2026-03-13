@@ -73,7 +73,7 @@ class Handler extends ExceptionHandler
         } else {
             if ($exception instanceof SymfonyConsoleExceptionInterface) {
                 parent::renderForConsole($output, $exception);
-            } elseif ($this->collisionHandler) {
+            } elseif (isset($this->collisionHandler)) {
                 $this->collisionHandler->renderForConsole($output, $exception);
             } else {
                 parent::renderForConsole($output, $exception);
@@ -89,7 +89,7 @@ class Handler extends ExceptionHandler
      */
     public function __call($method, $parameters)
     {
-        if ($this->collisionHandler && method_exists($this->collisionHandler, $method)) {
+        if (isset($this->collisionHandler) && method_exists($this->collisionHandler, $method)) {
             return call_user_func_array([$this->collisionHandler, $method], $parameters);
         }
 
