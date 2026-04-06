@@ -19,16 +19,6 @@ abstract class FinCommand extends Command
      */
     final public function __construct()
     {
-        parent::__construct();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function configure()
-    {
-        parent::configure();
-
         if (Str::contains($this->signature, '[:')) {
             $this->signature = Str::replaceMatches(
                 '/\[:([A-Za-z._])+:\]/',
@@ -43,6 +33,8 @@ abstract class FinCommand extends Command
         if (Str::startsWith($this->description, 'cli.')) {
             $this->description = app()->bound('translator') ? __($this->description) : $this->description;
         }
+
+        parent::__construct();
     }
 
     /**
