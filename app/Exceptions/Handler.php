@@ -64,7 +64,7 @@ class Handler extends ExceptionHandler
             return;
         }
 
-        if (!config('app.debug')) {
+        if (!config('app.debug') && !($exception instanceof SymfonyConsoleExceptionInterface)) {
             $output->writeln('');
             $logMsgId = 'FIN-' . Carbon::now()->format('YmdHisv');
             $output->writeln(' <error> ' . __('cli.base.error.message', ['msgId' => $logMsgId]) . ' </error>');
