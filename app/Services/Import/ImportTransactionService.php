@@ -90,6 +90,7 @@ class ImportTransactionService
                 $this->progressDisplay->show();
                 $this->report->incrementImported();
             } catch (UniqueConstraintViolationException $e) {
+                $this->report->incrementDuplicates();
                 $errorText = 'Duplicate import row: ' . implode('|', $record->getRecord());
                 Log::error($errorText);
                 if ($ignoreAlreadyExists === false) {

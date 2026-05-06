@@ -478,6 +478,11 @@ class TransactionRecord
      */
     public function getHashIdentifier(): string
     {
-        return hash('sha256', implode('|', $this->getRecord()));
+        $values = array_map(
+            static fn ($value) => $value === null ? '' : (string)$value,
+            $this->getRecord()
+        );
+
+        return hash('sha256', implode('|', $values));
     }
 }
