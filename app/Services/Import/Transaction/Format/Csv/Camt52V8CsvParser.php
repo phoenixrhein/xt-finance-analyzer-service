@@ -64,7 +64,7 @@ class Camt52V8CsvParser implements CsvParserInterface
      */
     public function parse(string $filePath, int $lastMonths): array
     {
-        $csv = Reader::createFromPath($filePath);
+        $csv = Reader::from($filePath);
         $csv->setHeaderOffset(0);
         $csv->setDelimiter(';');
 

@@ -415,7 +415,7 @@ return [
             'input' => [
                 'lastmonths' => [
                     'text' => 'Anzahl der letzten zu importierenden Monate',
-                    'hint' => '0 bedeutet uneingeschränkt alles. Z.B. 1 bedeutet nur den letzten Monat'
+                    'hint' => '0 bedeutet uneingeschränkt alles. Z.B. 1 bedeutet nur ab den letzten Monat'
                 ],
                 'ignoreAlreadyExists' => 'Sollen Duplikate ignoriert werden?',
                 'ignoreAlreadyExists_hint' => 'Ansonsten bricht das Skript beim ersten Duplikat ab'
