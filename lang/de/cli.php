@@ -386,7 +386,7 @@ return [
                     'transaction_type' => 'Buchungstext',
                     'reason_for_payment' => 'Verwendungszweck',
                     'creditor_id' => 'Glaeubiger ID',
-                    'mandate_ reference' => 'Mandatsreferenz',
+                    'mandate_reference' => 'Mandatsreferenz',
                     'customer_reference' => 'Kundenreferenz (End-to-End)',
                     'collector_reference' => 'Sammlerreferenz',
                     'debit_original_amount' => 'Lastschrift Ursprungsbetrag',

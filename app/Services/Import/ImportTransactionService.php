@@ -126,7 +126,7 @@ class ImportTransactionService
             'transaction_type' => $record->getTransactionType(),
             'reason_for_payment' => $record->getReasonForPayment(),
             'creditor_id' => $record->getCreditorId(),
-            'mandate_ reference' => $record->getMandateReference(),
+            'mandate_reference' => $record->getMandateReference(),
             'customer_reference' => $record->getCustomerReference(),
             'collector_reference' => $record->getCollectorReference(),
             'debit_original_amount' => $record->getDebitOriginalAmount(),

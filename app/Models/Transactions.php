@@ -36,7 +36,7 @@ class Transactions extends Model
         'transaction_type',
         'reason_for_payment',
         'creditor_id',
-        'mandate_ reference',
+        'mandate_reference',
         'customer_reference',
         'collector_reference',
         'debit_original_amount',
