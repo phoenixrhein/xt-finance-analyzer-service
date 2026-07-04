@@ -72,15 +72,15 @@ class ManageConsoleService extends AbstractCategory
 
     /**
      *
-     * @param string|null $name
+     * @param string|null $rawName
      * @param integer|null $parentId
      * @return array
      */
-    private function manageCategory(?string $name = null, ?int $parentId = null): array
+    private function manageCategory(?string $rawName = null, ?int $parentId = null): array
     {
         do {
             $valid = true;
-            $name = $this->viewNameInput($name ?? '');
+            $name = $this->viewNameInput($rawName ?? '');
             $parentId = $this->viewCategoryIdInput(
                 'parent_id',
                 __('cli.category.base.input_parent_id'),
@@ -90,7 +90,7 @@ class ManageConsoleService extends AbstractCategory
             $parentCategory = Category::find($parentId);
             $this->viewCategoryPath($parentCategory, $name);
 
-            if (Category::where('name', $name)->where('parent_id', $parentId)->exists()) {
+            if ($rawName !== $name && Category::where('name', $name)->where('parent_id', $parentId)->exists()) {
                 $this->error(__('cli.category.base.error.already_exist'));
                 $valid = false;
             }
