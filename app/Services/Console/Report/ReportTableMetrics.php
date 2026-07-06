@@ -70,7 +70,27 @@ class ReportTableMetrics
         }
 
         // Calculate maximum category column width by finding longest category name
-        $maxCategoryLength = 9; // Minimum for "Kategorie" header
+        // and by considering all table labels that may appear when no categories exist.
+        $maxCategoryLength = mb_strlen(__('cli.report.presentation.label_category'), 'UTF-8');
+
+        $additionalLabels = [
+            __('cli.report.presentation.label_total') . ' ' . __('cli.report.presentation.title_income'),
+            __('cli.report.presentation.label_total') . ' ' . __('cli.report.presentation.title_expenses'),
+            __('cli.report.presentation.label_transfer_to_savings'),
+            __('cli.report.presentation.label_transfer_from_savings'),
+            __('cli.report.presentation.label_balance_change'),
+            __('cli.report.presentation.label_income'),
+            __('cli.report.presentation.label_expenses'),
+            __('cli.report.presentation.label_balance'),
+            __('cli.report.presentation.label_direct_amount'),
+            __('cli.report.presentation.label_subcategories_sum'),
+            __('cli.report.presentation.label_unassigned'),
+        ];
+
+        foreach ($additionalLabels as $label) {
+            $maxCategoryLength = max($maxCategoryLength, mb_strlen($label, 'UTF-8'));
+        }
+
         foreach ($reportData as $period) {
             $maxCategoryLength = max(
                 $maxCategoryLength,
@@ -82,7 +102,7 @@ class ReportTableMetrics
             );
         }
 
-        // Ensure minimum width of 35 to safely accommodate tree symbols and sub-item labels
+        // Ensure minimum width of 15 to safely accommodate tree symbols and sub-item labels
         $this->categoryColumnWidth = max($maxCategoryLength, 15);
 
         // Build separator lines
