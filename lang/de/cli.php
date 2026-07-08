@@ -522,7 +522,8 @@ return [
                 '0' => 'Keine (:only_current)',
                 '1' => '1 :span',
                 '2' => '2 :span',
-                '3' => '3 :span'
+                '3' => '3 :span',
+                'until_year_start' => 'Bis Jahresanfang',
             ],
             'span' => [
                 'months' => 'Monate',
@@ -551,3 +552,4 @@ return [
         ]
     ]
 ];
+
