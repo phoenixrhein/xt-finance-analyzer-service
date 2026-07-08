@@ -26,8 +26,10 @@ class SelectTargetPeriodAction extends AbstractIOService
     {
         if ($reportType === TimespanType::month) {
             $rules = ['required', 'regex:/^([0-9]{4})(0[1-9]|1[0-2])$/'];
+            $default = Carbon::now()->subMonth()->format('Ym');
         } elseif ($reportType === TimespanType::year) {
             $rules = ['required', 'regex:/^([0-9]{4})$/'];
+            $default = Carbon::now()->subYear()->format('Y');
         } else {
             throw new InvalidArgumentException(__('cli.report.input_target.error.unknown_report_type'));
         }
@@ -38,6 +40,7 @@ class SelectTargetPeriodAction extends AbstractIOService
             __('cli.report.input_target.' . $reportType->name . '.label'),
             $rules,
             __('cli.report.input_target.' . $reportType->name . '.hint'),
+            $default
         );
     }
 
@@ -55,9 +58,10 @@ class SelectTargetPeriodAction extends AbstractIOService
         BankAccount $bankAccount,
         string $label,
         array $rules,
-        string $hint
+        string $hint,
+        ?string $default = null
     ): string {
-        $to = null;
+        $to = $default;
         do {
             $to = $this->viewInput(
                 label: $label,
