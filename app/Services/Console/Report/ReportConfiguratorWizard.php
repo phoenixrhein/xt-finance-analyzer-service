@@ -71,13 +71,17 @@ class ReportConfiguratorWizard extends AbstractIOService
             ),
         ];
 
+        if($reportType === TimespanType::month) {
+            //option: until the start of the year
+        }
+
         return (int)select(
             __(
                 'cli.report.select_time_span.label',
                 ['span' => $reportType === TimespanType::month ? $months : $years]
             ),
             $options,
-            $options[2] ?? null,
+            $options[3] ?? null,
             5
         );
     }
