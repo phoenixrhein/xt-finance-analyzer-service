@@ -72,7 +72,7 @@ class ReportConfiguratorWizard extends AbstractIOService
             ),
         ];
 
-        if($reportType === TimespanType::month) {
+        if ($reportType === TimespanType::month) {
             $month = (int)substr($targetPeriod, 4, 2);
             $monthUntilYearStart = $month - 1;
             $options[$monthUntilYearStart] = __('cli.report.select_time_span.time_span_options.until_year_start');
@@ -104,4 +104,3 @@ class ReportConfiguratorWizard extends AbstractIOService
         ));
     }
 }
-
