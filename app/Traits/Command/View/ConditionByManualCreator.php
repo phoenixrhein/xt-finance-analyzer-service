@@ -128,32 +128,36 @@ trait ConditionByManualCreator
                 continue;
             }
 
-            $furtherConditionOptions = [
+            if ($condition->getField()->getColumn() === 'id') {
+                $logicalOperator = self::LOGICAL_OPERATOR_NONE;
+            } else {
+                $furtherConditionOptions = [
                     LogicalOperator::AND->value => __('cli.view.condition_creator.option_and_link'),
                     LogicalOperator::OR->value => __('cli.view.condition_creator.option_or_link'),
-            ];
+                ];
 
-            if (!$this->overlapMatches) {
-                $furtherConditionOptions[self::LOGICAL_OPERATOR_NONE] = __(
-                    'cli.view.condition_creator.option_no_more_condition'
+                if (!$this->overlapMatches) {
+                    $furtherConditionOptions[self::LOGICAL_OPERATOR_NONE] = __(
+                        'cli.view.condition_creator.option_no_more_condition'
+                    );
+                } else {
+                    $this->warn(__('cli.view.condition_creator.warning_overlap_matches'));
+                    $furtherConditionOptions[self::LOGICAL_MODIFY_CONDITION] = __(
+                        'cli.view.condition_creator.option_modify_condition'
+                    );
+                }
+
+                $logicalOperator = select(
+                    __('cli.view.condition_creator.further_condition'),
+                    $furtherConditionOptions
                 );
-            } else {
-                $this->warn(__('cli.view.condition_creator.warning_overlap_matches'));
-                $furtherConditionOptions[self::LOGICAL_MODIFY_CONDITION] = __(
-                    'cli.view.condition_creator.option_modify_condition'
-                );
-            }
 
-            $logicalOperator = select(
-                __('cli.view.condition_creator.further_condition'),
-                $furtherConditionOptions
-            );
-
-            if ($logicalOperator === self::LOGICAL_MODIFY_CONDITION) {
-                $start = 0;
-                $confirmation = 'no';
-                $logicalOperator = LogicalOperator::AND;
-                continue;
+                if ($logicalOperator === self::LOGICAL_MODIFY_CONDITION) {
+                    $start = 0;
+                    $confirmation = 'no';
+                    $logicalOperator = LogicalOperator::AND;
+                    continue;
+                }
             }
 
             if ($logicalOperator !== self::LOGICAL_OPERATOR_NONE) {
