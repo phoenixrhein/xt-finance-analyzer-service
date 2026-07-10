@@ -68,7 +68,10 @@ trait ConditionByManualCreator
         } while (!$valid);
 
         $this->line(
-            '<fg=green>' . __('cli.view.condition_creator.template_transaction_selected', ['id' => $transaction->id]) . '</>'
+            '<fg=green>' . __(
+                'cli.view.condition_creator.template_transaction_selected',
+                ['id' => $transaction->id]
+            ) . '</>'
         );
 
         return $transaction;
