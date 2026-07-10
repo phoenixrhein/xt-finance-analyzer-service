@@ -40,17 +40,24 @@ trait ConditionByManualCreator
 
     /**
      * @param Builder $transactions
-     * @return Transactions
+     * @return Transactions|null
      */
-    private function selectTemplateTransaction(Builder $transactions): Transactions
+    private function selectTemplateTransaction(Builder $transactions): ?Transactions
     {
         do {
             $valid = true;
             $transactionId = $this->viewInput(
                 __('cli.view.condition_creator.template_transaction_id'),
-                'required|numeric',
+                'numeric',
                 null
             );
+
+            if (empty($transactionId)) {
+                $this->line(
+                    '<fg=yellow>' . __('cli.view.condition_creator.no_template_transaction_selected') . '</>'
+                );
+                return null;
+            }
 
             $transaction = $transactions->whereKey($transactionId)->first();
 
@@ -61,7 +68,7 @@ trait ConditionByManualCreator
         } while (!$valid);
 
         $this->line(
-            '<fg=green>✓ Vorlagenbuchung geladen (ID: ' . $transaction->id . ')</>'
+            '<fg=green>' . __('cli.view.condition_creator.template_transaction_selected', ['id' => $transaction->id]) . '</>'
         );
 
         return $transaction;
