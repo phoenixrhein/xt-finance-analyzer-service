@@ -9,6 +9,7 @@ use de\xovatec\financeAnalyzer\Dto\FinQuery\Condition;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FieldConfig;
 use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
+use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\BaseField;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Operators\BaseOperator;
@@ -39,10 +40,40 @@ trait ConditionByManualCreator
 
     /**
      * @param Builder $transactions
+     * @return Transactions
+     */
+    private function selectTemplateTransaction(Builder $transactions): Transactions
+    {
+        do {
+            $valid = true;
+            $transactionId = $this->viewInput(
+                __('cli.view.condition_creator.template_transaction_id'),
+                'required|numeric',
+                null
+            );
+
+            $transaction = $transactions->whereKey($transactionId)->first();
+
+            if ($transaction === null) {
+                $this->error(__('cli.view.condition_creator.template_transaction_not_found'));
+                $valid = false;
+            }
+        } while (!$valid);
+
+        $this->line(
+            '<fg=green>✓ Vorlagenbuchung geladen (ID: ' . $transaction->id . ')</>'
+        );
+
+        return $transaction;
+    }
+
+    /**
+     * @param Builder $transactions
      * @return ConditionList
      */
     private function viewConditionByManualCreator(Builder $transactions): ConditionList
     {
+        $templateTransaction = $this->selectTemplateTransaction($transactions);
         $conditions = new ConditionList();
         $condition = null;
         $confirmation = null;
@@ -50,7 +81,7 @@ trait ConditionByManualCreator
         $logicalOperator = LogicalOperator::AND;
         do {
             if ($confirmation !== 'more') {
-                $condition = $this->inputCondition($condition);
+                $condition = $this->inputCondition($condition, $templateTransaction);
                 $this->displayFinQuery($conditions, $condition, $logicalOperator->value);
             }
             $hasMore = $this->displayInterimResult(
@@ -149,13 +180,14 @@ trait ConditionByManualCreator
     /**
      *
      * @param Condition|null $condition
+     * @param Transactions|null $templateTransaction
      * @return Condition
      */
-    private function inputCondition(?Condition $condition): Condition
+    private function inputCondition(?Condition $condition, ?Transactions $templateTransaction = null): Condition
     {
         $field = $this->selectField($condition ? $condition->getField() : null);
         $operator = $this->selectOperator($field, $condition ? $condition->getOperator() : null);
-        $value = $this->getValue($field, $condition ? $condition->getValue() : null);
+        $value = $this->getValue($field, $condition ? $condition->getValue() : null, $templateTransaction);
 
         return new Condition($field, $operator, $value);
     }
@@ -210,10 +242,18 @@ trait ConditionByManualCreator
      *
      * @param BaseField $field
      * @param mixed $default
+     * @param $templateTransaction
      * @return mixed
      */
-    private function getValue(BaseField $field, mixed $default = null): mixed
+    private function getValue(BaseField $field, mixed $default = null, $templateTransaction = null): mixed
     {
+        if ($default === null && $templateTransaction !== null) {
+            $columnName = $field->getColumn();
+            if (isset($templateTransaction->{$columnName})) {
+                $default = $templateTransaction->{$columnName};
+            }
+        }
+
         if ($field->getSelectableValues()) {
             return select(__('cli.view.condition_creator.value_select'), $field->getSelectableValues(), $default);
         }
