@@ -76,6 +76,10 @@ return [
             'transaction_id_input_hint' => 'Sofern Sie die Suche erneut starten möchten, lassen Sie dieses Feld leer',
         ],
         'condition_creator' => [
+            'template_transaction_id' => 'ID der Vorlagenbuchung eingeben',
+            'template_transaction_not_found' => 'Die Buchung mit der angegebenen ID wurde nicht gefunden',
+            'no_template_transaction_selected' => 'Keine Vorlagenbuchung ausgewählt',
+            'template_transaction_selected' => 'Vorlagenbuchung ausgewählt (ID: :id)',
             'option_and_link' => 'Weitere Bedingung mit UND-Verknüpfung',
             'option_or_link' => 'Weitere Bedingung mit ODER-Verknüpfung',
             'option_no_more_condition' => 'Keine weitere Bedingung',
