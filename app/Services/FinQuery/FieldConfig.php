@@ -9,6 +9,7 @@ use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\Transaction\CreditorIban
 use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\Transaction\TransactionTypeField;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\Transaction\BeneficiaryPayeeField;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\Transaction\ReasonForPaymentField;
+use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\Transaction\IdField;
 use de\xovatec\financeAnalyzer\Services\FinQuery\Operators\BaseOperator;
 use InvalidArgumentException;
 
@@ -24,6 +25,7 @@ class FieldConfig
             new AmountField(),
             new BeneficiaryPayeeField(),
             new CreditorIbanField(),
+            new IdField(),
             new NoteField(),
             new ReasonForPaymentField(),
             new TransactionTypeField(),
