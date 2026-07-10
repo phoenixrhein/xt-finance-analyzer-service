@@ -59,6 +59,7 @@ trait ConditionByManualCreator
                 return null;
             }
 
+            /** @var Transactions|null $transaction */
             $transaction = $transactions->whereKey($transactionId)->first();
 
             if ($transaction === null) {
