@@ -350,6 +350,23 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
                         'cli.rule.assign.count_unmatched_transactions',
                         ['count' => $totalUnmatchedTransactions]
                     ));
+
+                    $topCounterpartyLimit = (int) config('report.display.rule_assign_top_counterparties_limit', 5);
+                    if ($topCounterpartyLimit > 0) {
+                        $topCounterparties = $this->unmatchedTransactionsService->getTopUnmatchedTransactionCounterparties(
+                            $unmatchedTransactions,
+                            $topCounterpartyLimit
+                        );
+
+                        if ($topCounterparties->isNotEmpty()) {
+                            $this->line(__('cli.rule.assign.top_counterparties.title', ['count' => $topCounterpartyLimit]));
+                            foreach ($topCounterparties as $counterparty) {
+                                $creditorIban = $counterparty->beneficiary_payee ?? __('cli.rule.assign.top_counterparties.empty_iban');
+                                $this->line(sprintf('  - %s: %d', $creditorIban, (int)$counterparty->transaction_count));
+                            }
+                        }
+                    }
+
                     $this->halt();
                 }
             }
