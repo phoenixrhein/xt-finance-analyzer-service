@@ -42,7 +42,7 @@ class UnmatchedTransactionsDisplayService extends AbstractIOService
      */
     private function displayTopCounterpartiesTable(SupportCollection $topCounterparties): void
     {
-        $headers = ['Zahlungsteilnehmer', 'Anzahl'];
+        $headers = ['Zahlungsteilnehmer', 'IBAN', 'Anzahl'];
         $rows = [];
 
         foreach ($topCounterparties as $counterparty) {
@@ -53,6 +53,7 @@ class UnmatchedTransactionsDisplayService extends AbstractIOService
 
             $rows[] = [
                 $displayName,
+                $counterparty->creditor_iban ?? '-',
                 (int)$counterparty->transaction_count
             ];
         }
