@@ -21,6 +21,7 @@ use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\UnmatchedTransactionsService;
+use de\xovatec\financeAnalyzer\Services\Console\UnmatchedTransactionsDisplayService;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 use de\xovatec\financeAnalyzer\Helpers\FilterTransactionDurationHelper;
 use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
@@ -103,6 +104,12 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
 
     /**
      *
+     * @var UnmatchedTransactionsDisplayService
+     */
+    protected UnmatchedTransactionsDisplayService $unmatchedTransactionsDisplayService;
+
+    /**
+     *
      * @param AccountListQuery $accountListQuery
      * @param UnmatchedTransactionsService $unmatchedTransactionsService
      * @param FinQueryBuilder $finQueryBuilder
@@ -113,6 +120,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
      * @param RuleDataManager $ruleDataManager
      * @param ManageConsoleService $manageConsoleService
      * @param TreeViewConsoleService $treeViewConsoleService
+     * @param UnmatchedTransactionsDisplayService $unmatchedTransactionsDisplayService
      * @return void
      */
     public function init(
@@ -125,7 +133,8 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         SqlQueryBuilder $sqlQueryBuilder,
         RuleDataManager $ruleDataManager,
         ManageConsoleService $manageConsoleService,
-        TreeViewConsoleService $treeViewConsoleService
+        TreeViewConsoleService $treeViewConsoleService,
+        UnmatchedTransactionsDisplayService $unmatchedTransactionsDisplayService
     ): void {
         $this->accountListQuery = $accountListQuery;
         $this->unmatchedTransactionsService = $unmatchedTransactionsService;
@@ -137,6 +146,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         $this->ruleDataManager = $ruleDataManager;
         $this->manageConsoleService = $manageConsoleService;
         $this->treeViewConsoleService = $treeViewConsoleService;
+        $this->unmatchedTransactionsDisplayService = $unmatchedTransactionsDisplayService;
         $this->setDisplayLimit(7);
     }
 
@@ -419,53 +429,20 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
             return;
         }
 
-        $this->emptyLn();
-        $this->alert(__(
-            'cli.rule.assign.count_unmatched_transactions',
-            ['count' => $totalUnmatchedTransactions]
-        ));
-
         $topCounterpartyLimit = (int) config('report.display.rule_assign_top_counterparties_limit', 5);
+        $topCounterparties = collect();
+
         if ($topCounterpartyLimit > 0) {
             $topCounterparties = $this->unmatchedTransactionsService->getTopUnmatchedTransactionCounterparties(
                 $unmatchedTransactions,
                 $topCounterpartyLimit
             );
-
-            if ($topCounterparties->isNotEmpty()) {
-                $this->line(__('cli.rule.assign.top_counterparties.title', ['count' => $topCounterpartyLimit]));
-                foreach ($topCounterparties as $counterparty) {
-                    $displayName = $this->formatCounterpartyDisplayName(
-                        $counterparty->beneficiary_payee ?? null,
-                        $counterparty->creditor_iban ?? null
-                    );
-                    $this->line(sprintf('  - %s: %d', $displayName, (int)$counterparty->transaction_count));
-                }
-            }
         }
 
-        $this->halt();
-    }
-
-    /**
-     *
-     * @param string|null $beneficiaryPayee
-     * @param string|null $creditorIban
-     * @return string
-     */
-    private function formatCounterpartyDisplayName(?string $beneficiaryPayee, ?string $creditorIban): string
-    {
-        $displayName = preg_replace('/\s+/', ' ', trim((string) $beneficiaryPayee)) ?? '';
-
-        if ($displayName === '') {
-            $displayName = preg_replace('/\s+/', ' ', trim((string) $creditorIban)) ?? '';
-        }
-
-        if ($displayName === '') {
-            return __('cli.rule.assign.top_counterparties.empty_iban');
-        }
-
-        return $displayName;
+        $this->unmatchedTransactionsDisplayService->displayUnmatchedTransactionsOverview(
+            $totalUnmatchedTransactions,
+            $topCounterparties
+        );
     }
 
     /**
