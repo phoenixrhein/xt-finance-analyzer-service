@@ -334,41 +334,15 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         $cursor = null;
 
         do {
-            $unmatchedTransactions = Transactions::where('bank_account_iban', $bankAccount->iban)->orderBy('id');
-
-            if ($ignoreIbans->isNotEmpty()) {
-                $unmatchedTransactions = $unmatchedTransactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
-            }
+            $unmatchedTransactions = $this->buildBaseUnmatchedTransactionsQuery($bankAccount, $ignoreIbans);
 
             if ($total === null) {
-                $totalUnmatchedTransactions = $this->unmatchedTransactionsService->getUnmatchedTransactions(
-                    CopyBuilderQueryHelper::copy($unmatchedTransactions)
-                )->count();
-                if ($totalUnmatchedTransactions > 0) {
-                    $this->emptyLn();
-                    $this->alert(__(
-                        'cli.rule.assign.count_unmatched_transactions',
-                        ['count' => $totalUnmatchedTransactions]
-                    ));
-
-                    $topCounterpartyLimit = (int) config('report.display.rule_assign_top_counterparties_limit', 5);
-                    if ($topCounterpartyLimit > 0) {
-                        $topCounterparties = $this->unmatchedTransactionsService->getTopUnmatchedTransactionCounterparties(
-                            $unmatchedTransactions,
-                            $topCounterpartyLimit
-                        );
-
-                        if ($topCounterparties->isNotEmpty()) {
-                            $this->line(__('cli.rule.assign.top_counterparties.title', ['count' => $topCounterpartyLimit]));
-                            foreach ($topCounterparties as $counterparty) {
-                                $creditorIban = $counterparty->beneficiary_payee ?? __('cli.rule.assign.top_counterparties.empty_iban');
-                                $this->line(sprintf('  - %s: %d', $creditorIban, (int)$counterparty->transaction_count));
-                            }
-                        }
-                    }
-
-                    $this->halt();
-                }
+                $this->displayUnmatchedTransactionsOverview(
+                    $this->unmatchedTransactionsService->getUnmatchedTransactions(
+                        CopyBuilderQueryHelper::copy($unmatchedTransactions)
+                    )->count(),
+                    $unmatchedTransactions
+                );
             }
 
             if (strlen($this->option('range')) > 0) {
@@ -389,11 +363,11 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
                 $this->line(__('cli.rule.assign.total_found', ['count' => $total]));
             }
 
-            $unmatchedTransactions = $unmatchedTransactions->select(array_keys($viewConfig))
+            $paginatedTransactions = $unmatchedTransactions->select(array_keys($viewConfig))
                 ->cursorPaginate(10, ['*'], 'page', $cursor);
 
             $col = new Collection();
-            foreach ($unmatchedTransactions->items() as $item) {
+            foreach ($paginatedTransactions->items() as $item) {
                 $col->push($item);
             }
 
@@ -404,7 +378,7 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
                 'cli.transaction.base.table.header.'
             );
 
-            $cursor = $unmatchedTransactions->nextCursor();
+            $cursor = $paginatedTransactions->nextCursor();
         } while (
             $cursor !== null
             && $this->confirmPrompt(
@@ -414,6 +388,84 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
                 __('cli.rule.assign.select_more_data_or_add_rule.options.add_rule')
             )
         );
+    }
+
+    /**
+     *
+     * @param BankAccount $bankAccount
+     * @param Collection $ignoreIbans
+     * @return Builder
+     */
+    private function buildBaseUnmatchedTransactionsQuery(BankAccount $bankAccount, Collection $ignoreIbans): Builder
+    {
+        $transactions = Transactions::where('bank_account_iban', $bankAccount->iban)->orderBy('id');
+
+        if ($ignoreIbans->isNotEmpty()) {
+            $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        }
+
+        return $transactions;
+    }
+
+    /**
+     *
+     * @param int $totalUnmatchedTransactions
+     * @param Builder $unmatchedTransactions
+     * @return void
+     */
+    private function displayUnmatchedTransactionsOverview(int $totalUnmatchedTransactions, Builder $unmatchedTransactions): void
+    {
+        if ($totalUnmatchedTransactions <= 0) {
+            return;
+        }
+
+        $this->emptyLn();
+        $this->alert(__(
+            'cli.rule.assign.count_unmatched_transactions',
+            ['count' => $totalUnmatchedTransactions]
+        ));
+
+        $topCounterpartyLimit = (int) config('report.display.rule_assign_top_counterparties_limit', 5);
+        if ($topCounterpartyLimit > 0) {
+            $topCounterparties = $this->unmatchedTransactionsService->getTopUnmatchedTransactionCounterparties(
+                $unmatchedTransactions,
+                $topCounterpartyLimit
+            );
+
+            if ($topCounterparties->isNotEmpty()) {
+                $this->line(__('cli.rule.assign.top_counterparties.title', ['count' => $topCounterpartyLimit]));
+                foreach ($topCounterparties as $counterparty) {
+                    $displayName = $this->formatCounterpartyDisplayName(
+                        $counterparty->beneficiary_payee ?? null,
+                        $counterparty->creditor_iban ?? null
+                    );
+                    $this->line(sprintf('  - %s: %d', $displayName, (int)$counterparty->transaction_count));
+                }
+            }
+        }
+
+        $this->halt();
+    }
+
+    /**
+     *
+     * @param string|null $beneficiaryPayee
+     * @param string|null $creditorIban
+     * @return string
+     */
+    private function formatCounterpartyDisplayName(?string $beneficiaryPayee, ?string $creditorIban): string
+    {
+        $displayName = preg_replace('/\s+/', ' ', trim((string) $beneficiaryPayee)) ?? '';
+
+        if ($displayName === '') {
+            $displayName = preg_replace('/\s+/', ' ', trim((string) $creditorIban)) ?? '';
+        }
+
+        if ($displayName === '') {
+            return __('cli.rule.assign.top_counterparties.empty_iban');
+        }
+
+        return $displayName;
     }
 
     /**

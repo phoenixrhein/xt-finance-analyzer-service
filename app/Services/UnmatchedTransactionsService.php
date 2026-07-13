@@ -62,7 +62,8 @@ class UnmatchedTransactionsService
 
         $query = $this->getUnmatchedTransactions(clone $transactions)->reorder();
 
-        return $query->selectRaw('transactions.beneficiary_payee as beneficiary_payee')
+        return $query->selectRaw('transactions.creditor_iban as creditor_iban')
+            ->selectRaw('transactions.beneficiary_payee as beneficiary_payee')
             ->selectRaw('COUNT(*) as transaction_count')
             ->groupBy('transactions.creditor_iban')
             ->orderByDesc('transaction_count')
