@@ -22,7 +22,7 @@ class UnmatchedTransactionsDisplayService extends AbstractIOService
     ) {
         parent::__construct();
     }
-    
+
     /**
      *
      * @param Builder $unmatchedTransactions
@@ -45,7 +45,6 @@ class UnmatchedTransactionsDisplayService extends AbstractIOService
             $topCounterpartyLimit
         );
 
-        
         if ($topCounterparties->isNotEmpty()) {
             $this->line(__('cli.rule.assign.top_counterparties.title', ['count' => $topCounterpartyLimit]));
             $this->displayTopCounterpartiesTable($topCounterparties);
