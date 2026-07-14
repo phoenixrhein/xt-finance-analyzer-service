@@ -1,4 +1,5 @@
 <?php
+
 namespace de\xovatec\financeAnalyzer\Services\Console\Rule;
 
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
@@ -222,8 +223,11 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
      * @param FinCommand $command
      * @return void
      */
-    private function viewUnmatchedTransactions(BankAccount $bankAccount, Collection $ignoreIbans, FinCommand $command): void
-    {
+    private function viewUnmatchedTransactions(
+        BankAccount $bankAccount,
+        Collection $ignoreIbans,
+        FinCommand $command
+    ): void {
         $viewConfig = TransactionList::$compactView;
         $total = null;
         $cursor = null;

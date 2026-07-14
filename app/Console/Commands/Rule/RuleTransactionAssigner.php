@@ -50,6 +50,4 @@ class RuleTransactionAssigner extends FinCommand
         $bankAccount = $this->getBankAccount((int)$this->argument('accountId'), true);
         $this->ruleAssignerWorkflow->assignRule($bankAccount, $this);
     }
-
-
 }
