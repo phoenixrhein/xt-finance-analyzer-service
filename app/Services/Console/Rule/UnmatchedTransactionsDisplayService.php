@@ -1,7 +1,8 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Services\Console;
+namespace de\xovatec\financeAnalyzer\Services\Console\Rule;
 
+use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
 use de\xovatec\financeAnalyzer\Traits\Command\View\Halt;
 use Illuminate\Support\Collection as SupportCollection;
 

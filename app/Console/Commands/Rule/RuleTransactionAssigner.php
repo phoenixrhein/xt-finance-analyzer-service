@@ -21,7 +21,7 @@ use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\UnmatchedTransactionsService;
-use de\xovatec\financeAnalyzer\Services\Console\UnmatchedTransactionsDisplayService;
+use de\xovatec\financeAnalyzer\Services\Console\Rule\UnmatchedTransactionsDisplayService;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
 use de\xovatec\financeAnalyzer\Helpers\FilterTransactionDurationHelper;
 use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
