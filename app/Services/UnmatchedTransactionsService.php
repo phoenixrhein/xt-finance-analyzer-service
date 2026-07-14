@@ -60,11 +60,10 @@ class UnmatchedTransactionsService
             throw new UnexpectedValueException('Unmatched transactions cannot be processed for Transactions model.');
         }
 
-        $query = $this->getUnmatchedTransactions(clone $transactions)->reorder();
-
-        return $query->selectRaw('transactions.creditor_iban as creditor_iban')
+        return $transactions->selectRaw('transactions.creditor_iban as creditor_iban')
             ->selectRaw('transactions.beneficiary_payee as beneficiary_payee')
             ->selectRaw('COUNT(*) as transaction_count')
+            ->reorder()
             ->groupBy('transactions.creditor_iban')
             ->orderByDesc('transaction_count')
             ->orderBy('transactions.creditor_iban')

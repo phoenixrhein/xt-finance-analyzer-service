@@ -347,11 +347,10 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
             $unmatchedTransactions = $this->buildBaseUnmatchedTransactionsQuery($bankAccount, $ignoreIbans);
 
             if ($total === null) {
-                $this->displayUnmatchedTransactionsOverview(
+                $this->unmatchedTransactionsDisplayService->displayUnmatchedTransactionsOverview(
                     $this->unmatchedTransactionsService->getUnmatchedTransactions(
                         CopyBuilderQueryHelper::copy($unmatchedTransactions)
-                    )->count(),
-                    $unmatchedTransactions
+                    ),
                 );
             }
 
@@ -415,34 +414,6 @@ class RuleTransactionAssigner extends FinCommand implements ProvidesAccountListQ
         }
 
         return $transactions;
-    }
-
-    /**
-     *
-     * @param int $totalUnmatchedTransactions
-     * @param Builder $unmatchedTransactions
-     * @return void
-     */
-    private function displayUnmatchedTransactionsOverview(int $totalUnmatchedTransactions, Builder $unmatchedTransactions): void
-    {
-        if ($totalUnmatchedTransactions <= 0) {
-            return;
-        }
-
-        $topCounterpartyLimit = (int) config('report.display.rule_assign_top_counterparties_limit', 5);
-        $topCounterparties = collect();
-
-        if ($topCounterpartyLimit > 0) {
-            $topCounterparties = $this->unmatchedTransactionsService->getTopUnmatchedTransactionCounterparties(
-                $unmatchedTransactions,
-                $topCounterpartyLimit
-            );
-        }
-
-        $this->unmatchedTransactionsDisplayService->displayUnmatchedTransactionsOverview(
-            $totalUnmatchedTransactions,
-            $topCounterparties
-        );
     }
 
     /**

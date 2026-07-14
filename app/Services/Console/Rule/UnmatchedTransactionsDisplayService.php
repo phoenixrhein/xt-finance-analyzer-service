@@ -3,32 +3,50 @@
 namespace de\xovatec\financeAnalyzer\Services\Console\Rule;
 
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
+use de\xovatec\financeAnalyzer\Services\UnmatchedTransactionsService;
 use de\xovatec\financeAnalyzer\Traits\Command\View\Halt;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection as SupportCollection;
 
 class UnmatchedTransactionsDisplayService extends AbstractIOService
 {
     use Halt;
+
+    /**
+     * constructor
+     *
+     * @param UnmatchedTransactionsService $unmatchedTransactionsService
+     */
+    public function __construct(
+        private readonly UnmatchedTransactionsService $unmatchedTransactionsService
+    ) {
+        parent::__construct();
+    }
     
     /**
      *
-     * @param int $totalUnmatchedTransactions
-     * @param SupportCollection $topCounterparties
+     * @param Builder $unmatchedTransactions
      * @return void
      */
     public function displayUnmatchedTransactionsOverview(
-        int $totalUnmatchedTransactions,
-        SupportCollection $topCounterparties
+        Builder $unmatchedTransactions
     ): void {
-        if ($totalUnmatchedTransactions <= 0) {
+        if ($unmatchedTransactions->count() <= 0) {
             return;
         }
 
         $this->emptyLn();
-        $this->alert(__('cli.rule.assign.count_unmatched_transactions', ['count' => $totalUnmatchedTransactions]));
+        $this->alert(__('cli.rule.assign.count_unmatched_transactions', ['count' => $unmatchedTransactions->count()]));
 
         $topCounterpartyLimit = (int) config('report.display.rule_assign_top_counterparties_limit', 5);
-        if ($topCounterpartyLimit > 0 && $topCounterparties->isNotEmpty()) {
+
+        $topCounterparties = $this->unmatchedTransactionsService->getTopUnmatchedTransactionCounterparties(
+            $unmatchedTransactions,
+            $topCounterpartyLimit
+        );
+
+        
+        if ($topCounterparties->isNotEmpty()) {
             $this->line(__('cli.rule.assign.top_counterparties.title', ['count' => $topCounterpartyLimit]));
             $this->displayTopCounterpartiesTable($topCounterparties);
         }
