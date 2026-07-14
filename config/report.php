@@ -38,6 +38,11 @@ return [
          * Decimal separator for currency formatting (e.g., ',' for 1.000,00)
          */
         'currency_decimal_separator' => env('REPORT_CURRENCY_DECIMAL_SEPARATOR', ','),
+
+        /**
+         * Maximum number of top counterparties to show in the rule assignment overview.
+         */
+        'rule_assign_top_counterparties_limit' => (int) env('RULE_ASSIGN_TOP_COUNTERPARTIES_LIMIT', 5),
     ],
 
 ];

@@ -457,6 +457,10 @@ return [
                 ]
             ],
             'count_unmatched_transactions' => 'Anzahl der nicht kategorisierten Transaktionen: :count',
+            'top_counterparties' => [
+                'title' => 'Top :count Zahlungsteilnehmer:',
+                'empty_iban' => 'ohne IBAN',
+            ],
             'total_found' => 'Gesamtanzahl: :count',
             'found_already_matched' => 'Es werden :count bereits kategorisierte Transaktionen gefunden. Diese sind mit gelber Schrift markiert',
             'cat_mgmt_continue_button_text' => 'Kategorie auswählen',
