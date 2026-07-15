@@ -151,8 +151,10 @@ class RefreshTransactionRuleIndexService
      */
     private function isCashflowInRule(array $rule): bool
     {
+        /** @var Category $category */
         $category = Category::find($rule['actions']['category_id']);
-        return $category->in_category_id === $rule['actions']['category_id'];
+        $cashflow = $category->getCashflow();
+        return $cashflow->in_category_id === $rule['actions']['category_id'];
     }
 
     /**
