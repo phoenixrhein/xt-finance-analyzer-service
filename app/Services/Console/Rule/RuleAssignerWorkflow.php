@@ -243,10 +243,10 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
                 );
             }
 
-            if (strlen($this->option('range')) > 0) {
+            if (strlen($command->option('range')) > 0) {
                 $unmatchedTransactions = FilterTransactionDurationHelper::applyFilter(
                     $unmatchedTransactions,
-                    $this->option('range'),
+                    $command->option('range'),
                     $command
                 );
             }

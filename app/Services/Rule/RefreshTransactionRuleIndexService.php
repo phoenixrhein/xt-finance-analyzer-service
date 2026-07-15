@@ -106,6 +106,8 @@ class RefreshTransactionRuleIndexService
             $this->applyIgnoreIbans($query, $ignoreIbans);
         }
 
+        $this->applyCashflowFilter($query, $rule);
+
         $this->sqlQueryBuilder->build(
             $query,
             $this->transformer->transformToConditionList($rule['condition_link'])
@@ -125,6 +127,34 @@ class RefreshTransactionRuleIndexService
         }
 
         return $transactionIds;
+    }
+
+    /**
+     *
+     * @param Builder $query
+     * @param array $rule
+     * @return void
+     */
+    private function applyCashflowFilter(Builder $query, array $rule): void
+    {
+        if ($this->isCashflowInRule($rule)) {
+            $query->where('amount', '>=', 0);
+        } else {
+            $query->where('amount', '<', 0);
+        }
+    }
+
+    /**
+     *
+     * @param array $rule
+     * @return boolean
+     */
+    private function isCashflowInRule(array $rule): bool
+    {
+        /** @var Category $category */
+        $category = Category::find($rule['actions']['category_id']);
+        $cashflow = $category->getCashflow();
+        return $cashflow->in_category_id === $rule['actions']['category_id'];
     }
 
     /**
