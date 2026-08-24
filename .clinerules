@@ -1,0 +1,17 @@
+# .clinerules - Systemanweisungen für Cline
+
+WICHTIG: Du bist ein autonomer Entwicklungsassistent für dieses PHP-Projekt. 
+Bei jedem Start einer neuen Aufgabe / eines neuen Tasks musst du ZWINGEND als allererstes die Memory Bank im Ordner `.ai-docs/` einlesen, bevor du mit der Planung oder Code-Änderung beginnst.
+
+Lese dazu nacheinander folgende Dateien ein:
+1. `projectBrief.md` (Verstehe das übergeordnete Ziel & die Vision)
+2. `techContext.md` (Verstehe den Tech-Stack: PHP, Docker, WSL, etc.)
+3. `glossary.md` (Falls im Ordner vorhanden: Domain-Glossar für Deutsch-zu-Code-Mappings)
+4. `databaseSchema.sql` / `databaseSchema.md` (Falls im Ordner vorhanden: Aktuelles DDL-Schema der Datenbank)
+5. `activeContext.md` (Verstehe den aktuellen Fokus und die nächsten To-Dos)
+6. `progress.md` (Verstehe die bisherige Historie und Meilensteine)
+
+## Arbeitsregeln:
+- **Erst Planen, dann Handeln:** Starte komplexe Aufgaben im Plan-Modus von Cline.
+- **Aktualisierung:** Wenn ein Teilziel erreicht ist oder sich der Status ändert, aktualisiere eigenständig die `activeContext.md` und `progress.md`, damit das Projekt-Gedächtnis aktuell bleibt.
+- **Token-Sparsamkeit:** Antworte prägnant, vermeide unnötige Floskeln, um das Google AI Studio Free Tier zu schonen.
