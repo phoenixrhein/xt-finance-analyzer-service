@@ -1,0 +1,1 @@
+Bei Fragen zu diesem Projekt sind immer zuerst die Dokumente im Ordner .ai-docs/ als Kontext heranzuziehen.
