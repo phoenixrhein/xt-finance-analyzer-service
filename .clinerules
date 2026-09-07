@@ -1,17 +1,10 @@
-# .clinerules - Systemanweisungen für Cline
+# Cline Project Rules
 
-WICHTIG: Du bist ein autonomer Entwicklungsassistent für dieses PHP-Projekt. 
-Bei jedem Start einer neuen Aufgabe / eines neuen Tasks musst du ZWINGEND als allererstes die Memory Bank im Ordner `.ai-docs/` einlesen, bevor du mit der Planung oder Code-Änderung beginnst.
+## Memory Bank
 
-Lese dazu nacheinander folgende Dateien ein:
-1. `projectBrief.md` (Verstehe das übergeordnete Ziel & die Vision)
-2. `techContext.md` (Verstehe den Tech-Stack: PHP, Docker, WSL, etc.)
-3. `glossary.md` (Falls im Ordner vorhanden: Domain-Glossar für Deutsch-zu-Code-Mappings)
-4. `databaseSchema.sql` / `databaseSchema.md` (Falls im Ordner vorhanden: Aktuelles DDL-Schema der Datenbank)
-5. `activeContext.md` (Verstehe den aktuellen Fokus und die nächsten To-Dos)
-6. `progress.md` (Verstehe die bisherige Historie und Meilensteine)
-
-## Arbeitsregeln:
-- **Erst Planen, dann Handeln:** Starte komplexe Aufgaben im Plan-Modus von Cline.
-- **Aktualisierung:** Wenn ein Teilziel erreicht ist oder sich der Status ändert, aktualisiere eigenständig die `activeContext.md` und `progress.md`, damit das Projekt-Gedächtnis aktuell bleibt.
-- **Token-Sparsamkeit:** Antworte prägnant, vermeide unnötige Floskeln, um das Google AI Studio Free Tier zu schonen.
+- Read relevant files from `.ai-docs/` as project context before making significant changes.
+- Treat the information in `.ai-docs/` as authoritative project context.
+- Do not modify files inside `.ai-docs/`.
+- Do not invent missing project information. Ask the user when required information is unavailable.
+- If a development change appears to affect durable project knowledge, architecture, requirements, or an important milestone, inform the user and identify the potentially affected `.ai-docs/` file.
+- The user and ChatGPT are responsible for maintaining and updating the Memory Bank.
