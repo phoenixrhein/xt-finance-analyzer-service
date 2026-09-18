@@ -12,7 +12,7 @@ class CashTransactionDelete extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:cash-delete {cashTransactionId : '.
+    protected $signature = 'fin:cash-delete {cashTransactionId : ' .
         '[:cli.cash_transaction.base.param.cash_transaction_id:]}';
 
     /**
