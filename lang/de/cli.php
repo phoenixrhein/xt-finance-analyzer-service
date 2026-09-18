@@ -188,17 +188,17 @@ return [
             'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
         ],
     ],
-    'cash_deposit' => [
+    'cash_transaction' => [
         'base' => [
             'param' => [
-                'cash_deposit_id' => 'ID des Bargeldeinzahlungseintrag'
+                'cash_transaction_id' => 'ID des Bargeldeinzahlungseintrag'
             ]
         ],
         'upsert' => [
             'description' => 'Bargeldeinzahlung hinzufügen/bearbeiten',
             'amount' => 'Bitte geben Sie den Bareinzahlungsbetrag ein',
             'currency' => 'Bitte geben Sie die Währung ein',
-            'deposit_date' => 'Bitte geben Sie die Einzahlungsdatum ein [dd.mm.jjjj]',
+            'cash_booking_date' => 'Bitte geben Sie die Einzahlungsdatum ein [dd.mm.jjjj]',
             'note' => 'Bitte geben Sie einen Kommentar ein',
         ],
         'delete' => [
@@ -210,7 +210,7 @@ return [
             'table_header' => [
                 'id' => 'ID',
                 'iban' => 'IBAN',
-                'cash_deposit_date' => 'Annahmedatum',
+                'cash_cash_booking_date' => 'Annahmedatum',
                 'amount' => 'Betrag',
                 'currency' => 'Währung',
                 'note' => 'Kommentar'
