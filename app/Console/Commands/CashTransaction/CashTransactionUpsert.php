@@ -26,7 +26,8 @@ class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQue
      *
      * @var string
      */
-    protected $signature = 'fin:cash-upsert {cashTransactionId? : [:cli.cash_transaction.base.param.cash_transaction_id:]}';
+    protected $signature = 'fin:cash-upsert {cashTransactionId? : ' .
+        '[:cli.cash_transaction.base.param.cash_transaction_id:]}';
 
     /**
      * The console command description.
@@ -64,6 +65,7 @@ class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQue
     public function process(): void
     {
         $valid = true;
+        $cashTransactionEntry = null;
         do {
             $cashTransactionId = (int)$this->argument('cashTransactionId');
             $isAdd = $cashTransactionId <= 0;
@@ -71,7 +73,9 @@ class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQue
                 if ($isAdd) {
                     $cashTransactionEntry = new CashTransaction();
                     warning(__('cli.base.upsert_hint_add'));
-                    $cashTransactionEntry->bank_account_id = $this->viewAccountId($cashTransactionEntry->bank_account_id);
+                    $cashTransactionEntry->bank_account_id = $this->viewAccountId(
+                        $cashTransactionEntry->bank_account_id
+                    );
                     $cashTransactionEntry->cash_booking_date = Carbon::now();
                 } else {
                     $cashTransactionEntry = CashTransaction::find($cashTransactionId);
@@ -121,7 +125,10 @@ class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQue
         if (!$isAdd) {
             $labelKey = 'cli.base.edited';
         }
-        $cashTransactionEntry->cash_booking_date = Carbon::createFromFormat('d.m.Y', $cashTransactionEntry->cash_booking_date);
+        $cashTransactionEntry->cash_booking_date = Carbon::createFromFormat(
+            'd.m.Y',
+            $cashTransactionEntry->cash_booking_date
+        );
         $cashTransactionEntry->save();
         $this->info(__($labelKey, ['id' => $cashTransactionEntry->id]));
     }

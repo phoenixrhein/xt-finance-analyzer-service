@@ -12,7 +12,8 @@ class CashTransactionDelete extends FinCommand
      *
      * @var string
      */
-    protected $signature = 'fin:cash-delete {cashTransactionId : [:cli.cash_transaction.base.param.cash_transaction_id:]}';
+    protected $signature = 'fin:cash-delete {cashTransactionId : '.
+        '[:cli.cash_transaction.base.param.cash_transaction_id:]}';
 
     /**
      * The console command description.
@@ -36,7 +37,10 @@ class CashTransactionDelete extends FinCommand
 
         if (
             $this->confirmPrompt(
-                __('cli.cash_transaction.delete.confirm', ['id' => $cashTransactionId, 'comment' => $cashTransactionEntry->note])
+                __(
+                    'cli.cash_transaction.delete.confirm',
+                    ['id' => $cashTransactionId, 'comment' => $cashTransactionEntry->note]
+                )
             ) === false
         ) {
             return;
