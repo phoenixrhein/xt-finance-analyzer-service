@@ -44,7 +44,7 @@
 | nicht zuweisbar | `UNCATEGORISABLE` |
 | Umbuchung | `Transaction Adjustment` |
 | Split-Buchung | `Transaction Split` |
-| Bareinzahlung | `Cash Deposit` |
+| Bareinzahlung | `Cash Transaction` |
 
 ### Transaction
 

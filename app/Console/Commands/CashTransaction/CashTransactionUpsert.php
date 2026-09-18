@@ -1,13 +1,13 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Console\Commands\CashDeposit;
+namespace de\xovatec\financeAnalyzer\Console\Commands\CashTransaction;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use de\xovatec\financeAnalyzer\Enums\CurrencyCode;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
-use de\xovatec\financeAnalyzer\Models\CashDeposit;
+use de\xovatec\financeAnalyzer\Models\CashTransaction;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SelectAccountId;
@@ -16,7 +16,7 @@ use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQuer
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\warning;
 
-class CashDepositUpsert extends FinCommand implements ProvidesAccountListQueryInterface
+class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQueryInterface
 {
     use SelectAccountId;
     use SimpleInput;
@@ -26,14 +26,14 @@ class CashDepositUpsert extends FinCommand implements ProvidesAccountListQueryIn
      *
      * @var string
      */
-    protected $signature = 'fin:cash-upsert {cashDepositId? : [:cli.cash_deposit.base.param.cash_deposit_id:]}';
+    protected $signature = 'fin:cash-upsert {cashTransactionId? : [:cli.cash_transaction.base.param.cash_transaction_id:]}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'cli.cash_deposit.upsert.description';
+    protected $description = 'cli.cash_transaction.upsert.description';
 
     /**
      *
@@ -65,51 +65,51 @@ class CashDepositUpsert extends FinCommand implements ProvidesAccountListQueryIn
     {
         $valid = true;
         do {
-            $cashDepositId = (int)$this->argument('cashDepositId');
-            $isAdd = $cashDepositId <= 0;
+            $cashTransactionId = (int)$this->argument('cashTransactionId');
+            $isAdd = $cashTransactionId <= 0;
             if ($valid !== false) {
                 if ($isAdd) {
-                    $cashDepositEntry = new CashDeposit();
+                    $cashTransactionEntry = new CashTransaction();
                     warning(__('cli.base.upsert_hint_add'));
-                    $cashDepositEntry->bank_account_id = $this->viewAccountId($cashDepositEntry->bank_account_id);
-                    $cashDepositEntry->deposit_date = Carbon::now();
+                    $cashTransactionEntry->bank_account_id = $this->viewAccountId($cashTransactionEntry->bank_account_id);
+                    $cashTransactionEntry->cash_booking_date = Carbon::now();
                 } else {
-                    $cashDepositEntry = CashDeposit::find($cashDepositId);
-                    $cashDepositEntry->deposit_date = Carbon::createFromFormat(
+                    $cashTransactionEntry = CashTransaction::find($cashTransactionId);
+                    $cashTransactionEntry->cash_booking_date = Carbon::createFromFormat(
                         'Y-m-d',
-                        $cashDepositEntry->deposit_date
+                        $cashTransactionEntry->cash_booking_date
                     );
-                    if (!$cashDepositEntry instanceof CashDeposit) {
+                    if (!$cashTransactionEntry instanceof CashTransaction) {
                         $this->emptyLn();
-                        $this->error(__('cli.base.error.not_found', ['id' => $cashDepositId]));
+                        $this->error(__('cli.base.error.not_found', ['id' => $cashTransactionId]));
                         return;
                     }
                 }
             }
             $valid = true;
 
-            $bankAccount = BankAccount::find($cashDepositEntry->bank_account_id);
+            $bankAccount = BankAccount::find($cashTransactionEntry->bank_account_id);
             info(__('cli.base.iban') . ': ' . $bankAccount->iban);
-            $cashDepositEntry->amount = $this->viewInput(
-                __('cli.cash_deposit.upsert.amount'),
+            $cashTransactionEntry->amount = $this->viewInput(
+                __('cli.cash_transaction.upsert.amount'),
                 'required|numeric|regex:/^\d+(\.\d{2})?$/',
-                $cashDepositEntry->amount,
+                $cashTransactionEntry->amount,
                 self::VALUE_TYPE_DECIMAL
             );
-            $cashDepositEntry->currency = $this->viewInput(
-                __('cli.cash_deposit.upsert.currency'),
+            $cashTransactionEntry->currency = $this->viewInput(
+                __('cli.cash_transaction.upsert.currency'),
                 ['required', Rule::enum(CurrencyCode::class)],
-                $cashDepositEntry->currency ?? CurrencyCode::EUR->value
+                $cashTransactionEntry->currency ?? CurrencyCode::EUR->value
             );
-            $cashDepositEntry->deposit_date  = $this->viewInput(
-                __('cli.cash_deposit.upsert.deposit_date'),
+            $cashTransactionEntry->cash_booking_date  = $this->viewInput(
+                __('cli.cash_transaction.upsert.cash_booking_date'),
                 ['required', 'date_format:d.m.Y'],
-                Carbon::parse($cashDepositEntry->deposit_date)->format('d.m.Y')
+                Carbon::parse($cashTransactionEntry->cash_booking_date)->format('d.m.Y')
             );
-            $cashDepositEntry->note  = $this->viewInput(
-                __('cli.cash_deposit.upsert.note'),
+            $cashTransactionEntry->note  = $this->viewInput(
+                __('cli.cash_transaction.upsert.note'),
                 ['required'],
-                $cashDepositEntry->note
+                $cashTransactionEntry->note
             );
 
             if (!$this->confirmPrompt(__('cli.base.confirm_save'))) {
@@ -121,8 +121,8 @@ class CashDepositUpsert extends FinCommand implements ProvidesAccountListQueryIn
         if (!$isAdd) {
             $labelKey = 'cli.base.edited';
         }
-        $cashDepositEntry->deposit_date = Carbon::createFromFormat('d.m.Y', $cashDepositEntry->deposit_date);
-        $cashDepositEntry->save();
-        $this->info(__($labelKey, ['id' => $cashDepositEntry->id]));
+        $cashTransactionEntry->cash_booking_date = Carbon::createFromFormat('d.m.Y', $cashTransactionEntry->cash_booking_date);
+        $cashTransactionEntry->save();
+        $this->info(__($labelKey, ['id' => $cashTransactionEntry->id]));
     }
 }

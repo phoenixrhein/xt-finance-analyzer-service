@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property string $note
  * @property int $bank_account_id
- * @property string $deposit_date
+ * @property string $cash_booking_date
  * @property float $amount
  * @property string $currency
  */
-class CashDeposit extends Model
+class CashTransaction extends Model
 {
     use SoftDeletes;
 
@@ -21,7 +21,7 @@ class CashDeposit extends Model
      *
      * @var string
      */
-    protected $table = 'cash_deposit';
+    protected $table = 'cash_transaction';
 
     /**
      *

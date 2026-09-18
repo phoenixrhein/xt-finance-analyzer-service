@@ -86,9 +86,9 @@ class BankAccount extends Model
      *
      * @return HasMany
      */
-    public function cashDeposit(): HasMany
+    public function cashTransaction(): HasMany
     {
-        return $this->hasMany(CashDeposit::class);
+        return $this->hasMany(CashTransaction::class);
     }
 
     /**
@@ -117,9 +117,9 @@ class BankAccount extends Model
                     $ignoreList->delete();
                 }
             }
-            if ($bankAccount->cashDeposit) {
-                foreach ($bankAccount->cashDeposit as $cashDeposit) {
-                    $cashDeposit->delete();
+            if ($bankAccount->cashTransaction) {
+                foreach ($bankAccount->cashTransaction as $cashTransaction) {
+                    $cashTransaction->delete();
                 }
             }
             if ($bankAccount->transactions) {
