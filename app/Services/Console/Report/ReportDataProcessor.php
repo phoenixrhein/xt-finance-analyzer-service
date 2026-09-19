@@ -22,10 +22,10 @@ class ReportDataProcessor
      *
      * @param BankAccount $bankAccount The bank account to process
      * @param array<array{from: string, to: string}> $periods Array of period ranges with 'from' and 'to' date strings
-     * @param bool $considerIgnoreIbans Whether to exclude ignored IBANs
+     * @param bool $considerExclusionIbans Whether to exclude excluded IBANs
      * @return Collection<PeriodReportData>
      */
-    public function process(BankAccount $bankAccount, array $periods, bool $considerIgnoreIbans): Collection
+    public function process(BankAccount $bankAccount, array $periods, bool $considerExclusionIbans): Collection
     {
         $cashflow = $bankAccount->cashflow;
 
@@ -40,7 +40,7 @@ class ReportDataProcessor
                 Carbon::createFromFormat('Y-m-d', $period['to']),
                 $cashflow->in_category_id,
                 $cashflow->out_category_id,
-                $considerIgnoreIbans
+                $considerExclusionIbans
             ));
     }
 
@@ -53,25 +53,25 @@ class ReportDataProcessor
         Carbon $end,
         int $incomeCategoryId,
         int $outcomeCategoryId,
-        bool $considerIgnoreIbans
+        bool $considerExclusionIbans
     ): PeriodReportData {
-        $transactions = $this->loadTransactions($bankAccount, $start, $end, $considerIgnoreIbans);
+        $transactions = $this->loadTransactions($bankAccount, $start, $end, $considerExclusionIbans);
 
-        // Load ignored IBAN transactions if needed for reporting
-        $ignoredIbanTransactions = collect();
-        $ignoredIbans = [];
-        if ($considerIgnoreIbans) {
-            $ignoredIbans = $bankAccount
-                ->ignoreList()
+        // Load excluded IBAN transactions if needed for reporting
+        $excludedIbanTransactions = collect();
+        $excludedIbans = [];
+        if ($considerExclusionIbans) {
+            $excludedIbans = $bankAccount
+                ->exclusionList()
                 ->where('type', 'iban')
                 ->pluck('value')
                 ->toArray();
 
-            if (!empty($ignoredIbans)) {
-                $ignoredIbanTransactions = $bankAccount
+            if (!empty($excludedIbans)) {
+                $excludedIbanTransactions = $bankAccount
                     ->transactions()
                     ->whereBetween('transaction_date', [$start, $end])
-                    ->whereIn('creditor_iban', $ignoredIbans)
+                    ->whereIn('creditor_iban', $excludedIbans)
                     ->get();
             }
         }
@@ -96,9 +96,9 @@ class ReportDataProcessor
         $totalIncome = $incomingTransactions->sum('amount');
         $totalOutgoing = abs($outgoingTransactions->sum('amount'));
 
-        // Calculate ignored IBAN transfers
-        $toIgnoredIban = $ignoredIbanTransactions->filter(fn (Transactions $t) => $t->amount < 0)->sum('amount');
-        $fromIgnoredIban = $ignoredIbanTransactions->filter(fn (Transactions $t) => $t->amount > 0)->sum('amount');
+        // Calculate excluded IBAN transfers
+        $toExcludedIban = $excludedIbanTransactions->filter(fn (Transactions $t) => $t->amount < 0)->sum('amount');
+        $fromExcludedIban = $excludedIbanTransactions->filter(fn (Transactions $t) => $t->amount > 0)->sum('amount');
 
         return new PeriodReportData(
             $start,
@@ -108,8 +108,8 @@ class ReportDataProcessor
             $totalIncome,
             $totalOutgoing,
             $totalIncome - $totalOutgoing,
-            $toIgnoredIban,
-            $fromIgnoredIban
+            $toExcludedIban,
+            $fromExcludedIban
         );
     }
 
@@ -120,22 +120,22 @@ class ReportDataProcessor
         BankAccount $bankAccount,
         Carbon $start,
         Carbon $end,
-        bool $considerIgnoreIbans
+        bool $considerExclusionIbans
     ): Collection {
         $query = $bankAccount
             ->transactions()
             ->whereBetween('transaction_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
             ->select('transactions.*');
 
-        if ($considerIgnoreIbans) {
-            $ignoredIbans = $bankAccount
-                ->ignoreList()
+        if ($considerExclusionIbans) {
+            $excludedIbans = $bankAccount
+                ->exclusionList()
                 ->where('type', 'iban')
                 ->pluck('value')
                 ->toArray();
 
-            if (!empty($ignoredIbans)) {
-                $query->whereNotIn('creditor_iban', $ignoredIbans);
+            if (!empty($excludedIbans)) {
+                $query->whereNotIn('creditor_iban', $excludedIbans);
             }
         }
 

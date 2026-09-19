@@ -32,7 +32,7 @@ trait SelectAccountId
         do {
             $this->displayBankAccounts();
             $accountId = text(
-                label: __('cli.ignore_list.upsert.edit_bank_account_id'),
+                label: __('cli.exclusion_list.upsert.edit_bank_account_id'),
                 default: $accountId ?? ''
             );
 

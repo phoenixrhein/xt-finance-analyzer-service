@@ -32,7 +32,7 @@ class RuleTransactionAssignmentsValidator extends FinCommand
      * @var string
      */
     protected $signature = 'fin:rule-validate {accountId : [:cli.base.param.account_id:]} " .
-        "{--considerIgnoreIbans : [:cli.base.param.consider_ignore_ibans:]}';
+        "{--considerExclusionIbans : [:cli.base.param.consider_exclusion_ibans:]}';
 
     /**
      * The console command description.
@@ -46,14 +46,14 @@ class RuleTransactionAssignmentsValidator extends FinCommand
      */
     public function process(): void
     {
-        $considerIgnoreIbans = $this->option('considerIgnoreIbans');
-        if (!$considerIgnoreIbans) {
+        $considerExclusionIbans = $this->option('considerExclusionIbans');
+        if (!$considerExclusionIbans) {
             $this->emptyLn();
-            $this->warn(__('cli.rule.validator.not_considering_ignore_ibans'));
+            $this->warn(__('cli.rule.validator.not_considering_exclusion_ibans'));
         }
 
         $this->emptyLn();
         $bankAccount = $this->getBankAccount((int)$this->argument('accountId'), true);
-        $this->validator->validateAll($bankAccount, $considerIgnoreIbans);
+        $this->validator->validateAll($bankAccount, $considerExclusionIbans);
     }
 }

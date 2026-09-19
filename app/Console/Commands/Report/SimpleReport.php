@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 use de\xovatec\financeAnalyzer\Enums\TimespanType;
 use de\xovatec\financeAnalyzer\Helpers\DateRangeHelper;
 use de\xovatec\financeAnalyzer\Helpers\TimespanRangeHelper;
-use de\xovatec\financeAnalyzer\Models\IgnoreList;
+use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -84,7 +84,7 @@ class SimpleReport extends Command
             throw new RuntimeException('No current data available');
         }
 
-        $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
+        $exclusionIbans = ExclusionList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
 
         $rows = [];
         $totalDebit = 0;
@@ -98,7 +98,7 @@ class SimpleReport extends Command
                     Carbon::parse($range[DateRangeHelper::TO])->format('Y-m-d')
                 ]
             )->where('bank_account_iban', $bankAccount->iban);
-            $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+            $transactions = $transactions->whereNotIn('creditor_iban', $exclusionIbans->toArray());
             // Wenn es in den letzten 5 Tagen des Monats keine Buchungen gab, dann ist dieser noch nicht abgeschlossen
             // Denn wenn ich den Import&Report in einem laufenden Monat ausfuehre, dann wird dieser unfertige Monat
             // schon mit kalkuliert

@@ -19,8 +19,8 @@ class PeriodReportData
      * @param float $totalIncome Sum of all income transactions
      * @param float $totalOutgoing Sum of all expense transactions
      * @param float $balance Difference between income and expenses
-     * @param float $toIgnoredIban Sum of transactions TO ignored IBANs (negative values, shown as outgoing)
-     * @param float $fromIgnoredIban Sum of transactions FROM ignored IBANs (positive values, shown as incoming)
+     * @param float $toExcludedIban Sum of transactions TO excluded IBANs (negative values, shown as outgoing)
+     * @param float $fromExcludedIban Sum of transactions FROM excluded IBANs (positive values, shown as incoming)
      */
     public function __construct(
         public readonly Carbon $periodStart,
@@ -30,8 +30,8 @@ class PeriodReportData
         public readonly float $totalIncome,
         public readonly float $totalOutgoing,
         public readonly float $balance,
-        public readonly float $toIgnoredIban = 0.0,
-        public readonly float $fromIgnoredIban = 0.0,
+        public readonly float $toExcludedIban = 0.0,
+        public readonly float $fromExcludedIban = 0.0,
     ) {
     }
 

@@ -4,7 +4,7 @@ namespace de\xovatec\financeAnalyzer\Services\Rule;
 
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Category;
-use de\xovatec\financeAnalyzer\Models\IgnoreList;
+use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Services\Console\Output\ConsoleOutputInterface;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
@@ -38,13 +38,13 @@ class RefreshTransactionRuleIndexService
     /**
      *
      * @param BankAccount $bankAccount
-     * @param boolean $considerIgnoreIbans
+     * @param boolean $considerExclusionIbans
      * @return void
      */
-    public function refreshAll(BankAccount $bankAccount, bool $considerIgnoreIbans = true): void
+    public function refreshAll(BankAccount $bankAccount, bool $considerExclusionIbans = true): void
     {
         $this->io->info(__('cli.rule.refresh_index.starts'));
-        $ignoreIbans = new Collection();
+        $exclusionIbans = new Collection();
         DB::table('rule_transaction')
             ->where('bank_account_id', $bankAccount->id)
             ->delete();
@@ -53,11 +53,11 @@ class RefreshTransactionRuleIndexService
             DB::table('rule_transaction')->truncate();
         }
 
-        if ($considerIgnoreIbans) {
-            $ignoreIbans = IgnoreList::where('bank_account_id', $bankAccount->id)->select('value')->get();
+        if ($considerExclusionIbans) {
+            $exclusionIbans = ExclusionList::where('bank_account_id', $bankAccount->id)->select('value')->get();
         }
 
-        DB::transaction(function () use ($bankAccount, $ignoreIbans) {
+        DB::transaction(function () use ($bankAccount, $exclusionIbans) {
             $this->io->emptyLn();
             $rules = $this->ruleListService->getRulesWithExpression($bankAccount->id);
             $total = count($rules);
@@ -65,7 +65,7 @@ class RefreshTransactionRuleIndexService
             $zero = 0;
 
             foreach ($rules as $rule) {
-                $transactionIds = $this->addRuleTranscations($rule, $bankAccount, $ignoreIbans);
+                $transactionIds = $this->addRuleTranscations($rule, $bankAccount, $exclusionIbans);
 
                 $countStyle = $transactionIds->count() > 0 ? 'info' : 'error';
                 $transactionIds->count() === 0 ? $zero++ : $updated++;
@@ -91,19 +91,19 @@ class RefreshTransactionRuleIndexService
      *
      * @param array $rule
      * @param BankAccount $bankAccount
-     * @param Collection $ignoreIbans
+     * @param Collection $exclusionIbans
      * @return SupportCollection
      */
     private function addRuleTranscations(
         array $rule,
         BankAccount $bankAccount,
-        Collection $ignoreIbans,
+        Collection $exclusionIbans,
     ): SupportCollection {
         $query = Transactions::select('id');
         $query->where('bank_account_iban', $bankAccount->iban);
 
-        if ($ignoreIbans->isNotEmpty()) {
-            $this->applyIgnoreIbans($query, $ignoreIbans);
+        if ($exclusionIbans->isNotEmpty()) {
+            $this->applyExclusionIbans($query, $exclusionIbans);
         }
 
         $this->applyCashflowFilter($query, $rule);
@@ -160,13 +160,13 @@ class RefreshTransactionRuleIndexService
     /**
      *
      * @param Builder $query
-     * @param Collection $ignoreIbans
+     * @param Collection $exclusionIbans
      * @return void
      */
-    private function applyIgnoreIbans(Builder $query, Collection $ignoreIbans): void
+    private function applyExclusionIbans(Builder $query, Collection $exclusionIbans): void
     {
-        if ($ignoreIbans->isNotEmpty()) {
-            $query->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        if ($exclusionIbans->isNotEmpty()) {
+            $query->whereNotIn('creditor_iban', $exclusionIbans->toArray());
         }
     }
 
@@ -188,15 +188,15 @@ class RefreshTransactionRuleIndexService
      *
      * @param integer $ruleId
      * @param BankAccount $bankAccount
-     * @param boolean $considerIgnoreIbans
+     * @param boolean $considerExclusionIbans
      * @return void
      */
-    public function addRule(int $ruleId, BankAccount $bankAccount, bool $considerIgnoreIbans = true): void
+    public function addRule(int $ruleId, BankAccount $bankAccount, bool $considerExclusionIbans = true): void
     {
-        $ignoreIbans = new Collection();
+        $exclusionIbans = new Collection();
 
-        if ($considerIgnoreIbans) {
-            $ignoreIbans = IgnoreList::where('bank_account_id', $bankAccount->id)->select('value')->get();
+        if ($considerExclusionIbans) {
+            $exclusionIbans = ExclusionList::where('bank_account_id', $bankAccount->id)->select('value')->get();
         }
 
         $rule = $this->ruleListService->getRuleWithExpression($ruleId);
@@ -205,6 +205,6 @@ class RefreshTransactionRuleIndexService
             throw new \InvalidArgumentException('Rule with ID ' . $ruleId . ' does not exist.');
         }
 
-        $this->addRuleTranscations($rule, $bankAccount, $ignoreIbans);
+        $this->addRuleTranscations($rule, $bankAccount, $exclusionIbans);
     }
 }

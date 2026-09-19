@@ -34,15 +34,15 @@ class UnmatchedTransactionsService
     /**
      *
      * @param BankAccount $bankAccount
-     * @param Collection $ignoreIbans
+     * @param Collection $exclusionIbans
      * @return Builder
      */
-    public function getTotalUnmatchedTransactions(BankAccount $bankAccount, Collection $ignoreIbans): Builder
+    public function getTotalUnmatchedTransactions(BankAccount $bankAccount, Collection $exclusionIbans): Builder
     {
         $unmatchedTransactions = Transactions::where('bank_account_iban', $bankAccount->iban)->orderBy('id');
 
-        if ($ignoreIbans->isNotEmpty()) {
-            $unmatchedTransactions = $unmatchedTransactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        if ($exclusionIbans->isNotEmpty()) {
+            $unmatchedTransactions = $unmatchedTransactions->whereNotIn('creditor_iban', $exclusionIbans->toArray());
         }
 
         return $this->getUnmatchedTransactions($unmatchedTransactions);

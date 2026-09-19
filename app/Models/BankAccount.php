@@ -77,9 +77,9 @@ class BankAccount extends Model
      *
      * @return HasMany
      */
-    public function ignoreList(): HasMany
+    public function exclusionList(): HasMany
     {
-        return $this->hasMany(IgnoreList::class);
+        return $this->hasMany(ExclusionList::class);
     }
 
     /**
@@ -112,9 +112,9 @@ class BankAccount extends Model
             if ($bankAccount->cashflow) {
                 $bankAccount->cashflow->delete();
             }
-            if ($bankAccount->ignoreList) {
-                foreach ($bankAccount->ignoreList as $ignoreList) {
-                    $ignoreList->delete();
+            if ($bankAccount->exclusionList) {
+                foreach ($bankAccount->exclusionList as $exclusionList) {
+                    $exclusionList->delete();
                 }
             }
             if ($bankAccount->cashTransaction) {
