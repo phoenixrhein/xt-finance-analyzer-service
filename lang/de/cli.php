@@ -21,7 +21,7 @@ return [
             'account_id' => 'ID des Bankkontos',
             'rule_id' => 'ID der Regel',
             'force_delete' => 'Löschen erzwingen',
-            'consider_ignore_ibans' => 'Die Ignore-IBANs berücksichtigen'
+            'consider_exclusion_ibans' => 'Die Ausschluss-IBANs berücksichtigen'
         ],
         'confirm_save' => 'Sind alle Daten korrekt?',
         'created' => 'Eintrag erfolgreich angelegt [Id: :id]',
@@ -347,10 +347,10 @@ return [
             'deleted' => 'Die Kategorie mit der ID \':categoryId\' (:name) wurde gelöscht'
         ]
     ],
-    'ignore_list' => [
+    'exclusion_list' => [
         'base' => [
             'param' => [
-                'ignore_id' => 'ID des Ignore-Eintrags'
+                'exclusion_id' => 'ID des Exclusion-Eintrags'
             ]
         ],
         'list' => [
@@ -489,13 +489,13 @@ return [
         ],
         'refresh_index' => [
             'description' => 'Regel-Index aktualisieren',
-            'not_considering_ignore_ibans' => 'Die Aktualisierung des Indexes berücksichtigt nicht die Ignore-IBANs',
+            'not_considering_exclusion_ibans' => 'Die Aktualisierung des Indexes berücksichtigt nicht die Ausschluss-IBANs',
             'summary' => 'Es wurden :total Regeln verarbeitet. :updated Regeln aktualisiert, :zero Regeln ohne Treffer.',
             'starts' => 'Beginne mit der Aktualisierung des Regel-Index...'
         ],
         'validator' => [
             'description' => 'Regel validieren',
-            'not_considering_ignore_ibans' => 'Die Validierung der Regeln berücksichtigt nicht die Ignore-IBANs',
+            'not_considering_exclusion_ibans' => 'Die Validierung der Regeln berücksichtigt nicht die Ausschluss-IBANs',
             'validate_assignments' => 'Validierung der Buchungen für das Bankkonto: :iban (:id)... ',
             'validate_assignments_finished' => 'Beendet',
             'validate_assignments_overlaps' => 'Buchung mit der ID :id würde mehreren Regeln zugeordnet: :ruleIds',

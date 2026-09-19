@@ -1,8 +1,8 @@
 <?php
 
-namespace de\xovatec\financeAnalyzer\Console\Commands\IgnoreList;
+namespace de\xovatec\financeAnalyzer\Console\Commands\ExclusionList;
 
-use de\xovatec\financeAnalyzer\Models\IgnoreList;
+use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Traits\Command\View\IbanInput;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SelectAccountId;
@@ -11,7 +11,7 @@ use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQuer
 use function Laravel\Prompts\text;
 use function Laravel\Prompts\warning;
 
-class IgnoreEdit extends AbstractIgnoreList implements ProvidesAccountListQueryInterface
+class ExclusionEdit extends AbstractExclusionList implements ProvidesAccountListQueryInterface
 {
     use IbanInput;
     use SelectAccountId;
@@ -21,14 +21,14 @@ class IgnoreEdit extends AbstractIgnoreList implements ProvidesAccountListQueryI
      *
      * @var string
      */
-    protected $signature = 'fin:ignore-upsert {ignoreId? : [:cli.ignore_list.base.param.ignore_id:]}';
+    protected $signature = 'fin:exclusion-upsert {exclusionId? : [:cli.exclusion_list.base.param.exclusion_id:]}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'cli.ignore_list.upsert.description';
+    protected $description = 'cli.exclusion_list.upsert.description';
 
     /**
      *
@@ -59,27 +59,27 @@ class IgnoreEdit extends AbstractIgnoreList implements ProvidesAccountListQueryI
      */
     public function process(): void
     {
-        $ignoreId = (int)$this->argument('ignoreId');
-        $isAdd = $ignoreId <= 0;
+        $exclusionId = (int)$this->argument('exclusionId');
+        $isAdd = $exclusionId <= 0;
         if ($isAdd) {
             warning(__('cli.base.upsert_hint_add'));
-            $ignoreEntry = new IgnoreList();
+            $exclusionEntry = new ExclusionList();
         } else {
-            $ignoreEntry = IgnoreList::find($ignoreId);
+            $exclusionEntry = ExclusionList::find($exclusionId);
 
-            if (!$ignoreEntry instanceof IgnoreList) {
+            if (!$exclusionEntry instanceof ExclusionList) {
                 $this->emptyLn();
-                $this->error(__('cli.base.error.not_found', ['id' => $ignoreId]));
+                $this->error(__('cli.base.error.not_found', ['id' => $exclusionId]));
                 return;
             }
         }
 
-        $ignoreEntry->bank_account_id = $this->viewAccountId($ignoreEntry->bank_account_id);
-        $ignoreEntry->value = $this->viewIbanInput($ignoreEntry->value ?? '', false);
-        $ignoreEntry->type = IgnoreList::TYPE_IBAN;
-        $ignoreEntry->comment = text(
-            label: __('cli.ignore_list.upsert.comment'),
-            default: $ignoreEntry->comment ?? ''
+        $exclusionEntry->bank_account_id = $this->viewAccountId($exclusionEntry->bank_account_id);
+        $exclusionEntry->value = $this->viewIbanInput($exclusionEntry->value ?? '', false);
+        $exclusionEntry->type = ExclusionList::TYPE_IBAN;
+        $exclusionEntry->comment = text(
+            label: __('cli.exclusion_list.upsert.comment'),
+            default: $exclusionEntry->comment ?? ''
         );
 
         $labelKey = 'cli.base.created';
@@ -87,7 +87,7 @@ class IgnoreEdit extends AbstractIgnoreList implements ProvidesAccountListQueryI
             $labelKey = 'cli.base.edited';
         }
 
-        $ignoreEntry->save();
-        $this->info(__($labelKey, ['id' => $ignoreEntry->id]));
+        $exclusionEntry->save();
+        $this->info(__($labelKey, ['id' => $exclusionEntry->id]));
     }
 }

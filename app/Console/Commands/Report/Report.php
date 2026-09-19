@@ -74,7 +74,7 @@ class Report extends FinCommand implements ProvidesAccountListQueryInterface
      * @var string
      */
     protected $signature = 'fin:report {accountId? : [:cli.base.param.account_id:]}' .
-        '{--considerIgnoreIbans : [:cli.base.param.consider_ignore_ibans:]}';
+        '{--considerExclusionIbans : [:cli.base.param.consider_exclusion_ibans:]}';
 
     /**
      * The console command description.
@@ -108,7 +108,7 @@ class Report extends FinCommand implements ProvidesAccountListQueryInterface
         }
 
         $periods = $this->reportConfiguratorWizard->runWizard($account);
-        $this->ruleTransactionPreparer->prepareForReport($account, $this->option('considerIgnoreIbans'));
+        $this->ruleTransactionPreparer->prepareForReport($account, $this->option('considerExclusionIbans'));
 
         $this->emptyLn();
         $this->emptyLn();
@@ -116,7 +116,7 @@ class Report extends FinCommand implements ProvidesAccountListQueryInterface
         $reportData = $this->reportDataProcessor->process(
             $account,
             $periods,
-            !(bool) $this->option('considerIgnoreIbans')
+            !(bool) $this->option('considerExclusionIbans')
         );
 
         $this->reportPresenter->render($reportData, $account->cashflow?->timespanType ?? null);

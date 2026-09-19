@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $value
  * @property string|null $comment
  */
-class IgnoreList extends Model
+class ExclusionList extends Model
 {
     use SoftDeletes;
 
@@ -22,7 +22,7 @@ class IgnoreList extends Model
      *
      * @var string
      */
-    protected $table = 'ignore_list';
+    protected $table = 'exclusion_list';
 
     /**
          *

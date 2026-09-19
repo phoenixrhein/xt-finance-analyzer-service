@@ -24,14 +24,14 @@ class RuleTransactionPreparer extends AbstractIOService
     /**
      *
      * @param BankAccount $bankAccount
-     * @param boolean $considerIgnoreIbans
+     * @param boolean $considerExclusionIbans
      * @return void
      */
-    public function prepareForReport(BankAccount $bankAccount, bool $considerIgnoreIbans): void
+    public function prepareForReport(BankAccount $bankAccount, bool $considerExclusionIbans): void
     {
-        $this->validator->validateAll($bankAccount, $considerIgnoreIbans);
+        $this->validator->validateAll($bankAccount, $considerExclusionIbans);
         $this->separatorLine();
-        $this->refreshIndexService->refreshAll($bankAccount, $considerIgnoreIbans);
+        $this->refreshIndexService->refreshAll($bankAccount, $considerExclusionIbans);
         $this->separatorLine();
     }
 }

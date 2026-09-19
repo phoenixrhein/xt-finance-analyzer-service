@@ -9,7 +9,7 @@ use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Helpers\FilterTransactionDurationHelper;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Cashflow;
-use de\xovatec\financeAnalyzer\Models\IgnoreList;
+use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
 use de\xovatec\financeAnalyzer\Services\Console\Category\ManageConsoleService;
@@ -120,9 +120,9 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
     public function assignRule(BankAccount $bankAccount, FinCommand $command): void
     {
 
-        $ignoreIbans = IgnoreList::where('bank_account_id', $bankAccount->id)->select('value')->get();
+        $exclusionIbans = ExclusionList::where('bank_account_id', $bankAccount->id)->select('value')->get();
 
-        $this->viewUnmatchedTransactions($bankAccount, $ignoreIbans, $command);
+        $this->viewUnmatchedTransactions($bankAccount, $exclusionIbans, $command);
 
         $queryType = select(
             __('cli.transaction.list.query_type.title'),
@@ -134,8 +134,8 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
 
         $transactions = Transactions::where('bank_account_iban', $bankAccount->iban)->orderBy('id');
 
-        if ($ignoreIbans->isNotEmpty()) {
-            $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        if ($exclusionIbans->isNotEmpty()) {
+            $transactions = $transactions->whereNotIn('creditor_iban', $exclusionIbans->toArray());
         }
 
         $transactions->leftJoin('rule_transaction', 'transactions.id', '=', 'rule_transaction.transaction_id');
@@ -168,7 +168,7 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
         if (
             $this->unmatchedTransactionsService->getTotalUnmatchedTransactions(
                 $bankAccount,
-                $ignoreIbans
+                $exclusionIbans
             )->count() > 0
         ) {
             $continue = select(
@@ -219,13 +219,13 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
     /**
      *
      * @param BankAccount $bankAccount
-     * @param Collection $ignoreIbans
+     * @param Collection $exclusionIbans
      * @param FinCommand $command
      * @return void
      */
     private function viewUnmatchedTransactions(
         BankAccount $bankAccount,
-        Collection $ignoreIbans,
+        Collection $exclusionIbans,
         FinCommand $command
     ): void {
         $viewConfig = TransactionList::$compactView;
@@ -233,7 +233,7 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
         $cursor = null;
 
         do {
-            $unmatchedTransactions = $this->buildBaseUnmatchedTransactionsQuery($bankAccount, $ignoreIbans);
+            $unmatchedTransactions = $this->buildBaseUnmatchedTransactionsQuery($bankAccount, $exclusionIbans);
 
             if ($total === null) {
                 $this->unmatchedTransactionsDisplayService->displayUnmatchedTransactionsOverview(
@@ -291,15 +291,15 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
     /**
      *
      * @param BankAccount $bankAccount
-     * @param Collection $ignoreIbans
+     * @param Collection $exclusionIbans
      * @return Builder
      */
-    private function buildBaseUnmatchedTransactionsQuery(BankAccount $bankAccount, Collection $ignoreIbans): Builder
+    private function buildBaseUnmatchedTransactionsQuery(BankAccount $bankAccount, Collection $exclusionIbans): Builder
     {
         $transactions = Transactions::where('bank_account_iban', $bankAccount->iban)->orderBy('id');
 
-        if ($ignoreIbans->isNotEmpty()) {
-            $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        if ($exclusionIbans->isNotEmpty()) {
+            $transactions = $transactions->whereNotIn('creditor_iban', $exclusionIbans->toArray());
         }
 
         return $transactions;

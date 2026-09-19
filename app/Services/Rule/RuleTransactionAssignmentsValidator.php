@@ -4,7 +4,7 @@ namespace de\xovatec\financeAnalyzer\Services\Rule;
 
 use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
-use de\xovatec\financeAnalyzer\Models\IgnoreList;
+use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Services\Console\Output\ConsoleOutputInterface;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
@@ -32,51 +32,51 @@ class RuleTransactionAssignmentsValidator
     /**
      *
      * @param BankAccount $bankAccount
-     * @param boolean $considerIgnoreIbans
+     * @param boolean $considerExclusionIbans
      * @return void
      */
-    public function validateAll(BankAccount $bankAccount, bool $considerIgnoreIbans = true)
+    public function validateAll(BankAccount $bankAccount, bool $considerExclusionIbans = true)
     {
         $query = Transactions::select('id');
-        $this->validateTransactionAssignments($query, $bankAccount, $considerIgnoreIbans);
+        $this->validateTransactionAssignments($query, $bankAccount, $considerExclusionIbans);
     }
 
     /**
      *
      * @param array $transactionIds
      * @param BankAccount $bankAccount
-     * @param boolean $considerIgnoreIbans
+     * @param boolean $considerExclusionIbans
      * @return void
      */
     public function validateRange(
         array $transactionIds,
         BankAccount $bankAccount,
-        bool $considerIgnoreIbans = true
+        bool $considerExclusionIbans = true
     ): void {
         $query = Transactions::select('id')->whereIn('id', $transactionIds);
-        $this->validateTransactionAssignments($query, $bankAccount, $considerIgnoreIbans);
+        $this->validateTransactionAssignments($query, $bankAccount, $considerExclusionIbans);
     }
 
     /**
      *
      * @param Builder $query
      * @param BankAccount $bankAccount
-     * @param boolean $considerIgnoreIbans
+     * @param boolean $considerExclusionIbans
      * @return void
      */
     private function validateTransactionAssignments(
         Builder $query,
         BankAccount $bankAccount,
-        bool $considerIgnoreIbans
+        bool $considerExclusionIbans
     ): void {
         $this->io->infoInLn(
             __('cli.rule.validator.validate_assignments', ['iban' => $bankAccount->iban, 'id' => $bankAccount->id])
         );
         $query->where('bank_account_iban', $bankAccount->iban);
-        $ignoreIbans = IgnoreList::where('bank_account_id', $bankAccount->id)->select('value')->get();
+        $exclusionIbans = ExclusionList::where('bank_account_id', $bankAccount->id)->select('value')->get();
 
-        if ($considerIgnoreIbans && $ignoreIbans->isNotEmpty()) {
-            $query->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        if ($considerExclusionIbans && $exclusionIbans->isNotEmpty()) {
+            $query->whereNotIn('creditor_iban', $exclusionIbans->toArray());
         }
         $transactionRuleMap = [];
         $allRules = $this->ruleListService->getRulesWithExpression($bankAccount->id);

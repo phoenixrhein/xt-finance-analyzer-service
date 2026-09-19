@@ -5,7 +5,7 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use de\xovatec\financeAnalyzer\Models\IgnoreList;
+use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
@@ -222,7 +222,7 @@ class TransactionList extends FinCommand
             $viewConfig = self::$fullView;
         }
 
-        $ignoreIbans = IgnoreList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
+        $exclusionIbans = ExclusionList::where('bank_account_id', $this->argument('accountId'))->select('value')->get();
         $transactions = Transactions::where('bank_account_iban', $bankAccount->iban)
             ->orderBy('transaction_date')
             ->orderByDesc('id');
@@ -231,14 +231,14 @@ class TransactionList extends FinCommand
             FilterTransactionDurationHelper::applyFilter($transactions, $this->option('range'), $this);
         }
 
-        $conditions = $this->determineCondition(CopyBuilderQueryHelper::copy($transactions), $ignoreIbans);
+        $conditions = $this->determineCondition(CopyBuilderQueryHelper::copy($transactions), $exclusionIbans);
 
         if ($conditions !== null) {
             $this->getSqlQueryBuilder()->build($transactions, $conditions);
         }
 
         $this->displayList($transactions, $viewConfig);
-        $this->displayListFooter($transactions, $ignoreIbans);
+        $this->displayListFooter($transactions, $exclusionIbans);
     }
 
     /**
@@ -262,14 +262,14 @@ class TransactionList extends FinCommand
     /**
      *
      * @param Builder $transactions
-     * @param Collection $ignoreIbans
+     * @param Collection $exclusionIbans
      * @return void
      */
-    private function displayListFooter(Builder $transactions, Collection $ignoreIbans): void
+    private function displayListFooter(Builder $transactions, Collection $exclusionIbans): void
     {
         $sum = 0;
-        if ($ignoreIbans->isNotEmpty()) {
-            $transactions = $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        if ($exclusionIbans->isNotEmpty()) {
+            $transactions = $transactions->whereNotIn('creditor_iban', $exclusionIbans->toArray());
         }
         foreach (Arr::pluck($transactions->get()->toArray(), 'amount') as $amount) {
             $sum = round($sum + $amount, 2);
@@ -284,10 +284,10 @@ class TransactionList extends FinCommand
     /**
      *
      * @param Builder $transactions
-     * @param Collection $ignoreIbans
+     * @param Collection $exclusionIbans
      * @return ConditionList|null
      */
-    private function determineCondition(Builder $transactions, Collection $ignoreIbans): ?ConditionList
+    private function determineCondition(Builder $transactions, Collection $exclusionIbans): ?ConditionList
     {
         $queryType = select(
             __('cli.transaction.list.query_type.title'),
@@ -298,8 +298,8 @@ class TransactionList extends FinCommand
             ]
         );
 
-        if ($ignoreIbans->isNotEmpty()) {
-            $transactions->whereNotIn('creditor_iban', $ignoreIbans->toArray());
+        if ($exclusionIbans->isNotEmpty()) {
+            $transactions->whereNotIn('creditor_iban', $exclusionIbans->toArray());
         }
 
         $conditions = null;

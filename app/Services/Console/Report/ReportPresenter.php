@@ -88,7 +88,7 @@ class ReportPresenter extends AbstractIOService
 
         // Check if savings account data exists
         $hasSavingsData = $reportData->some(
-            fn (PeriodReportData $p) => $p->toIgnoredIban !== 0.0 || $p->fromIgnoredIban !== 0.0
+            fn (PeriodReportData $p) => $p->toExcludedIban !== 0.0 || $p->fromExcludedIban !== 0.0
         );
 
         // Calculate column widths and separators once
@@ -176,14 +176,14 @@ class ReportPresenter extends AbstractIOService
         // Bankkonto → Sparbuch row (invert sign: money coming in is positive)
         $toRow = [__('cli.report.presentation.label_transfer_to_savings')];
         foreach ($reportData as $period) {
-            $toRow[] = $this->formatAmount(-$period->toIgnoredIban);
+            $toRow[] = $this->formatAmount(-$period->toExcludedIban);
         }
         $this->tableRenderer->renderDataRow($toRow);
 
         // Sparbuch → Bankkonto row (invert sign: money going out is negative)
         $fromRow = [__('cli.report.presentation.label_transfer_from_savings')];
         foreach ($reportData as $period) {
-            $fromRow[] = $this->formatAmount(-$period->fromIgnoredIban);
+            $fromRow[] = $this->formatAmount(-$period->fromExcludedIban);
         }
         $this->tableRenderer->renderDataRow($fromRow);
 
@@ -192,7 +192,7 @@ class ReportPresenter extends AbstractIOService
         $balanceRow = [__('cli.report.presentation.label_balance_change')];
         foreach ($reportData as $period) {
             // Balance change = money in + money out (with inverted signs)
-            $balance = -$period->toIgnoredIban + (-$period->fromIgnoredIban);
+            $balance = -$period->toExcludedIban + (-$period->fromExcludedIban);
             $balanceRow[] = $this->formatAmount($balance);
         }
         $this->tableRenderer->renderTotalRowData($balanceRow);
