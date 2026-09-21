@@ -9,6 +9,7 @@ use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Dto\Report\CategoryNode;
 use de\xovatec\financeAnalyzer\Dto\Report\PeriodReportData;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -70,7 +71,7 @@ class ReportDataProcessor
             if (!empty($excludedIbans)) {
                 $excludedIbanTransactions = $bankAccount
                     ->transactions()
-                    ->whereBetween('transaction_date', [$start, $end])
+                    ->tap(fn (Builder $query) => $this->applyEffectiveDateFilter($query, $start, $end))
                     ->whereIn('creditor_iban', $excludedIbans)
                     ->get();
             }
@@ -124,7 +125,7 @@ class ReportDataProcessor
     ): Collection {
         $query = $bankAccount
             ->transactions()
-            ->whereBetween('transaction_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
+            ->tap(fn (Builder $query) => $this->applyEffectiveDateFilter($query, $start, $end))
             ->select('transactions.*');
 
         if ($considerExclusionIbans) {
@@ -140,6 +141,44 @@ class ReportDataProcessor
         }
 
         return $query->get();
+    }
+
+    /**
+     * Filter transactions by their effective report date.
+     *
+     * An active adjustment replaces the original transaction date for reports.
+     */
+    private function applyEffectiveDateFilter(Builder $query, Carbon $start, Carbon $end): Builder
+    {
+        $from = $start->format('Y-m-d');
+        $to = $end->format('Y-m-d');
+
+        return $query->where(function (Builder $query) use ($from, $to) {
+            $query
+                ->where(function (Builder $query) use ($from, $to) {
+                    $query
+                        ->whereNotExists(function ($adjustments) {
+                            $adjustments
+                                ->from('transaction_adjustment')
+                                ->whereColumn(
+                                    'transaction_adjustment.transaction_id',
+                                    'transactions.id'
+                                )
+                                ->whereNull('transaction_adjustment.deleted_at');
+                        })
+                        ->whereBetween('transactions.transaction_date', [$from, $to]);
+                })
+                ->orWhereExists(function ($adjustments) use ($from, $to) {
+                    $adjustments
+                        ->from('transaction_adjustment')
+                        ->whereColumn(
+                            'transaction_adjustment.transaction_id',
+                            'transactions.id'
+                        )
+                        ->whereNull('transaction_adjustment.deleted_at')
+                        ->whereBetween('transaction_adjustment.transaction_date', [$from, $to]);
+                });
+        });
     }
 
     /**
