@@ -74,6 +74,10 @@ return [
             'search_by_text' => 'Mit diesem Text suchen',
             'transaction_id_input' => 'Bitte geben Sie die Transactions-Id an',
             'transaction_id_input_hint' => 'Sofern Sie die Suche erneut starten möchten, lassen Sie dieses Feld leer',
+            'optional_selection' => 'Soll eine bestehende Buchung verknüpft werden?',
+            'no_transaction' => 'Keine Buchung verknüpfen',
+            'select_transaction' => 'Buchung suchen und auswählen',
+            'keep_transaction' => 'Bestehende Buchung beibehalten (ID: :id)',
         ],
         'condition_creator' => [
             'template_transaction_id' => 'ID der Vorlagenbuchung eingeben',
@@ -209,6 +213,7 @@ return [
             'description' => 'Bargeldeinzahlungsliste anzeigen',
             'table_header' => [
                 'id' => 'ID',
+                'transaction_id' => 'Buchungs-ID',
                 'iban' => 'IBAN',
                 'cash_cash_booking_date' => 'Annahmedatum',
                 'amount' => 'Betrag',
@@ -560,4 +565,3 @@ return [
         ]
     ]
 ];
-

@@ -34,11 +34,20 @@ class CashTransactionList extends FinCommand
 
         $cashTransactionList = CashTransaction::where('bank_account_id', $accountId)
         ->with('bankAccount')
-        ->select(['id', 'bank_account_id', 'cash_booking_date', 'amount', 'currency', 'note'])
+        ->select([
+            'id',
+            'bank_account_id',
+            'transaction_id',
+            'cash_booking_date',
+            'amount',
+            'currency',
+            'note'
+        ])
         ->get()
         ->map(function ($cashTransaction) {
             return [
                 'id' => $cashTransaction->id,
+                'transaction_id' => $cashTransaction->transaction_id,
                 'iban' => $cashTransaction->bankAccount->iban,
                 'cash_booking_date' => \Carbon\Carbon::parse($cashTransaction->cash_booking_date)->format('d.m.Y'),
                 'amount' => $cashTransaction->amount,
@@ -57,6 +66,7 @@ class CashTransactionList extends FinCommand
         $this->table(
             [
                 __('cli.cash_transaction.list.table_header.id'),
+                __('cli.cash_transaction.list.table_header.transaction_id'),
                 __('cli.cash_transaction.list.table_header.iban'),
                 __('cli.cash_transaction.list.table_header.cash_cash_booking_date'),
                 __('cli.cash_transaction.list.table_header.amount'),

@@ -11,6 +11,7 @@ use de\xovatec\financeAnalyzer\Models\CashTransaction;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SelectAccountId;
+use de\xovatec\financeAnalyzer\Traits\Command\View\FindAndSelectTransaction;
 use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
 use function Laravel\Prompts\info;
@@ -20,6 +21,7 @@ class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQue
 {
     use SelectAccountId;
     use SimpleInput;
+    use FindAndSelectTransaction;
 
     /**
      * The name and signature of the console command.
@@ -79,21 +81,25 @@ class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQue
                     $cashTransactionEntry->cash_booking_date = Carbon::now();
                 } else {
                     $cashTransactionEntry = CashTransaction::find($cashTransactionId);
-                    $cashTransactionEntry->cash_booking_date = Carbon::createFromFormat(
-                        'Y-m-d',
-                        $cashTransactionEntry->cash_booking_date
-                    );
                     if (!$cashTransactionEntry instanceof CashTransaction) {
                         $this->emptyLn();
                         $this->error(__('cli.base.error.not_found', ['id' => $cashTransactionId]));
                         return;
                     }
+                    $cashTransactionEntry->cash_booking_date = Carbon::createFromFormat(
+                        'Y-m-d',
+                        $cashTransactionEntry->cash_booking_date
+                    );
                 }
             }
             $valid = true;
 
             $bankAccount = BankAccount::find($cashTransactionEntry->bank_account_id);
             info(__('cli.base.iban') . ': ' . $bankAccount->iban);
+            $cashTransactionEntry->transaction_id = $this->viewOptionalTransactionId(
+                $bankAccount->iban,
+                $cashTransactionEntry->transaction_id
+            );
             $cashTransactionEntry->amount = $this->viewInput(
                 __('cli.cash_transaction.upsert.amount'),
                 'required|numeric|regex:/^\d+(\.\d{2})?$/',
