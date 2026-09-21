@@ -8,12 +8,58 @@ use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Rules\ValidMonthYear;
 use de\xovatec\financeAnalyzer\Console\Commands\Transaction\TransactionList;
 
+use function Laravel\Prompts\select;
 use function Laravel\Prompts\search;
 
 trait FindAndSelectTransaction
 {
     use SimpleInput;
     use TableConsolePagination;
+
+    /**
+     *
+     * @param string $iban
+     * @param int|null $currentTransactionId
+     * @return int|null
+     */
+    protected function viewOptionalTransactionId(string $iban, ?int $currentTransactionId = null): ?int
+    {
+        $options = [
+            'none' => __('cli.view.find_and_select_transaction.no_transaction'),
+            'select' => __('cli.view.find_and_select_transaction.select_transaction'),
+        ];
+        $default = 'none';
+
+        if (
+            $currentTransactionId !== null
+            && Transactions::whereKey($currentTransactionId)
+                ->where('bank_account_iban', $iban)
+                ->exists()
+        ) {
+            $options = [
+                'current' => __(
+                    'cli.view.find_and_select_transaction.keep_transaction',
+                    ['id' => $currentTransactionId]
+                ),
+            ] + $options;
+            $default = 'current';
+        }
+
+        $selection = select(
+            label: __('cli.view.find_and_select_transaction.optional_selection'),
+            options: $options,
+            default: $default
+        );
+
+        if ($selection === 'none') {
+            return null;
+        }
+        if ($selection === 'current') {
+            return $currentTransactionId;
+        }
+
+        return $this->viewTransactionId($iban);
+    }
 
     /**
      *
