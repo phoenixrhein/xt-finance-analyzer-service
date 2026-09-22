@@ -3,6 +3,7 @@
 namespace de\xovatec\financeAnalyzer\Services\Console\Report;
 
 use Carbon\Carbon;
+use de\xovatec\financeAnalyzer\Enums\TransactionSplitType;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Category;
 use de\xovatec\financeAnalyzer\Models\Transactions;
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ReportDataProcessor
 {
+    private const CASH_PAYOUT_CATEGORY_ID = -1;
+
     /**
      * Process report data for the given periods.
      *
@@ -34,7 +37,7 @@ class ReportDataProcessor
             return collect();
         }
 
-        return collect($periods)->map(fn (array $period) =>
+        $reportData = collect($periods)->map(fn (array $period) =>
             $this->processPeriod(
                 $bankAccount,
                 Carbon::createFromFormat('Y-m-d', $period['from']),
@@ -43,6 +46,8 @@ class ReportDataProcessor
                 $cashflow->out_category_id,
                 $considerExclusionIbans
             ));
+
+        return $this->addMissingCashPayoutNodes($reportData);
     }
 
     /**
@@ -125,6 +130,7 @@ class ReportDataProcessor
         $query = $bankAccount
             ->transactions()
             ->tap(fn (Builder $query) => $this->applyEffectiveDateFilter($query, $start, $end))
+            ->with('transactionSplit')
             ->select('transactions.*');
 
         if ($considerExclusionIbans) {
@@ -206,11 +212,27 @@ class ReportDataProcessor
 
         // Add unassigned category if needed
         $children = $rootNode->children->toArray();
-        if ($rootNode->hasAmount() || $rootNode->children->isNotEmpty()) {
+        if (
+            $rootNode->hasAmount()
+            || $rootNode->children->isNotEmpty()
+            || ($transactionsByCategory['_unassigned'] ?? 0.0) !== 0.0
+            || ($transactionsByCategory[self::CASH_PAYOUT_CATEGORY_ID] ?? 0.0) !== 0.0
+        ) {
             $children[] = new CategoryNode(
                 null,
                 $unassignedLabel,
                 $transactionsByCategory['_unassigned'] ?? 0.0,
+                0.0,
+                collect(),
+                0
+            );
+        }
+
+        if (($transactionsByCategory[self::CASH_PAYOUT_CATEGORY_ID] ?? 0.0) !== 0.0) {
+            $children[] = new CategoryNode(
+                self::CASH_PAYOUT_CATEGORY_ID,
+                __('cli.report.presentation.label_cash'),
+                $transactionsByCategory[self::CASH_PAYOUT_CATEGORY_ID],
                 0.0,
                 collect(),
                 0
@@ -282,9 +304,6 @@ class ReportDataProcessor
     private function groupTransactionsByCategory(Collection $transactions): array
     {
         $transactionIds = $transactions->pluck('id')->toArray();
-        $amounts = $transactions->mapWithKeys(
-            fn (Transactions $transaction): array => [$transaction->id => (float) $transaction->amount]
-        );
 
         if (empty($transactionIds)) {
             return [];
@@ -301,11 +320,122 @@ class ReportDataProcessor
 
         $grouped = [];
 
-        foreach ($mappings as $mapping) {
-            $categoryId = $mapping->category_id ?? '_unassigned';
-            $grouped[$categoryId] = ($grouped[$categoryId] ?? 0.0) + ($amounts[$mapping->id] ?? 0.0);
+        $transactionsById = $transactions->keyBy('id');
+
+        foreach ($mappings->groupBy('id') as $transactionId => $transactionMappings) {
+            $transaction = $transactionsById->get($transactionId);
+            if (!$transaction instanceof Transactions) {
+                continue;
+            }
+
+            $categoryId = $transactionMappings->first()->category_id ?? '_unassigned';
+            $splitAmounts = $this->calculateSplitAmounts($transaction);
+            $remainingAmount = $splitAmounts['remaining'];
+
+            $grouped[$categoryId] = ($grouped[$categoryId] ?? 0.0) + max(0.0, $remainingAmount);
+
+            $cashPayoutAmount = $splitAmounts['cash_payout'];
+            if ($cashPayoutAmount > 0.0) {
+                $grouped[self::CASH_PAYOUT_CATEGORY_ID] =
+                    ($grouped[self::CASH_PAYOUT_CATEGORY_ID] ?? 0.0) + $cashPayoutAmount;
+            }
+
+            $otherAmount = $splitAmounts['other'];
+            if ($otherAmount > 0.0) {
+                $grouped['_unassigned'] = ($grouped['_unassigned'] ?? 0.0) + $otherAmount;
+            }
         }
 
         return $grouped;
+    }
+
+    /**
+     * Calculate the report amounts for one transaction and its splits.
+     *
+     * @param Transactions $transaction
+     * @return array{remaining: float, cash_payout: float, other: float}
+     */
+    public function calculateSplitAmounts(Transactions $transaction): array
+    {
+        $amounts = [
+            'remaining' => abs((float) $transaction->amount),
+            'cash_payout' => 0.0,
+            'other' => 0.0,
+        ];
+
+        foreach ($transaction->transactionSplit as $split) {
+            $splitAmount = (float) $split->amount;
+            $amounts['remaining'] -= $splitAmount;
+            $type = $split->type?->value ?? TransactionSplitType::OTHER->value;
+            if ($type === TransactionSplitType::CASH_PAYOUT->value) {
+                $amounts['cash_payout'] += $splitAmount;
+            } else {
+                $amounts['other'] += $splitAmount;
+            }
+        }
+
+        $amounts['remaining'] = max(0.0, round($amounts['remaining'], 2));
+
+        return $amounts;
+    }
+
+    /**
+     * Keep the synthetic cash category available as a reference across periods.
+     *
+     * @param Collection<PeriodReportData> $reportData
+     * @return Collection<PeriodReportData>
+     */
+    private function addMissingCashPayoutNodes(Collection $reportData): Collection
+    {
+        $hasCashPayout = $reportData->contains(
+            fn (PeriodReportData $period) =>
+                $period->incomingCategories->contains(
+                    fn (CategoryNode $category) => $category->categoryId === self::CASH_PAYOUT_CATEGORY_ID
+                )
+                || $period->outgoingCategories->contains(
+                    fn (CategoryNode $category) => $category->categoryId === self::CASH_PAYOUT_CATEGORY_ID
+                )
+        );
+
+        if (!$hasCashPayout) {
+            return $reportData;
+        }
+
+        return $reportData->map(function (PeriodReportData $period): PeriodReportData {
+            $cashNode = new CategoryNode(
+                self::CASH_PAYOUT_CATEGORY_ID,
+                __('cli.report.presentation.label_cash'),
+                0.0,
+                0.0,
+                collect(),
+                0
+            );
+
+            $incomingCategories = $period->incomingCategories;
+            if (!$incomingCategories->contains(
+                fn (CategoryNode $category) => $category->categoryId === self::CASH_PAYOUT_CATEGORY_ID
+            )) {
+                $incomingCategories = $incomingCategories->push(clone $cashNode);
+            }
+
+            $outgoingCategories = $period->outgoingCategories;
+            if (!$outgoingCategories->contains(
+                fn (CategoryNode $category) => $category->categoryId === self::CASH_PAYOUT_CATEGORY_ID
+            )) {
+                $outgoingCategories = $outgoingCategories->push(clone $cashNode);
+            }
+
+            return new PeriodReportData(
+                $period->periodStart,
+                $period->periodEnd,
+                $incomingCategories,
+                $outgoingCategories,
+                $period->totalIncome,
+                $period->totalOutgoing,
+                $period->balance,
+                $period->toExcludedIban,
+                $period->fromExcludedIban
+            );
+        });
     }
 }
