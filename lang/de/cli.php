@@ -129,6 +129,10 @@ return [
         ]
     ],
     'transaction_split' => [
+        'type' => [
+            'cash_payout' => 'Bargeldauszahlung',
+            'other' => 'Sonstiger Anteil'
+        ],
         'base' => [
             'param' => [
                 'transaction_split_id' => 'ID des Buchungsaufteilung'
@@ -138,6 +142,7 @@ return [
             'description' => 'Buchungsaufteilung hinzufügen/bearbeiten',
             'note' => 'Bitte geben Sie einen Kommentar ein',
             'new_amount' => 'Bitte geben Sie den Betrag an',
+            'type' => 'Bitte wählen Sie den Typ des Splits',
             'validate_error' => [
                 'no_more_split_allowed' => 'Der Restbetrag kann nicht mehr aufgeteilt werden',
                 'total_amount_exceeded' => 'Der Restbetrag von :rest wurde überschritten'

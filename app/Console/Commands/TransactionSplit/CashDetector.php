@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
+use de\xovatec\financeAnalyzer\Enums\TransactionSplitType;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use Symfony\Component\Console\Helper\TableSeparator;
 use de\xovatec\financeAnalyzer\Enums\TransactionType;
@@ -66,12 +67,22 @@ class CashDetector extends FinCommand
             $this->viewTransaction($transaction);
             $amount = $this->viewAmountInput($transaction);
 
-            if ($amount != '') {
+            $transactionModel = Transactions::find($transaction['id']);
+            if (
+                $amount != ''
+                && $transactionModel instanceof Transactions
+                && TransactionSplit::amountFitsTransaction($transactionModel, $amount)
+            ) {
                 TransactionSplit::create([
                     'transaction_id' => $transaction['id'],
+                    'type' => TransactionSplitType::CASH_PAYOUT,
                     'amount' => $amount,
                     'note' => __('cli.transaction_split.cash_detector.note')
                 ]);
+            } elseif ($amount != '') {
+                $this->error(__('cli.transaction_split.upsert.validate_error.total_amount_exceeded', [
+                    'rest' => 0
+                ]));
             }
 
             Transactions::where('id', $transaction['id'])
@@ -93,7 +104,7 @@ class CashDetector extends FinCommand
             $valid = true;
             $amount = $this->viewInput(
                 __('cli.transaction_split.cash_detector.amount'),
-                'nullable|numeric|regex:/^\d+(\.\d{2})?$/',
+                'nullable|numeric|gt:0|regex:/^\d+(\.\d{2})?$/',
                 $determinedAmount,
                 self::VALUE_TYPE_DECIMAL,
                 __('cli.transaction_split.cash_detector.amount_note')
