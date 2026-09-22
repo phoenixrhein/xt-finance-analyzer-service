@@ -204,6 +204,11 @@ return [
             'currency' => 'Bitte geben Sie die Währung ein',
             'cash_booking_date' => 'Bitte geben Sie die Einzahlungsdatum ein [dd.mm.jjjj]',
             'note' => 'Bitte geben Sie einen Kommentar ein',
+            'validate_error' => [
+                'transaction_not_found' => 'Die referenzierte Buchung wurde nicht gefunden',
+                'transaction_must_be_expense' => 'Es dürfen nur Ausgaben verknüpft werden',
+                'total_amount_exceeded' => 'Der verbleibende Betrag der Buchung beträgt :rest'
+            ],
         ],
         'delete' => [
             'description' => 'Bargeldeinzahlungseintrag-Eintrag löschen',
@@ -560,6 +565,7 @@ return [
             'label_direct_amount' => 'zugeordnet',
             'label_subcategories_sum' => 'Summe Unterkategorien',
             'label_unassigned' => 'unzugeordnet',
+            'label_cash' => 'Bargeld',
             'label_category' => 'Kategorie',
             'no_data' => 'Keine Daten für den gewählten Zeitraum vorhanden.'
         ]

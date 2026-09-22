@@ -8,6 +8,7 @@ use de\xovatec\financeAnalyzer\Enums\CurrencyCode;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\CashTransaction;
+use de\xovatec\financeAnalyzer\Services\CashTransactionValidationService;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SimpleInput;
 use de\xovatec\financeAnalyzer\Traits\Command\View\SelectAccountId;
@@ -44,13 +45,19 @@ class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQue
      */
     protected AccountListQuery $accountListQuery;
 
+    protected CashTransactionValidationService $cashTransactionValidationService;
+
     /**
      *
      * @param AccountListQuery $accountlistQuery
      */
-    public function init(AccountListQuery $accountlistQuery): void
+    public function init(
+        AccountListQuery $accountlistQuery,
+        CashTransactionValidationService $cashTransactionValidationService
+    ): void
     {
         $this->accountListQuery = $accountlistQuery;
+        $this->cashTransactionValidationService = $cashTransactionValidationService;
     }
     /**
      *
@@ -102,7 +109,7 @@ class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQue
             );
             $cashTransactionEntry->amount = $this->viewInput(
                 __('cli.cash_transaction.upsert.amount'),
-                'required|numeric|regex:/^\d+(\.\d{2})?$/',
+                'required|numeric|gt:0|regex:/^\d+(\.\d{2})?$/',
                 $cashTransactionEntry->amount,
                 self::VALUE_TYPE_DECIMAL
             );
@@ -121,6 +128,13 @@ class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQue
                 ['required'],
                 $cashTransactionEntry->note
             );
+
+            $validationError = $this->cashTransactionValidationService->validate($cashTransactionEntry);
+            if ($validationError !== null) {
+                $this->error($validationError);
+                $valid = false;
+                continue;
+            }
 
             if (!$this->confirmPrompt(__('cli.base.confirm_save'))) {
                 $valid = false;
