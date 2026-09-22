@@ -54,8 +54,7 @@ class CashTransactionUpsert extends FinCommand implements ProvidesAccountListQue
     public function init(
         AccountListQuery $accountlistQuery,
         CashTransactionValidationService $cashTransactionValidationService
-    ): void
-    {
+    ): void {
         $this->accountListQuery = $accountlistQuery;
         $this->cashTransactionValidationService = $cashTransactionValidationService;
     }

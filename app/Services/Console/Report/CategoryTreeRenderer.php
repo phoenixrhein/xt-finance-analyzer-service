@@ -47,8 +47,7 @@ class CategoryTreeRenderer extends AbstractIOService
         }
 
         // Handle "Unzugeordnet" (unassigned) categories - just show one line
-        if ($categoryNode->categoryId === null) {
-            
+        if ($categoryNode->categoryId === null) {   
             if (strlen($categoryNode->name) > 0) {
                 $nameRow = [$categoryNode->name];
                 $nameRow[] = $this->formatAmount($categoryNode->getTotalAmount());
@@ -60,7 +59,6 @@ class CategoryTreeRenderer extends AbstractIOService
                     $nameRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
                 }
             }
-  
 
             $this->tableRenderer->renderDataRow($nameRow);
             return;
