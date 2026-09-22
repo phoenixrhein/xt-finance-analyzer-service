@@ -412,16 +412,20 @@ class ReportDataProcessor
             );
 
             $incomingCategories = $period->incomingCategories;
-            if (!$incomingCategories->contains(
-                fn (CategoryNode $category) => $category->categoryId === self::CASH_PAYOUT_CATEGORY_ID
-            )) {
+            if (
+                !$incomingCategories->contains(
+                    fn (CategoryNode $category) => $category->categoryId === self::CASH_PAYOUT_CATEGORY_ID
+                )
+            ) {
                 $incomingCategories = $incomingCategories->push(clone $cashNode);
             }
 
             $outgoingCategories = $period->outgoingCategories;
-            if (!$outgoingCategories->contains(
-                fn (CategoryNode $category) => $category->categoryId === self::CASH_PAYOUT_CATEGORY_ID
-            )) {
+            if (
+                !$outgoingCategories->contains(
+                    fn (CategoryNode $category) => $category->categoryId === self::CASH_PAYOUT_CATEGORY_ID
+                )
+            ) {
                 $outgoingCategories = $outgoingCategories->push(clone $cashNode);
             }
 
