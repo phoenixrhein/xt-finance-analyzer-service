@@ -32,43 +32,49 @@ class CategoryTreeRenderer extends AbstractIOService
      * Render category rows recursively, including subcategories and totals.
      *
      * @param Collection $reportData
-     * @param CategoryNode $category
+     * @param CategoryNode $categoryNode
      * @param callable $getCategoriesCallback
      * @param string $prefix
      */
     public function renderCategoryRows(
         Collection $reportData,
-        CategoryNode $category,
+        CategoryNode $categoryNode,
         callable $getCategoriesCallback,
         string $prefix
     ): void {
-        if (!$category->shouldDisplay($this->showEmptyCategories, $this->maxCategoryDepth)) {
+        if (!$categoryNode->shouldDisplay($this->showEmptyCategories, $this->maxCategoryDepth)) {
             return;
         }
 
         // Handle "Unzugeordnet" (unassigned) categories - just show one line
-        if ($category->categoryId === null) {
-            $nameRow = ['(' . __('cli.report.presentation.label_unassigned') . ')'];
-            foreach ($reportData as $period) {
-                $categories = $getCategoriesCallback($period);
-                $found = $categories->firstWhere('categoryId', null);
-                $nameRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
+        if ($categoryNode->categoryId === null) {
+            if (strlen($categoryNode->name) > 0) {
+                $nameRow = [$categoryNode->name];
+                $nameRow[] = $this->formatAmount($categoryNode->getTotalAmount());
+            } else {
+                $nameRow = ['(' . __('cli.report.presentation.label_unassigned') . ')'];
+                foreach ($reportData as $period) {
+                    $categories = $getCategoriesCallback($period);
+                    $found = $categories->firstWhere('categoryId', null);
+                    $nameRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
+                }
             }
+
             $this->tableRenderer->renderDataRow($nameRow);
             return;
         }
 
         // Show category name
-        $nameRow = [$prefix . $category->name];
+        $nameRow = [$prefix . $categoryNode->name];
         foreach ($reportData as $period) {
             $categories = $getCategoriesCallback($period);
-            $found = $this->findCategoryInTree($categories, $category->categoryId);
+            $found = $this->findCategoryInTree($categories, $categoryNode->categoryId);
             $nameRow[] = $found ? $this->formatAmount($found->getTotalAmount()) : '-';
         }
         $this->tableRenderer->renderDataRow($nameRow);
 
         // Only show sub-rows (zugeordnet, Summe Unterkategorien, Gesamt) if category has children
-        $this->renderCategorySubRows($reportData, $category, $getCategoriesCallback, $prefix);
+        $this->renderCategorySubRows($reportData, $categoryNode, $getCategoriesCallback, $prefix);
     }
 
     /**

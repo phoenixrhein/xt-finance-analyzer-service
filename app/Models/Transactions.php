@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property string $currency
  * @property string $bank_account_iban
  * @property string $note
+ * @property string $transaction_date
  */
 class Transactions extends Model
 {
