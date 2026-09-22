@@ -535,6 +535,7 @@ return [
             'label_direct_amount' => 'zugeordnet',
             'label_subcategories_sum' => 'Summe Unterkategorien',
             'label_unassigned' => 'unzugeordnet',
+            'label_cash' => 'Bargeld',
             'label_category' => 'Kategorie',
             'no_data' => 'Keine Daten für den gewählten Zeitraum vorhanden.'
         ]

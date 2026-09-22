@@ -42,7 +42,27 @@ class CategoryTreeRenderer extends AbstractIOService
         callable $getCategoriesCallback,
         string $prefix
     ): void {
-        if (!$categoryNode->shouldDisplay($this->showEmptyCategories, $this->maxCategoryDepth)) {
+        if (
+            $categoryNode->categoryId !== -1
+            && !$categoryNode->shouldDisplay($this->showEmptyCategories, $this->maxCategoryDepth)
+        ) {
+            return;
+        }
+
+        if ($categoryNode->categoryId === -1) {
+            $hasAmount = false;
+            $nameRow = [$categoryNode->name];
+            foreach ($reportData as $period) {
+                $categories = $getCategoriesCallback($period);
+                $found = $this->findCategoryInTree($categories, -1);
+                $amount = $found?->getTotalAmount() ?? 0.0;
+                $hasAmount = $hasAmount || $amount !== 0.0;
+                $nameRow[] = $this->formatAmount($amount);
+            }
+
+            if ($hasAmount) {
+                $this->tableRenderer->renderDataRow($nameRow);
+            }
             return;
         }
 

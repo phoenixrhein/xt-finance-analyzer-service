@@ -108,7 +108,7 @@ class ReportPresenter extends AbstractIOService
             $reportData,
             __('cli.report.presentation.title_expenses'),
             fn (PeriodReportData $p) => $p->outgoingCategories,
-            fn (PeriodReportData $p) => -$p->totalOutgoing
+            fn (PeriodReportData $p) => $p->totalOutgoing
         );
         $this->newLine();
 
@@ -222,7 +222,7 @@ class ReportPresenter extends AbstractIOService
         // Expenses row
         $expenseRow = [__('cli.report.presentation.label_expenses')];
         foreach ($reportData as $period) {
-            $expenseRow[] = $this->formatAmount(-$period->totalOutgoing);
+            $expenseRow[] = $this->formatAmount($period->totalOutgoing);
         }
         $this->tableRenderer->renderDataRow($expenseRow);
 
