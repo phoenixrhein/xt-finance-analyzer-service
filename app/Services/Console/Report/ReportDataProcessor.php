@@ -118,7 +118,7 @@ class ReportDataProcessor
         );
 
         // Calculate totals
-        $totalIncome = $incomingTransactions->sum('amount');
+        $totalIncome = $incomingTransactions->sum('amount') + $unlinkedCashAmount;
         $totalOutgoing = abs($outgoingTransactions->sum('amount'));
 
         // Calculate excluded IBAN transfers
