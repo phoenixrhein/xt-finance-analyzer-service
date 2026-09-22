@@ -3,6 +3,7 @@
 namespace de\xovatec\financeAnalyzer\Console\Commands\TransactionSplit;
 
 use Illuminate\Database\Eloquent\Collection;
+use de\xovatec\financeAnalyzer\Enums\TransactionSplitType;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
@@ -15,6 +16,7 @@ use de\xovatec\financeAnalyzer\Traits\Command\View\FindAndSelectTransaction;
 use de\xovatec\financeAnalyzer\Traits\ProvidesInterfaces\ProvidesAccountListQueryInterface;
 
 use function Laravel\Prompts\info;
+use function Laravel\Prompts\select;
 use function Laravel\Prompts\warning;
 
 class SplitUpsert extends FinCommand implements ProvidesAccountListQueryInterface
@@ -103,6 +105,7 @@ class SplitUpsert extends FinCommand implements ProvidesAccountListQueryInterfac
                 return;
             }
 
+            $splitEntry->type = $this->inputType($splitEntry->type?->value);
             $splitEntry->note  = $this->viewInput(
                 __('cli.transaction_split.upsert.note'),
                 ['required'],
@@ -210,7 +213,7 @@ class SplitUpsert extends FinCommand implements ProvidesAccountListQueryInterfac
         do {
             $valid = true;
 
-            if (!$isAdd && !$this->validateTotalAmountExceeded($transaction->amount, $totalSplittedAmount, 0.01)) {
+            if ($isAdd && !$this->validateTotalAmountExceeded($transaction->amount, $totalSplittedAmount, 0.01)) {
                 $this->emptyLn();
                 $this->error(__('cli.transaction_split.upsert.validate_error.no_more_split_allowed'));
                 return null;
@@ -218,8 +221,8 @@ class SplitUpsert extends FinCommand implements ProvidesAccountListQueryInterfac
 
             $amount  = $this->viewInput(
                 __('cli.transaction_split.upsert.new_amount'),
-                'required|numeric|regex:/^\d+(\.\d{2})?$/',
-                $amount ?? $rawAmount,
+                'required|numeric|gt:0|regex:/^\d+(\.\d{2})?$/',
+                $rawAmount,
                 self::VALUE_TYPE_DECIMAL
             );
 
@@ -263,6 +266,25 @@ class SplitUpsert extends FinCommand implements ProvidesAccountListQueryInterfac
         float $totalSplittedAmount,
         float $newAmount = 0
     ): bool {
-        return (abs($totalAmount) - $totalSplittedAmount - $newAmount) > 0;
+        return (abs($totalAmount) - $totalSplittedAmount - $newAmount) >= 0;
+    }
+
+    /**
+     *
+     * @param string|null $currentType
+     * @return string
+     */
+    private function inputType(?string $currentType): string
+    {
+        $options = [];
+        foreach (TransactionSplitType::cases() as $type) {
+            $options[$type->value] = __('cli.transaction_split.type.' . $type->value);
+        }
+
+        return select(
+            __('cli.transaction_split.upsert.type'),
+            $options,
+            $currentType ?? TransactionSplitType::OTHER->value
+        );
     }
 }
