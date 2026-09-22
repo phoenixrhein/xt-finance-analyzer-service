@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $note
  * @property float $amount
  * @property string $transaction_date
+ * @property ?TransactionSplitType $type
  */
 class TransactionSplit extends Model
 {

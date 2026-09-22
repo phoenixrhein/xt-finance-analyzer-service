@@ -70,6 +70,8 @@ class SplitUpsert extends FinCommand implements ProvidesAccountListQueryInterfac
     public function process(): void
     {
         $valid = true;
+        $splitEntry = null;
+        $bankAccount = null;
         do {
             $splitId = (int)$this->argument('splitId');
             $isAdd = $splitId <= 0;
