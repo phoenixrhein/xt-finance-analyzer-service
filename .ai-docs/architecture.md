@@ -39,7 +39,6 @@ Sie sind nach fachlichen Bereichen organisiert, unter anderem:
 * ExclusionList
 * Rule
 * Transaction
-* CashTransaction
 * TransactionAdjustment
 * TransactionSplit
 * Category
@@ -214,7 +213,6 @@ Zu den aktuell vorhandenen Models gehören unter anderem:
 * `Transactions`
 * `TransactionSplit`
 * `TransactionAdjustment`
-* `CashTransaction`
 
 Die Models enthalten insbesondere:
 
@@ -235,7 +233,6 @@ Wichtige Beziehungen sind unter anderem:
 * `BankAccount` → `Rule`
 * `BankAccount` → `Cashflow`
 * `BankAccount` → `ExclusionList`
-* `BankAccount` → `CashTransaction`
 * `BankAccount` → `Transactions`
 * `Cashflow` → Kategorien
 * `Category` → übergeordnete Kategorie und Unterkategorien
@@ -248,8 +245,6 @@ Wichtige Beziehungen sind unter anderem:
 * `Transactions` → `TransactionAdjustment`
 * `Transactions` → `TransactionSplit`
 * `Transactions` ↔ `Rule`
-* `CashTransaction` → `BankAccount`
-* `CashTransaction` → `Transactions`
 
 ## Business Logic in Models
 
@@ -271,7 +266,7 @@ Einige Models enthalten `boot()`-Hooks, über die abhängige Datensätze beim L�
 
 Unter anderem bestehen folgende Abhängigkeiten:
 
-* Beim Löschen eines `BankAccount` werden zugehörige `Cashflow`, `ExclusionList`, `CashTransaction` und `Transactions` entfernt.
+* Beim Löschen eines `BankAccount` werden zugehörige `Cashflow`, `ExclusionList` und `Transactions` entfernt.
 * Beim Löschen eines `Cashflow` werden die zugehörigen Ein- und Ausgangskategorien entfernt.
 * Beim Löschen einer `Category` werden deren Unterkategorien entfernt.
 * Beim Löschen eines `Rule` werden zugehörige `Action` und `ConditionLink` entfernt.
@@ -279,6 +274,42 @@ Unter anderem bestehen folgende Abhängigkeiten:
 * Beim Löschen einer `Transactions` werden zugehörige `TransactionAdjustment` und `TransactionSplit` entfernt.
 
 Die Löschlogik ist damit teilweise in den Models und nicht ausschließlich über Datenbank-Foreign-Keys umgesetzt.
+
+## TransactionSplit
+
+`TransactionSplit` dient zur Aufteilung einer bestehenden `Transaction`.
+
+Der Split-Betrag wird immer als positiver Betrag gespeichert. Das Vorzeichen bzw. der Cashflow wird von der übergeordneten `Transaction` bestimmt.
+
+Aktuell sind folgende Split-Typen vorgesehen:
+
+* `cash_payout`
+* `other`
+
+Ein `cash_payout` stellt einen Bargeldanteil einer bestehenden Transaction dar und wird im Report der Kategorie `Bargeld` zugeordnet.
+
+Ein `other`-Split stellt einen sonstigen Anteil einer Transaction dar, der einer eigenen Kategorie zugeordnet werden kann.
+
+Die Summe aller Splits einer Transaction darf deren absoluten Transaction-Betrag nicht überschreiten.
+
+Die Prüfung erfolgt bereits beim Erstellen und Bearbeiten eines Splits.
+
+Eine eigenständige Bargeldkasse wird derzeit nicht abgebildet. Bargeldeinnahmen ohne zugrunde liegende Bankbuchung werden daher derzeit nicht erfasst.
+
+## Reports
+
+Der aktuelle Report befindet sich in:
+
+`app/Console/Commands/Report/Report.php`
+
+`app/Console/Commands/Report/SimpleReport.php` ist ein alter bzw. Legacy-Report und wird für die aktuelle Reportentwicklung nicht berücksichtigt.
+
+Der aktuelle Report berücksichtigt für eine `Transaction` das effektive Buchungsdatum:
+
+* vorhandene `Transaction Adjustment` → Datum des Adjustments
+* kein Adjustment → ursprüngliches `transaction_date`
+
+Weitere fachliche Reportregeln werden im Rahmen der jeweiligen Weiterentwicklung ergänzt.
 
 ## DTOs
 
