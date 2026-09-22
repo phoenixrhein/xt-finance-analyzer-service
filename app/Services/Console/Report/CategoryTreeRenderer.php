@@ -32,7 +32,7 @@ class CategoryTreeRenderer extends AbstractIOService
      * Render category rows recursively, including subcategories and totals.
      *
      * @param Collection $reportData
-     * @param CategoryNode $category
+     * @param CategoryNode $categoryNode
      * @param callable $getCategoriesCallback
      * @param string $prefix
      */
