@@ -44,7 +44,6 @@
 | nicht zuweisbar | `UNCATEGORISABLE` |
 | Umbuchung | `Transaction Adjustment` |
 | Split-Buchung | `Transaction Split` |
-| Bareinzahlung | `Cash Transaction` |
 
 ### Transaction
 
@@ -54,9 +53,29 @@
 
 Eine `Transaction Adjustment` verändert die ursprüngliche `Transaction` nicht, sondern ermöglicht eine abweichende Berücksichtigung für die Auswertung.
 
+Für die Report-Zuordnung gilt:
+
+* Ist ein `Transaction Adjustment` vorhanden, wird dessen `transaction_date` als effektives Buchungsdatum verwendet.
+* Ist kein `Transaction Adjustment` vorhanden, wird `transactions.transaction_date` verwendet.
+
 ### Transaction Split
 
-Ein `Transaction Split` ermöglicht die Aufteilung einer `Transaction` auf mehrere Kategorien.
+Ein `Transaction Split` ermöglicht die Aufteilung einer `Transaction` auf mehrere Anteile bzw. Kategorien.
+
+Der Betrag eines Splits wird immer als positiver Betrag gespeichert. Das Vorzeichen bzw. der Cashflow wird von der übergeordneten `Transaction` bestimmt.
+
+Aktuell sind folgende Typen definiert:
+
+| Typ | Bedeutung |
+|---|---|
+| `cash_payout` | Bargeldanteil einer bestehenden `Transaction`; wird als `Bargeld` ausgewertet |
+| `other` | Sonstiger Anteil einer `Transaction`, der einer eigenen Kategorie zugeordnet werden kann |
+
+Die Summe aller Splits einer `Transaction` darf den absoluten Betrag der `Transaction` nicht überschreiten.
+
+Die Prüfung erfolgt bereits beim Erstellen und Bearbeiten eines Splits.
+
+Eine eigenständige Bargeldkasse wird derzeit nicht abgebildet. Bargeldeinnahmen ohne zugrunde liegende Bankbuchung werden daher derzeit nicht erfasst.
 
 ### unmatched
 

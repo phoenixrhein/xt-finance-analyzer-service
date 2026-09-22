@@ -19,13 +19,16 @@
 * Programmiersprache: PHP
 * Framework: Laravel
 * Aktuell eingesetzte Version: Laravel 11
-* Aktuell unterstützte PHP-Version: PHP 8.2 oder höher
+* PHP-Anforderung des Projekts: `^8.2`
 * Die Anwendung ist als CLI-Anwendung ausgelegt.
 
 ## Database
 
 * Als Datenbank wird MariaDB verwendet.
 * Die MariaDB-Datenbank läuft aktuell in der lokalen Entwicklungsumgebung über Docker.
+* Das Datenbankschema wird zusätzlich in `.ai-docs/databaseSchema.sql` dokumentiert.
+* Das Projekt verwendet keine Laravel-Migrations zur Pflege des Datenbankschemas.
+* Wenn für eine Änderung SQL-Anpassungen erforderlich sind, werden die SQL-Statements bereitgestellt und manuell ausgeführt.
 
 ## Execution Environment
 
@@ -48,6 +51,8 @@
 * PHPUnit, PHPStan, Larastan und Laravel Pint sind aktuell als Entwicklungsabhängigkeiten vorhanden.
 * Diese Entwicklungswerkzeuge stammen in erster Linie aus der ursprünglichen Laravel-Installation und stellen derzeit keine bewusst festgelegte langfristige Werkzeugauswahl dar.
 * Eine zukünftige Änderung dieser Werkzeuge ist `[NOCH NICHT FESTGELEGT]`.
+* Neue Unit-Tests sind für Änderungen grundsätzlich nicht erforderlich.
+* Bereits vorhandene Tests sollen bei Änderungen berücksichtigt und bei Bedarf angepasst werden, wenn sie durch die Änderung betroffen sind.
 
 ## Version and Update Strategy
 
