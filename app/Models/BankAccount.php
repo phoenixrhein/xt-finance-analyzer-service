@@ -86,15 +86,6 @@ class BankAccount extends Model
      *
      * @return HasMany
      */
-    public function cashTransaction(): HasMany
-    {
-        return $this->hasMany(CashTransaction::class);
-    }
-
-    /**
-     *
-     * @return HasMany
-     */
     public function transactions(): HasMany
     {
         return $this->hasMany(Transactions::class, 'bank_account_iban', 'iban');
@@ -115,11 +106,6 @@ class BankAccount extends Model
             if ($bankAccount->exclusionList) {
                 foreach ($bankAccount->exclusionList as $exclusionList) {
                     $exclusionList->delete();
-                }
-            }
-            if ($bankAccount->cashTransaction) {
-                foreach ($bankAccount->cashTransaction as $cashTransaction) {
-                    $cashTransaction->delete();
                 }
             }
             if ($bankAccount->transactions) {

@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Category;
 use de\xovatec\financeAnalyzer\Models\Transactions;
-use de\xovatec\financeAnalyzer\Models\CashTransaction;
 use de\xovatec\financeAnalyzer\Dto\Report\CategoryNode;
 use de\xovatec\financeAnalyzer\Dto\Report\PeriodReportData;
 use Illuminate\Support\Collection;
@@ -58,17 +57,6 @@ class ReportDataProcessor
         bool $considerExclusionIbans
     ): PeriodReportData {
         $transactions = $this->loadTransactions($bankAccount, $start, $end, $considerExclusionIbans);
-        $cashTransactions = $this->loadCashTransactions($bankAccount, $start, $end);
-        $linkedCashAmounts = $cashTransactions
-            ->whereNotNull('transaction_id')
-            ->groupBy('transaction_id')
-            ->map(fn (Collection $entries): float => (float) $entries->sum('amount'));
-
-        $transactions->each(function (Transactions $transaction) use ($linkedCashAmounts): void {
-            $transaction->amount = (float) $transaction->amount
-                + ($linkedCashAmounts[$transaction->id] ?? 0.0);
-        });
-
         // Load excluded IBAN transactions if needed for reporting
         $excludedIbanTransactions = collect();
         $excludedIbans = [];
@@ -98,19 +86,6 @@ class ReportDataProcessor
             $incomeCategoryId,
             'Unzugeordnet'
         );
-        $unlinkedCashAmount = (float) $cashTransactions
-            ->whereNull('transaction_id')
-            ->sum('amount');
-        if ($unlinkedCashAmount !== 0.0) {
-            $incomingTree->push(new CategoryNode(
-                null,
-                __('cli.report.presentation.label_cash'),
-                $unlinkedCashAmount,
-                0.0,
-                collect(),
-                0
-            ));
-        }
         $outgoingTree = $this->buildCategoryTree(
             $outgoingTransactions,
             $outcomeCategoryId,
@@ -118,7 +93,7 @@ class ReportDataProcessor
         );
 
         // Calculate totals
-        $totalIncome = $incomingTransactions->sum('amount') + $unlinkedCashAmount;
+        $totalIncome = $incomingTransactions->sum('amount');
         $totalOutgoing = abs($outgoingTransactions->sum('amount'));
 
         // Calculate excluded IBAN transfers
@@ -165,36 +140,6 @@ class ReportDataProcessor
         }
 
         return $query->get();
-    }
-
-    /**
-     * Load cash transactions using their own date only when they are unlinked.
-     */
-    private function loadCashTransactions(
-        BankAccount $bankAccount,
-        Carbon $start,
-        Carbon $end
-    ): Collection {
-        return $bankAccount
-            ->cashTransaction()
-            ->with('transaction.transactionAdjustment')
-            ->get()
-            ->filter(function (CashTransaction $cashTransaction) use ($start, $end): bool {
-                if ($cashTransaction->transaction_id === null) {
-                    return Carbon::parse($cashTransaction->cash_booking_date)->betweenIncluded($start, $end);
-                }
-
-                $transaction = $cashTransaction->transaction;
-                if (!$transaction instanceof Transactions) {
-                    return false;
-                }
-
-                $date = $transaction->transactionAdjustment?->transaction_date
-                    ?? $transaction->transaction_date;
-
-                return Carbon::parse($date)->betweenIncluded($start, $end);
-            })
-            ->values();
     }
 
     /**

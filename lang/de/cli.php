@@ -192,41 +192,6 @@ return [
             'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
         ],
     ],
-    'cash_transaction' => [
-        'base' => [
-            'param' => [
-                'cash_transaction_id' => 'ID des Bargeldeinzahlungseintrag'
-            ]
-        ],
-        'upsert' => [
-            'description' => 'Bargeldeinzahlung hinzufügen/bearbeiten',
-            'amount' => 'Bitte geben Sie den Bareinzahlungsbetrag ein',
-            'currency' => 'Bitte geben Sie die Währung ein',
-            'cash_booking_date' => 'Bitte geben Sie die Einzahlungsdatum ein [dd.mm.jjjj]',
-            'note' => 'Bitte geben Sie einen Kommentar ein',
-            'validate_error' => [
-                'transaction_not_found' => 'Die referenzierte Buchung wurde nicht gefunden',
-                'transaction_must_be_expense' => 'Es dürfen nur Ausgaben verknüpft werden',
-                'total_amount_exceeded' => 'Der verbleibende Betrag der Buchung beträgt :rest'
-            ],
-        ],
-        'delete' => [
-            'description' => 'Bargeldeinzahlungseintrag-Eintrag löschen',
-            'confirm' => 'Wollen Sie den Eintrag mit der ID \':id\' [Kommentar: :comment] wirklich löschen?'
-        ],
-        'list' => [
-            'description' => 'Bargeldeinzahlungsliste anzeigen',
-            'table_header' => [
-                'id' => 'ID',
-                'transaction_id' => 'Buchungs-ID',
-                'iban' => 'IBAN',
-                'cash_cash_booking_date' => 'Annahmedatum',
-                'amount' => 'Betrag',
-                'currency' => 'Währung',
-                'note' => 'Kommentar'
-            ]
-        ],
-    ],
     'user' => [
         'add' => [
             'description' => 'Neuen Benutzer anlegen',
@@ -565,7 +530,6 @@ return [
             'label_direct_amount' => 'zugeordnet',
             'label_subcategories_sum' => 'Summe Unterkategorien',
             'label_unassigned' => 'unzugeordnet',
-            'label_cash' => 'Bargeld',
             'label_category' => 'Kategorie',
             'no_data' => 'Keine Daten für den gewählten Zeitraum vorhanden.'
         ]
