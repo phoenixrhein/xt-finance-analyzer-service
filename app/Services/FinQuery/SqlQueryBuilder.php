@@ -27,6 +27,10 @@ class SqlQueryBuilder
      */
     private static function buildConditions(Builder $query, ConditionList $conditions): void
     {
+        $column = static function (Builder $query, string $field): string {
+            return $query->getQuery()->joins === null ? $field : 'transactions.' . $field;
+        };
+
         foreach ($conditions as $condition) {
             if ($condition instanceof ConditionList) {
                 if ($conditions->getLogicalOperator()->value === 'OR') {
@@ -43,13 +47,13 @@ class SqlQueryBuilder
             /** @var Condition $condition */
             if ($conditions->getLogicalOperator()->value !== 'OR') {
                 $query->where(
-                    $condition->getField()->getColumn(),
+                    $column($query, $condition->getField()->getColumn()),
                     $condition->getOperator()->getSqlOperator(),
                     $condition->getOperator()->getSqlValue($condition->getValue())
                 );
             } else {
                 $query->orWhere(
-                    $condition->getField()->getColumn(),
+                    $column($query, $condition->getField()->getColumn()),
                     $condition->getOperator()->getSqlOperator(),
                     $condition->getOperator()->getSqlValue($condition->getValue())
                 );

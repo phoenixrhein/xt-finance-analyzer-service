@@ -429,6 +429,11 @@ return [
     'rule' => [
         'assign' => [
             'description' => 'Regel zuweisen',
+            'target_type' => [
+                'title' => 'Wofür soll die Regel gelten?',
+                'transaction' => 'Normale Buchung',
+                'transaction_split' => 'Sonstiger Split'
+            ],
             'select_more_data_or_add_rule' => [
                 'text' => 'Weitere anzeigen oder ein Regel anlegen',
                 'options' => [

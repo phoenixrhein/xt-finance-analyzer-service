@@ -340,9 +340,32 @@ class ReportDataProcessor
                     ($grouped[self::CASH_PAYOUT_CATEGORY_ID] ?? 0.0) + $cashPayoutAmount;
             }
 
-            $otherAmount = $splitAmounts['other'];
-            if ($otherAmount > 0.0) {
-                $grouped['_unassigned'] = ($grouped['_unassigned'] ?? 0.0) + $otherAmount;
+            $otherSplitIds = $transaction->transactionSplit
+                ->filter(fn ($split) => $split->type?->value === TransactionSplitType::OTHER->value)
+                ->pluck('id');
+
+            if ($otherSplitIds->isNotEmpty()) {
+                $splitMappings = DB::table('rule_transaction_split')
+                    ->join(
+                        'action',
+                        'rule_transaction_split.rule_id',
+                        '=',
+                        'action.rule_id'
+                    )
+                    ->whereIn('rule_transaction_split.transaction_split_id', $otherSplitIds)
+                    ->select('rule_transaction_split.transaction_split_id', 'action.category_id')
+                    ->get()
+                    ->keyBy('transaction_split_id');
+
+                foreach ($transaction->transactionSplit as $split) {
+                    if ($split->type?->value !== TransactionSplitType::OTHER->value) {
+                        continue;
+                    }
+
+                    $splitCategoryId = $splitMappings->get($split->id)?->category_id ?? '_unassigned';
+                    $grouped[$splitCategoryId] = ($grouped[$splitCategoryId] ?? 0.0)
+                        + (float) $split->amount;
+                }
             }
         }
 

@@ -6,6 +6,9 @@ use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Category;
 use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
+use de\xovatec\financeAnalyzer\Models\TransactionSplit;
+use de\xovatec\financeAnalyzer\Enums\RuleTargetType;
+use de\xovatec\financeAnalyzer\Enums\TransactionSplitType;
 use de\xovatec\financeAnalyzer\Services\Console\Output\ConsoleOutputInterface;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\Rule\RuleListService;
@@ -52,6 +55,9 @@ class RefreshTransactionRuleIndexService
         if (DB::table('rule_transaction')->count() === 0) {
             DB::table('rule_transaction')->truncate();
         }
+        DB::table('rule_transaction_split')
+            ->where('bank_account_id', $bankAccount->id)
+            ->delete();
 
         if ($considerExclusionIbans) {
             $exclusionIbans = ExclusionList::where('bank_account_id', $bankAccount->id)->select('value')->get();
@@ -65,14 +71,14 @@ class RefreshTransactionRuleIndexService
             $zero = 0;
 
             foreach ($rules as $rule) {
-                $transactionIds = $this->addRuleTranscations($rule, $bankAccount, $exclusionIbans);
+                $targetIds = $this->addRuleTargets($rule, $bankAccount, $exclusionIbans);
 
-                $countStyle = $transactionIds->count() > 0 ? 'info' : 'error';
-                $transactionIds->count() === 0 ? $zero++ : $updated++;
+                $countStyle = $targetIds->count() > 0 ? 'info' : 'error';
+                $targetIds->count() === 0 ? $zero++ : $updated++;
                 $this->io->line(
                     '<info>' . $rule['name'] . '</info>' .
                     ' [<comment>' . $rule['expression'] . '</comment>]: ' .
-                    "<{$countStyle}>" . count($transactionIds) . "</{$countStyle}>" .
+                    "<{$countStyle}>" . count($targetIds) . "</{$countStyle}>" .
                     ' -> ' . $this->buildPathAsString(Category::find($rule['actions']['category_id']))
                 );
             }
@@ -129,6 +135,53 @@ class RefreshTransactionRuleIndexService
         return $transactionIds;
     }
 
+    private function addRuleTargets(array $rule, BankAccount $bankAccount, Collection $exclusionIbans): SupportCollection
+    {
+        $targetType = RuleTargetType::tryFrom($rule['target_type'] ?? RuleTargetType::TRANSACTION->value)
+            ?? RuleTargetType::TRANSACTION;
+
+        if ($targetType === RuleTargetType::TRANSACTION_SPLIT) {
+            return $this->addRuleTransactionSplits($rule, $bankAccount, $exclusionIbans);
+        }
+
+        return $this->addRuleTranscations($rule, $bankAccount, $exclusionIbans);
+    }
+
+    private function addRuleTransactionSplits(
+        array $rule,
+        BankAccount $bankAccount,
+        Collection $exclusionIbans
+    ): SupportCollection {
+        $query = TransactionSplit::query()
+            ->join('transactions', 'transaction_split.transaction_id', '=', 'transactions.id')
+            ->where('transactions.bank_account_iban', $bankAccount->iban)
+            ->where('transaction_split.type', TransactionSplitType::OTHER->value)
+            ->whereNull('transaction_split.deleted_at');
+
+        if ($exclusionIbans->isNotEmpty()) {
+            $this->applyExclusionIbans($query, $exclusionIbans);
+        }
+
+        $this->applyCashflowFilter($query, $rule);
+        $this->sqlQueryBuilder->build(
+            $query,
+            $this->transformer->transformToConditionList($rule['condition_link'])
+        );
+
+        $splitIds = $query->pluck('transaction_split.id');
+        $insertData = $splitIds->map(fn ($splitId) => [
+            'rule_id' => $rule['id'],
+            'transaction_split_id' => $splitId,
+            'bank_account_id' => $bankAccount->id,
+        ])->toArray();
+
+        foreach (array_chunk($insertData, 5000) as $chunkData) {
+            DB::table('rule_transaction_split')->insert($chunkData);
+        }
+
+        return $splitIds;
+    }
+
     /**
      *
      * @param Builder $query
@@ -138,9 +191,9 @@ class RefreshTransactionRuleIndexService
     private function applyCashflowFilter(Builder $query, array $rule): void
     {
         if ($this->isCashflowInRule($rule)) {
-            $query->where('amount', '>=', 0);
+            $query->where($query->getQuery()->joins ? 'transactions.amount' : 'amount', '>=', 0);
         } else {
-            $query->where('amount', '<', 0);
+            $query->where($query->getQuery()->joins ? 'transactions.amount' : 'amount', '<', 0);
         }
     }
 
@@ -184,6 +237,10 @@ class RefreshTransactionRuleIndexService
             ->where('rule_id', $ruleId)
             ->where('bank_account_id', $bankAccountId)
             ->delete();
+        DB::table('rule_transaction_split')
+            ->where('rule_id', $ruleId)
+            ->where('bank_account_id', $bankAccountId)
+            ->delete();
     }
 
     /**
@@ -207,6 +264,6 @@ class RefreshTransactionRuleIndexService
             throw new \InvalidArgumentException('Rule with ID ' . $ruleId . ' does not exist.');
         }
 
-        $this->addRuleTranscations($rule, $bankAccount, $exclusionIbans);
+        $this->addRuleTargets($rule, $bankAccount, $exclusionIbans);
     }
 }
