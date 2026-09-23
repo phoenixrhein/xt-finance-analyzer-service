@@ -2,6 +2,7 @@
 
 namespace de\xovatec\financeAnalyzer\Models;
 
+use de\xovatec\financeAnalyzer\Enums\Cashflow as CashflowEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -88,7 +89,7 @@ class Category extends Model
      */
     public function getCashflow(): Cashflow
     {
-        $cashflowCategory = $this->getCashflowCategory();
+        $cashflowCategory = $this->getCashflowRootCategory();
         return Cashflow::where('in_category_id', $cashflowCategory->id)
             ->orWhere('out_category_id', $cashflowCategory->id)
             ->first();
@@ -96,15 +97,26 @@ class Category extends Model
 
     /**
      *
+     * @return CashflowEnum
+     */
+    public function getCashflowType(): CashflowEnum 
+    {
+        $cashflow = $this->getCashflow();
+        $rootCategory = $this->getCashflowRootCategory();
+        return $cashflow->in_category_id === $rootCategory->id ? CashflowEnum::in : CashflowEnum::out;
+    }
+
+    /**
+     *
      * @return Category
      */
-    public function getCashflowCategory(): Category
+    public function getCashflowRootCategory(): Category
     {
         if ($this->parent_id === null) {
             return $this;
         }
 
-        return $this->parentCategory->getCashflowCategory();
+        return $this->parentCategory->getCashflowRootCategory();
     }
 
     /**

@@ -94,7 +94,8 @@ class RuleDataManager
         int $categoryId,
         ConditionList $conditionList,
         int $bankAccountId,
-        RuleTargetType $targetType
+        RuleTargetType $targetType,
+        ?array $targetIds = null
     ): int
     {
         Category::findOrFail($categoryId);
@@ -113,7 +114,17 @@ class RuleDataManager
         ]);
 
         $bankAccount = BankAccount::find($bankAccountId);
-        $this->indexService->addRule($rule->id, $bankAccount);
+        if ($targetType === RuleTargetType::TRANSACTION_SPLIT && $targetIds !== null) {
+            foreach ($targetIds as $targetId) {
+                \Illuminate\Support\Facades\DB::table('rule_transaction_split')->insert([
+                    'rule_id' => $rule->id,
+                    'transaction_split_id' => $targetId,
+                    'bank_account_id' => $bankAccountId,
+                ]);
+            }
+        } else {
+            $this->indexService->addRule($rule->id, $bankAccount);
+        }
 
         return $rule->id;
     }

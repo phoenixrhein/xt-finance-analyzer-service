@@ -158,7 +158,7 @@ class RuleTransactionAssignmentsValidator
 
             $category = \de\xovatec\financeAnalyzer\Models\Category::find($rule['actions']['category_id']);
             $cashflow = $category->getCashflow();
-            $cashflowCategory = $category->getCashflowCategory();
+            $cashflowCategory = $category->getCashflowRootCategory();
             $amountOperator = $cashflow->in_category_id === $cashflowCategory->id ? '>=' : '<';
             $splitIds = $ruleQuery->where('transactions.amount', $amountOperator, 0)
                 ->pluck('transaction_split.id');

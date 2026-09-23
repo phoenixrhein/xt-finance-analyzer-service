@@ -207,7 +207,7 @@ class RefreshTransactionRuleIndexService
         /** @var Category $category */
         $category = Category::find($rule['actions']['category_id']);
         $cashflow = $category->getCashflow();
-        $cashflowCategory = $category->getCashflowCategory();
+        $cashflowCategory = $category->getCashflowRootCategory();
 
         return $cashflow->in_category_id === $cashflowCategory->id;
     }
