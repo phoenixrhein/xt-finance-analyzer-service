@@ -15,31 +15,33 @@ class SqlQueryBuilder
      */
     public static function build(Builder $query, ConditionList $conditions): void
     {
-        $query->where(function ($query) use ($conditions) {
-            self::buildConditions($query, $conditions);
+        $hasJoins = $query->getQuery()->joins !== null;
+        $query->where(function ($query) use ($conditions, $hasJoins) {
+            self::buildConditions($query, $conditions, $hasJoins);
         });
     }
 
     /**
      * @param Builder $query
      * @param ConditionList $conditions
+     * @param bool $hasJoins
      * @return void
      */
-    private static function buildConditions(Builder $query, ConditionList $conditions): void
+    private static function buildConditions(Builder $query, ConditionList $conditions, bool $hasJoins): void
     {
-        $column = static function (Builder $query, string $field): string {
-            return $query->getQuery()->joins === null ? $field : 'transactions.' . $field;
+        $column = static function (string $field) use ($hasJoins): string {
+            return $hasJoins ? 'transactions.' . $field : $field;
         };
 
         foreach ($conditions as $condition) {
             if ($condition instanceof ConditionList) {
                 if ($conditions->getLogicalOperator()->value === 'OR') {
-                    $query->orWhere(function ($query) use ($condition) {
-                        self::buildConditions($query, $condition);
+                    $query->orWhere(function ($query) use ($condition, $hasJoins) {
+                        self::buildConditions($query, $condition, $hasJoins);
                     });
                 } else {
-                    $query->where(function ($query) use ($condition) {
-                        self::buildConditions($query, $condition);
+                    $query->where(function ($query) use ($condition, $hasJoins) {
+                        self::buildConditions($query, $condition, $hasJoins);
                     });
                 }
                 continue;
@@ -47,13 +49,13 @@ class SqlQueryBuilder
             /** @var Condition $condition */
             if ($conditions->getLogicalOperator()->value !== 'OR') {
                 $query->where(
-                    $column($query, $condition->getField()->getColumn()),
+                    $column($condition->getField()->getColumn()),
                     $condition->getOperator()->getSqlOperator(),
                     $condition->getOperator()->getSqlValue($condition->getValue())
                 );
             } else {
                 $query->orWhere(
-                    $column($query, $condition->getField()->getColumn()),
+                    $column($condition->getField()->getColumn()),
                     $condition->getOperator()->getSqlOperator(),
                     $condition->getOperator()->getSqlValue($condition->getValue())
                 );
