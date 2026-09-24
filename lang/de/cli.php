@@ -429,6 +429,29 @@ return [
     'rule' => [
         'assign' => [
             'description' => 'Regel zuweisen',
+            'target_type' => [
+                'title' => 'Wofür soll die Regel gelten?',
+                'transaction' => 'Normale Buchung',
+                'transaction_split' => 'Sonstiger Split'
+            ],
+            'transaction_split_id' => 'Split-ID',
+            'transaction_split_not_found' => 'Der Split mit der ID :id wurde nicht gefunden oder ist kein sonstiger Split',
+            'transaction_split_already_assigned' => 'Der Split mit der ID :id ist bereits einer Rule zugewiesen',
+            'invalid_category_cashflow' => 'Die Kategorie gehört nicht zum Cashflow der übergeordneten Buchung',
+            'transaction_split' => [
+                'table' => [
+                    'header' => [
+                        'split_id' => 'Split-ID',
+                        'transaction_id' => 'Transaction-ID',
+                        'transaction_date' => 'Datum',
+                        'amount' => 'Split-Betrag',
+                        'transaction_type' => 'Buchung',
+                        'beneficiary_payee' => 'Begünstigter/Zahlungspflichtiger',
+                        'reason_for_payment' => 'Verwendungszweck',
+                        'note' => 'Split-Notiz'
+                    ]
+                ]
+            ],
             'select_more_data_or_add_rule' => [
                 'text' => 'Weitere anzeigen oder ein Regel anlegen',
                 'options' => [

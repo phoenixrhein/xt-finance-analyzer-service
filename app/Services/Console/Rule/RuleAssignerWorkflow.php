@@ -5,18 +5,24 @@ namespace de\xovatec\financeAnalyzer\Services\Console\Rule;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Console\Commands\Transaction\TransactionList;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
+use de\xovatec\financeAnalyzer\Dto\FinQuery\Condition;
 use de\xovatec\financeAnalyzer\Helpers\CopyBuilderQueryHelper;
 use de\xovatec\financeAnalyzer\Helpers\FilterTransactionDurationHelper;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Cashflow;
 use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
+use de\xovatec\financeAnalyzer\Models\TransactionSplit;
+use de\xovatec\financeAnalyzer\Enums\RuleTargetType;
+use de\xovatec\financeAnalyzer\Enums\TransactionSplitType;
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
 use de\xovatec\financeAnalyzer\Services\Console\Category\ManageConsoleService;
 use de\xovatec\financeAnalyzer\Services\Console\Category\TreeViewConsoleService;
 use de\xovatec\financeAnalyzer\Services\Console\Rule\UnmatchedTransactionsDisplayService;
 use de\xovatec\financeAnalyzer\Services\FinQuery\FinQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
+use de\xovatec\financeAnalyzer\Services\FinQuery\Fields\Transaction\IdField;
+use de\xovatec\financeAnalyzer\Services\FinQuery\Operators\Equal;
 use de\xovatec\financeAnalyzer\Services\Query\AccountListQuery;
 use de\xovatec\financeAnalyzer\Services\Rule\Expression\CliErrorHighlighter;
 use de\xovatec\financeAnalyzer\Services\Rule\Expression\ExpressionSyntaxParser;
@@ -46,6 +52,8 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
      * @var boolean
      */
     private bool $overlapMatches = false;
+
+    private RuleTargetType $targetType = RuleTargetType::TRANSACTION;
 
     public function __construct(
         private AccountListQuery $accountListQuery,
@@ -119,10 +127,23 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
      */
     public function assignRule(BankAccount $bankAccount, FinCommand $command): void
     {
+        $this->targetType = RuleTargetType::from(select(
+            __('cli.rule.assign.target_type.title'),
+            [
+                RuleTargetType::TRANSACTION->value => __('cli.rule.assign.target_type.transaction'),
+                RuleTargetType::TRANSACTION_SPLIT->value => __('cli.rule.assign.target_type.transaction_split'),
+            ]
+        ));
 
         $exclusionIbans = ExclusionList::where('bank_account_id', $bankAccount->id)->select('value')->get();
 
-        $this->viewUnmatchedTransactions($bankAccount, $exclusionIbans, $command);
+        if ($this->targetType === RuleTargetType::TRANSACTION) {
+            $this->viewUnmatchedTransactions($bankAccount, $exclusionIbans, $command);
+        } else {
+            $this->viewUnmatchedTransactionSplits($bankAccount, $exclusionIbans, $command);
+            $this->assignTransactionSplitRule($bankAccount, $exclusionIbans);
+            return;
+        }
 
         $queryType = select(
             __('cli.transaction.list.query_type.title'),
@@ -132,17 +153,33 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
             ]
         );
 
-        $transactions = Transactions::where('bank_account_iban', $bankAccount->iban)->orderBy('id');
+        $transactions = $this->buildAssignmentQuery($bankAccount, $exclusionIbans);
 
-        if ($exclusionIbans->isNotEmpty()) {
-            $transactions = $transactions->whereNotIn('creditor_iban', $exclusionIbans->toArray());
+        if ($this->targetType === RuleTargetType::TRANSACTION) {
+            $transactions->leftJoin('rule_transaction', 'transactions.id', '=', 'rule_transaction.transaction_id');
+        } else {
+            $transactions->leftJoin(
+                'rule_transaction_split',
+                'transaction_split.id',
+                '=',
+                'rule_transaction_split.transaction_split_id'
+            );
         }
-
-        $transactions->leftJoin('rule_transaction', 'transactions.id', '=', 'rule_transaction.transaction_id');
 
         $viewConfig = TransactionList::$compactView;
         $viewConfigColumns = array_keys($viewConfig);
-        array_push($viewConfigColumns, 'rule_transaction.rule_id');
+        if ($this->targetType === RuleTargetType::TRANSACTION_SPLIT) {
+            $viewConfigColumns = array_map(
+                fn (string $column): string => 'transactions.' . $column . ' as ' . $column,
+                $viewConfigColumns
+            );
+        }
+        array_push(
+            $viewConfigColumns,
+            $this->targetType === RuleTargetType::TRANSACTION
+                ? 'rule_transaction.rule_id'
+                : 'rule_transaction_split.rule_id'
+        );
         $transactions->select($viewConfigColumns);
 
         $conditionList = $this->createRuleCondition($transactions, $queryType);
@@ -162,7 +199,8 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
             $this->viewInput('Name der Regel', 'required|min:1|unique:rule,name'),
             $selectedCategoryId,
             $conditionList,
-            $bankAccount->id
+            $bankAccount->id,
+            $this->targetType
         );
 
         if (
@@ -185,6 +223,65 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
         }
     }
 
+    private function assignTransactionSplitRule(BankAccount $bankAccount, Collection $exclusionIbans): void
+    {
+        do {
+            $splitId = (int) $this->viewInput(
+                __('cli.rule.assign.transaction_split_id'),
+                'required|integer|min:1'
+            );
+            $split = TransactionSplit::query()
+                ->whereKey($splitId)
+                ->where('type', TransactionSplitType::OTHER->value)
+                ->whereHas('transaction', function (Builder $query) use ($bankAccount, $exclusionIbans): void {
+                    $query->where('bank_account_iban', $bankAccount->iban);
+                    if ($exclusionIbans->isNotEmpty()) {
+                        $query->whereNotIn('creditor_iban', $exclusionIbans->toArray());
+                    }
+                })
+                ->first();
+
+            if ($split === null) {
+                $this->error(__('cli.rule.assign.transaction_split_not_found', ['id' => $splitId]));
+                continue;
+            }
+
+            if (DB::table('rule_transaction_split')->where('transaction_split_id', $split->id)->exists()) {
+                $this->error(__('cli.rule.assign.transaction_split_already_assigned', ['id' => $splitId]));
+                continue;
+            }
+            break;
+        } while (true);
+
+        $cashflow = Cashflow::where('bank_account_id', $bankAccount->id)->first();
+        if (!$cashflow instanceof Cashflow) {
+            $this->error(__('cli.category.base.error.not_found_cashflow', ['bankAccountId' => $bankAccount->id]));
+            return;
+        }
+
+        $expectedCashflow = $split->getCashflow();
+        $this->treeViewConsoleService->displayCashflowTrees($cashflow);
+        $this->manageConsoleService->manage($bankAccount->id, __('cli.rule.assign.cat_mgmt_continue_button_text'));
+        $selectedCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow);
+        $selectedCategory = \de\xovatec\financeAnalyzer\Models\Category::findOrFail($selectedCategoryId);
+        if ($selectedCategory->getCashflowType() !== $expectedCashflow) {
+            $this->error(__('cli.rule.assign.invalid_category_cashflow'));
+            return;
+        }
+
+        $conditionList = (new ConditionList())->add(
+            new Condition(new IdField(), new Equal(), (string) $split->transaction_id)
+        );
+        $this->saveRule(
+            $this->viewInput('Name der Regel', 'required|min:1|unique:rule,name'),
+            $selectedCategoryId,
+            $conditionList,
+            $bankAccount->id,
+            RuleTargetType::TRANSACTION_SPLIT,
+            [$split->id]
+        );
+    }
+
     /**
      *
      * @param string $name
@@ -197,15 +294,19 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
         string $name,
         int $categoryId,
         ConditionList $conditionList,
-        int $bankAccountId
+        int $bankAccountId,
+        RuleTargetType $targetType,
+        ?array $targetIds = null
     ): void {
         try {
             DB::beginTransaction();
-            $id = $this->ruleDataManager->saveRule(
+            $id = $this->ruleDataManager->saveRuleForTarget(
                 $name,
                 $categoryId,
                 $conditionList,
-                $bankAccountId
+                $bankAccountId,
+                $targetType,
+                $targetIds
             );
             DB::commit();
             $this->info(__('cli.rule.assign.result.info', ['id' => $id]));
@@ -213,6 +314,86 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
             DB::rollBack();
             Log::error($e->getMessage());
             $this->error(__('cli.rule.assign.result.error'));
+        }
+    }
+
+    /**
+     *
+     * @param BankAccount $bankAccount
+     * @param Collection $exclusionIbans
+     * @return Builder
+     */
+    private function buildAssignmentQuery(BankAccount $bankAccount, Collection $exclusionIbans): Builder
+    {
+        if ($this->targetType === RuleTargetType::TRANSACTION) {
+            $query = Transactions::where('transactions.bank_account_iban', $bankAccount->iban)
+                ->orderBy('transactions.id');
+        } else {
+            $query = TransactionSplit::query()
+                ->join('transactions', 'transaction_split.transaction_id', '=', 'transactions.id')
+                ->where('transactions.bank_account_iban', $bankAccount->iban)
+                ->where('transaction_split.type', TransactionSplitType::OTHER->value)
+                ->whereNull('transaction_split.deleted_at')
+                ->orderBy('transaction_split.id');
+        }
+
+        if ($exclusionIbans->isNotEmpty()) {
+            $query->whereNotIn('transactions.creditor_iban', $exclusionIbans->toArray());
+        }
+
+        return $query;
+    }
+
+    /**
+     *
+     * @param BankAccount $bankAccount
+     * @param Collection $exclusionIbans
+     * @param FinCommand $command
+     * @return void
+     */
+    private function viewUnmatchedTransactionSplits(
+        BankAccount $bankAccount,
+        Collection $exclusionIbans,
+        FinCommand $command
+    ): void {
+        $splitView = [
+            'split_id' => ['width' => 8],
+            'transaction_id' => ['width' => 13],
+            'transaction_date' => ['width' => 10],
+            'amount' => ['width' => 10],
+            'transaction_type' => ['width' => 35],
+            'beneficiary_payee' => ['width' => '35%'],
+            'reason_for_payment' => ['width' => '35%'],
+            'note' => ['width' => 20],
+        ];
+        $splits = $this->buildAssignmentQuery($bankAccount, $exclusionIbans)
+            ->leftJoin(
+                'rule_transaction_split',
+                'transaction_split.id',
+                '=',
+                'rule_transaction_split.transaction_split_id'
+            )
+            ->whereNull('rule_transaction_split.transaction_split_id')
+            ->select(
+                'transaction_split.id as split_id',
+                'transactions.id as transaction_id',
+                'transactions.transaction_date',
+                'transaction_split.amount',
+                'transactions.transaction_type',
+                'transactions.beneficiary_payee',
+                'transactions.reason_for_payment',
+                'transaction_split.note'
+            )
+            ->limit(10)
+            ->get();
+
+        if ($splits->isNotEmpty()) {
+            $this->tableConsolePagination(
+                $splits,
+                $splitView,
+                null,
+                'cli.rule.assign.transaction_split.table.header.'
+            );
         }
     }
 
@@ -349,7 +530,10 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
      */
     protected function onTotalResult(Builder $clonedTransactions): void
     {
-        $clonedTransactions->whereNotNull('rule_transaction.rule_id');
+        $pivot = $this->targetType === RuleTargetType::TRANSACTION
+            ? 'rule_transaction.rule_id'
+            : 'rule_transaction_split.rule_id';
+        $clonedTransactions->whereNotNull($pivot);
         $found = $clonedTransactions->count();
         $this->overlapMatches = $found > 0;
         if ($found > 0) {

@@ -11,6 +11,7 @@ use de\xovatec\financeAnalyzer\Models\ConditionLink;
 use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Exceptions\ExpressionSyntaxException;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
+use de\xovatec\financeAnalyzer\Enums\RuleTargetType;
 use de\xovatec\financeAnalyzer\Services\Rule\RefreshTransactionRuleIndexService;
 
 class RuleDataManager
@@ -70,13 +71,40 @@ class RuleDataManager
      */
     public function saveRule(string $name, int $categoryId, ConditionList $conditionList, int $bankAccountId): int
     {
+        return $this->saveRuleForTarget(
+            $name,
+            $categoryId,
+            $conditionList,
+            $bankAccountId,
+            RuleTargetType::TRANSACTION
+        );
+    }
+
+    /**
+     *
+     * @param string $name
+     * @param integer $categoryId
+     * @param ConditionList $conditionList
+     * @param integer $bankAccountId
+     * @param RuleTargetType $targetType
+     * @return int
+     */
+    public function saveRuleForTarget(
+        string $name,
+        int $categoryId,
+        ConditionList $conditionList,
+        int $bankAccountId,
+        RuleTargetType $targetType,
+        ?array $targetIds = null
+    ): int {
         Category::findOrFail($categoryId);
         $conditionLinkId = $this->saveCondition($this->transformer->transformToArray($conditionList));
 
         $rule = Rule::create([
             'name' => $name,
             'condition_link_id' => $conditionLinkId,
-            'bank_account_id' => $bankAccountId
+            'bank_account_id' => $bankAccountId,
+            'target_type' => $targetType,
         ]);
 
         Action::create([
@@ -85,7 +113,17 @@ class RuleDataManager
         ]);
 
         $bankAccount = BankAccount::find($bankAccountId);
-        $this->indexService->addRule($rule->id, $bankAccount);
+        if ($targetType === RuleTargetType::TRANSACTION_SPLIT && $targetIds !== null) {
+            foreach ($targetIds as $targetId) {
+                \Illuminate\Support\Facades\DB::table('rule_transaction_split')->insert([
+                    'rule_id' => $rule->id,
+                    'transaction_split_id' => $targetId,
+                    'bank_account_id' => $bankAccountId,
+                ]);
+            }
+        } else {
+            $this->indexService->addRule($rule->id, $bankAccount);
+        }
 
         return $rule->id;
     }

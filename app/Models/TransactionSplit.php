@@ -6,7 +6,9 @@ use de\xovatec\financeAnalyzer\Enums\Cashflow;
 use de\xovatec\financeAnalyzer\Enums\TransactionSplitType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property int $transaction_id
@@ -19,6 +21,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class TransactionSplit extends Model
 {
     use SoftDeletes;
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::deleting(function (TransactionSplit $split): void {
+            DB::table('rule_transaction_split')
+                ->where('transaction_split_id', $split->id)
+                ->delete();
+        });
+    }
 
     /**
      *
@@ -47,6 +60,12 @@ class TransactionSplit extends Model
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transactions::class, 'transaction_id', 'id');
+    }
+
+    public function rules(): BelongsToMany
+    {
+        return $this->belongsToMany(Rule::class, 'rule_transaction_split')
+            ->withPivot('bank_account_id');
     }
 
     /**

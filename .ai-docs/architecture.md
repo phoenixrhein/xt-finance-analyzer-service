@@ -253,7 +253,7 @@ Ein Teil der fachlichen Logik befindet sich auch in den Models.
 Beispiele:
 
 * `Cashflow::createWithCategories()` erzeugt die zugehörigen Ein- und Ausgangskategorien.
-* `Category::getCashflow()` und `Category::getCashflowCategory()` ermitteln den zugehörigen Cashflow über die Kategoriehierarchie.
+* `Category::getCashflow()` und `Category::getCashflowRootCategory()` ermitteln den zugehörigen Cashflow über die Kategoriehierarchie.
 * `Category::ancestors()` liefert die übergeordneten Kategorien.
 * `BankAccount::getRules()` und `Category::getRules()` stellen Validierungsregeln bereit.
 * `User::$rules` enthält Validierungsregeln für Benutzer.
