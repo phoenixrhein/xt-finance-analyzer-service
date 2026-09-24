@@ -96,8 +96,7 @@ class RuleDataManager
         int $bankAccountId,
         RuleTargetType $targetType,
         ?array $targetIds = null
-    ): int
-    {
+    ): int {
         Category::findOrFail($categoryId);
         $conditionLinkId = $this->saveCondition($this->transformer->transformToArray($conditionList));
 

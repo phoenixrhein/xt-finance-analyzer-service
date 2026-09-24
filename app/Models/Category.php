@@ -99,7 +99,7 @@ class Category extends Model
      *
      * @return CashflowEnum
      */
-    public function getCashflowType(): CashflowEnum 
+    public function getCashflowType(): CashflowEnum
     {
         $cashflow = $this->getCashflow();
         $rootCategory = $this->getCashflowRootCategory();

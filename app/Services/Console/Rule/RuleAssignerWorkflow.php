@@ -317,71 +317,84 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
         }
     }
 
+    /**
+     *
+     * @param BankAccount $bankAccount
+     * @param Collection $exclusionIbans
+     * @return Builder
+     */
     private function buildAssignmentQuery(BankAccount $bankAccount, Collection $exclusionIbans): Builder
-        {
-            if ($this->targetType === RuleTargetType::TRANSACTION) {
-                $query = Transactions::where('transactions.bank_account_iban', $bankAccount->iban)
-                    ->orderBy('transactions.id');
-            } else {
-                $query = TransactionSplit::query()
-                    ->join('transactions', 'transaction_split.transaction_id', '=', 'transactions.id')
-                    ->where('transactions.bank_account_iban', $bankAccount->iban)
-                    ->where('transaction_split.type', TransactionSplitType::OTHER->value)
-                    ->whereNull('transaction_split.deleted_at')
-                    ->orderBy('transaction_split.id');
-            }
-
-            if ($exclusionIbans->isNotEmpty()) {
-                $query->whereNotIn('transactions.creditor_iban', $exclusionIbans->toArray());
-            }
-
-            return $query;
+    {
+        if ($this->targetType === RuleTargetType::TRANSACTION) {
+            $query = Transactions::where('transactions.bank_account_iban', $bankAccount->iban)
+                ->orderBy('transactions.id');
+        } else {
+            $query = TransactionSplit::query()
+                ->join('transactions', 'transaction_split.transaction_id', '=', 'transactions.id')
+                ->where('transactions.bank_account_iban', $bankAccount->iban)
+                ->where('transaction_split.type', TransactionSplitType::OTHER->value)
+                ->whereNull('transaction_split.deleted_at')
+                ->orderBy('transaction_split.id');
         }
 
-    private function viewUnmatchedTransactionSplits(
-            BankAccount $bankAccount,
-            Collection $exclusionIbans,
-            FinCommand $command
-        ): void {
-            $splitView = [
-                'split_id' => ['width' => 8],
-                'transaction_id' => ['width' => 13],
-                'transaction_date' => ['width' => 10],
-                'amount' => ['width' => 10],
-                'transaction_type' => ['width' => 35],
-                'beneficiary_payee' => ['width' => '35%'],
-                'reason_for_payment' => ['width' => '35%'],
-                'note' => ['width' => 20],
-            ];
-            $splits = $this->buildAssignmentQuery($bankAccount, $exclusionIbans)
-                ->leftJoin(
-                    'rule_transaction_split',
-                    'transaction_split.id',
-                    '=',
-                    'rule_transaction_split.transaction_split_id'
-                )
-                ->whereNull('rule_transaction_split.transaction_split_id')
-                ->select(
-                        'transaction_split.id as split_id',
-                        'transactions.id as transaction_id',
-                        'transactions.transaction_date',
-                        'transaction_split.amount',
-                        'transactions.transaction_type',
-                        'transactions.beneficiary_payee',
-                        'transactions.reason_for_payment',
-                        'transaction_split.note'
-                    )
-                    ->limit(10)
-                    ->get();
+        if ($exclusionIbans->isNotEmpty()) {
+            $query->whereNotIn('transactions.creditor_iban', $exclusionIbans->toArray());
+        }
 
-            if ($splits->isNotEmpty()) {
-                $this->tableConsolePagination(
-                    $splits,
-                    $splitView,
-                    null,
-                    'cli.rule.assign.transaction_split.table.header.'
-                );
-            }
+        return $query;
+    }
+
+    /**
+     *
+     * @param BankAccount $bankAccount
+     * @param Collection $exclusionIbans
+     * @param FinCommand $command
+     * @return void
+     */
+    private function viewUnmatchedTransactionSplits(
+        BankAccount $bankAccount,
+        Collection $exclusionIbans,
+        FinCommand $command
+    ): void {
+        $splitView = [
+            'split_id' => ['width' => 8],
+            'transaction_id' => ['width' => 13],
+            'transaction_date' => ['width' => 10],
+            'amount' => ['width' => 10],
+            'transaction_type' => ['width' => 35],
+            'beneficiary_payee' => ['width' => '35%'],
+            'reason_for_payment' => ['width' => '35%'],
+            'note' => ['width' => 20],
+        ];
+        $splits = $this->buildAssignmentQuery($bankAccount, $exclusionIbans)
+            ->leftJoin(
+                'rule_transaction_split',
+                'transaction_split.id',
+                '=',
+                'rule_transaction_split.transaction_split_id'
+            )
+            ->whereNull('rule_transaction_split.transaction_split_id')
+            ->select(
+                    'transaction_split.id as split_id',
+                    'transactions.id as transaction_id',
+                    'transactions.transaction_date',
+                    'transaction_split.amount',
+                    'transactions.transaction_type',
+                    'transactions.beneficiary_payee',
+                    'transactions.reason_for_payment',
+                    'transaction_split.note'
+                )
+                ->limit(10)
+                ->get();
+
+        if ($splits->isNotEmpty()) {
+            $this->tableConsolePagination(
+                $splits,
+                $splitView,
+                null,
+                'cli.rule.assign.transaction_split.table.header.'
+            );
+        }
     }
 
     /**

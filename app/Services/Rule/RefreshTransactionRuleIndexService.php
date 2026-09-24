@@ -135,8 +135,18 @@ class RefreshTransactionRuleIndexService
         return $transactionIds;
     }
 
-    private function addRuleTargets(array $rule, BankAccount $bankAccount, Collection $exclusionIbans): SupportCollection
-    {
+    /**
+     *
+     * @param array $rule
+     * @param BankAccount $bankAccount
+     * @param Collection $exclusionIbans
+     * @return SupportCollection
+     */
+    private function addRuleTargets(
+        array $rule,
+        BankAccount $bankAccount,
+        Collection $exclusionIbans
+    ): SupportCollection {
         $targetType = RuleTargetType::tryFrom($rule['target_type'] ?? RuleTargetType::TRANSACTION->value)
             ?? RuleTargetType::TRANSACTION;
 
