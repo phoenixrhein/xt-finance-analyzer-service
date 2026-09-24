@@ -14,6 +14,7 @@ use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Models\TransactionSplit;
 use de\xovatec\financeAnalyzer\Enums\RuleTargetType;
+use de\xovatec\financeAnalyzer\Enums\Cashflow as CashflowType;
 use de\xovatec\financeAnalyzer\Enums\TransactionSplitType;
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
 use de\xovatec\financeAnalyzer\Services\Console\Category\ManageConsoleService;
@@ -183,6 +184,7 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
         $transactions->select($viewConfigColumns);
 
         $conditionList = $this->createRuleCondition($transactions, $queryType);
+        $categoryCashflowType = $this->getCategoryCashflowType($conditionList);
 
         $cashflow = Cashflow::where('bank_account_id', $bankAccount->id)->first();
         if (!$cashflow instanceof Cashflow) {
@@ -191,9 +193,9 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
             return;
         }
 
-        $this->treeViewConsoleService->displayCashflowTrees($cashflow);
+        $this->treeViewConsoleService->displayCashflowTrees($cashflow, $categoryCashflowType);
         $this->manageConsoleService->manage($bankAccount->id, __('cli.rule.assign.cat_mgmt_continue_button_text'));
-        $selectedCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow);
+        $selectedCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow, $categoryCashflowType);
 
         $this->saveRule(
             $this->viewInput('Name der Regel', 'required|min:1|unique:rule,name'),
@@ -221,6 +223,29 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
                 $this->assignRule($bankAccount, $command);
             }
         }
+    }
+
+    private function getCategoryCashflowType(ConditionList $conditionList): ?CashflowType
+    {
+        if ($this->targetType !== RuleTargetType::TRANSACTION || $conditionList->count() !== 1) {
+            return null;
+        }
+
+        $condition = $conditionList->all()[0];
+        if ($condition->getField()->getColumn() !== 'id') {
+            return null;
+        }
+
+        $transaction = Transactions::findOrFail((int) $condition->getValue());
+        if ((float) $transaction->amount > 0) {
+            return CashflowType::in;
+        }
+
+        if ((float) $transaction->amount < 0) {
+            return CashflowType::out;
+        }
+
+        return null;
     }
 
     private function assignTransactionSplitRule(BankAccount $bankAccount, Collection $exclusionIbans): void

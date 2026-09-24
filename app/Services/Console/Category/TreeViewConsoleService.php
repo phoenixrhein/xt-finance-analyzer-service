@@ -4,6 +4,7 @@ namespace de\xovatec\financeAnalyzer\Services\Console\Category;
 
 use de\xovatec\financeAnalyzer\Models\Cashflow;
 use de\xovatec\financeAnalyzer\Models\Category;
+use de\xovatec\financeAnalyzer\Enums\Cashflow as CashflowType;
 use Illuminate\Database\Eloquent\Collection;
 
 class TreeViewConsoleService extends AbstractCategory
@@ -11,10 +12,23 @@ class TreeViewConsoleService extends AbstractCategory
     /**
      *
      * @param Cashflow $cashflow
+     * @param CashflowType|null $cashflowType
      * @return void
      */
-    public function displayCashflowTrees(Cashflow $cashflow): void
+    public function displayCashflowTrees(Cashflow $cashflow, ?CashflowType $cashflowType = null): void
     {
+        if ($cashflowType === CashflowType::in) {
+            $inCategory = Category::with('subCategories')->findOrFail($cashflow->in_category_id);
+            $this->displayCategoryWithSubcategories($inCategory);
+            return;
+        }
+
+        if ($cashflowType === CashflowType::out) {
+            $outCategory = Category::with('subCategories')->findOrFail($cashflow->out_category_id);
+            $this->displayCategoryWithSubcategories($outCategory);
+            return;
+        }
+
         $inCategory = Category::with('subCategories')->findOrFail($cashflow->in_category_id);
         $outCategory = Category::with('subCategories')->findOrFail($cashflow->out_category_id);
         $this->displayCategoryWithSubcategories($inCategory);
