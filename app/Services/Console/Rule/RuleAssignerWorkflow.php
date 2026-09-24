@@ -375,17 +375,17 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
             )
             ->whereNull('rule_transaction_split.transaction_split_id')
             ->select(
-                    'transaction_split.id as split_id',
-                    'transactions.id as transaction_id',
-                    'transactions.transaction_date',
-                    'transaction_split.amount',
-                    'transactions.transaction_type',
-                    'transactions.beneficiary_payee',
-                    'transactions.reason_for_payment',
-                    'transaction_split.note'
-                )
-                ->limit(10)
-                ->get();
+                'transaction_split.id as split_id',
+                'transactions.id as transaction_id',
+                'transactions.transaction_date',
+                'transaction_split.amount',
+                'transactions.transaction_type',
+                'transactions.beneficiary_payee',
+                'transactions.reason_for_payment',
+                'transaction_split.note'
+            )
+            ->limit(10)
+            ->get();
 
         if ($splits->isNotEmpty()) {
             $this->tableConsolePagination(

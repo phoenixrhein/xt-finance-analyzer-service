@@ -147,7 +147,7 @@ class RuleTransactionAssignmentsValidator
         $splitRuleMap = [];
         foreach ($this->ruleListService->getRulesWithExpression($bankAccount->id) as $rule) {
             if (
-                ($rule['target_type'] ?? RuleTargetType::TRANSACTION->value) 
+                ($rule['target_type'] ?? RuleTargetType::TRANSACTION->value)
                 !== RuleTargetType::TRANSACTION_SPLIT->value
             ) {
                 continue;
