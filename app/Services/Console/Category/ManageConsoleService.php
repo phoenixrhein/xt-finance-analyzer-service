@@ -5,6 +5,7 @@ namespace de\xovatec\financeAnalyzer\Services\Console\Category;
 use de\xovatec\financeAnalyzer\Models\Action;
 use de\xovatec\financeAnalyzer\Models\Cashflow;
 use de\xovatec\financeAnalyzer\Models\Category;
+use de\xovatec\financeAnalyzer\Enums\Cashflow as CashflowType;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\select;
@@ -130,13 +131,23 @@ class ManageConsoleService extends AbstractCategory
     /**
      *
      * @param Cashflow $cashflow
+     * @param CashflowType|null $cashflowType
      * @return integer
      */
-    public function findAndSelectCategory(Cashflow $cashflow): int
+    public function findAndSelectCategory(Cashflow $cashflow, ?CashflowType $cashflowType = null): int
     {
-        $this->emptyLn();
-        $this->treeViewConsoleService->displayCashflowTrees($cashflow);
-        return (int)$this->viewCategoryIdInput('id', __('cli.category.base.select_category'));
+        do {
+            $this->emptyLn();
+            $this->treeViewConsoleService->displayCashflowTrees($cashflow, $cashflowType);
+            $categoryId = (int)$this->viewCategoryIdInput('id', __('cli.category.base.select_category'));
+            $category = Category::findOrFail($categoryId);
+
+            if ($cashflowType === null || $category->getCashflowType() === $cashflowType) {
+                return $categoryId;
+            }
+
+            $this->error(__('cli.rule.assign.invalid_category_cashflow'));
+        } while (true);
     }
 
     /**
