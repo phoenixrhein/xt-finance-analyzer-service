@@ -48,6 +48,16 @@ abstract class BaseField
     /**
      *
      * @param mixed $value
+     * @return mixed
+     */
+    public function normalizeValue(mixed $value): mixed
+    {
+        return $value;
+    }
+
+    /**
+     *
+     * @param mixed $value
      * @param array $rules
      * @return boolean
      */
