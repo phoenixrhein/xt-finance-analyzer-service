@@ -31,6 +31,7 @@
 Weiterentwicklung des bestehenden Brownfield-Projekts in Richtung Version 1.0.
 
 Aktuell liegt der Fokus auf der Planung und Umsetzung weiterer Entwicklungsarbeiten im bestehenden Projekt, wobei die vorhandene Architektur grundsätzlich beibehalten wird.
+Die deutsche Betragsvalidierung und -normalisierung für den manuellen Regelassigner und den FinQuery-Pfad wurde umgesetzt.
 
 
 ## Aktuelles Ziel

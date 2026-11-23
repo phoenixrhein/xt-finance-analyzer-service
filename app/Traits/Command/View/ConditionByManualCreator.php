@@ -291,6 +291,8 @@ trait ConditionByManualCreator
             if (!$field->validate($value)) {
                 $this->error($field->getError());
                 $valid = false;
+            } else {
+                $value = $field->normalizeValue($value);
             }
         } while (!$valid);
 

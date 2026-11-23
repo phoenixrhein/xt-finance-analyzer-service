@@ -45,6 +45,9 @@ class ExpressionSyntaxParser
         }
         $list = new ConditionList();
         $this->parseExpression($expression, 0, $list);
+        if ($this->errorReport->hasErrors()) {
+            return null;
+        }
         return $list;
     }
 
@@ -257,10 +260,11 @@ class ExpressionSyntaxParser
     {
         $trimmedCondition = trim($condition);
         $value = null;
+        $validValue = true;
 
         $fields = array_keys(FieldConfig::getAvailableFieldsWithColumnKey());
 
-        $pattern = "/^([^\s]+)\s*([^\s]+)\s*('([^']+)'|(\d+\.\d+|\d+))$/";
+        $pattern = "/^([^\s]+)\s*([^\s]+)\s*('([^']+)'|([^\s]+))$/";
         $isValidSyntax = preg_match($pattern, $trimmedCondition, $matches);
 
         if ($isValidSyntax !== 1) {
@@ -270,7 +274,7 @@ class ExpressionSyntaxParser
                 __('cli.fin_query.parser.error.invalid_syntax', ['trimmedCondition' => $trimmedCondition])
             );
         } else {
-            $value = isset($matches[3]) ? trim($matches[3], "'") : ($matches[5] ?? $matches[4]);
+            $value = !empty($matches[4]) ? $matches[4] : ($matches[5] ?? '');
 
             if (isset($matches[1]) && in_array($matches[1], $fields) === false) {
                 $this->errorReport->addError(
@@ -295,16 +299,23 @@ class ExpressionSyntaxParser
                 }
 
                 if ($field->validate($value) === false) {
+                    $validValue = false;
                     $this->errorReport->addError(
                         new ElementPosition($condition, $sectionPositionFrom, $matches[2]),
                         ParserErrorType::VALUE,
                         __('cli.fin_query.parser.error.invalid_value', ['error_message' => $field->getError()])
                     );
+                } else {
+                    $value = $field->normalizeValue($value);
                 }
             }
         }
 
         if (empty($matches[1]) || empty($matches[2])) {
+            return null;
+        }
+
+        if (!$validValue) {
             return null;
         }
 

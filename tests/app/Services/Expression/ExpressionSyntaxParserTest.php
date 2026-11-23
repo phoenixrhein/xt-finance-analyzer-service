@@ -79,6 +79,16 @@ class ExpressionSyntaxParserTest extends TestCase
                 "select * from `transactions` where (`amount` = ?)"
             ],
             [
+                "amount > 000",
+                "amount > '0'",
+                "select * from `transactions` where (`amount` > ?)"
+            ],
+            [
+                "amount > 12,5",
+                "amount > '12.50'",
+                "select * from `transactions` where (`amount` > ?)"
+            ],
+            [
                 "(amount  >  '1555'  AND amount = '1700' )  OR  (amount =  12 AND amount = 13)",
                 "(amount > '1555' AND amount = '1700') OR (amount = '12' AND amount = '13')",
                 "select * from `transactions` where ((`amount` > ? and `amount` = ?) or (`amount` = ? and `amount` = ?))"
@@ -144,5 +154,21 @@ class ExpressionSyntaxParserTest extends TestCase
             $query->toSql(),
             "SQL Query does not match expected result for expression: {$expectedSqlQuery}"
         );
+    }
+
+    public function testInvalidAmountInFinQueryIsRejected(): void
+    {
+        $conditionList = $this->parser->parse("amount > 12,555");
+
+        $this->assertNull($conditionList);
+        $this->assertTrue($this->parser->getErrorReport()->hasErrors());
+    }
+
+    public function testNonNumericAmountInFinQueryIsRejected(): void
+    {
+        $conditionList = $this->parser->parse("amount > abc");
+
+        $this->assertNull($conditionList);
+        $this->assertTrue($this->parser->getErrorReport()->hasErrors());
     }
 }
