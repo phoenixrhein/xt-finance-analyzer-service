@@ -1,4 +1,5 @@
-# Project Brief
+# Projektbrief
+
 
 > Beschreibt das Projekt auf fachlicher und übergeordneter Ebene.
 >
@@ -14,7 +15,8 @@
 > Nur bestätigte Informationen aufnehmen. Unbekannte Angaben als
 > `[NOCH NICHT FESTGELEGT]` oder `[NOCH ZU KLÄREN]` kennzeichnen.
 
-## Core Vision
+
+## Kernvision
 
 Der XT-Finance-Analyzer-Service soll einen übersichtlichen Überblick über die Einnahmen und Ausgaben eines Girokontos ermöglichen.
 
@@ -22,7 +24,8 @@ Einnahmen und Ausgaben sollen nach Monat und Jahr ausgewertet, Kategorien zugeor
 
 Die Ergebnisse sollen als monatliche und jährliche Reports bereitgestellt und zusätzlich als passwortgeschützte PDF-Datei per E-Mail versendet werden können.
 
-## Problem / Purpose
+
+## Problem / Zweck
 
 Online-Banking bietet keine ausreichende Aufteilung der Einnahmen und Ausgaben nach Monat und Jahr und ermöglicht insbesondere keine individuelle Kategorisierung der Buchungen.
 
@@ -32,7 +35,8 @@ Durch Vergleiche mit vergangenen Monaten und Jahren soll außerdem erkennbar wer
 
 Die Anwendung soll außerdem besondere finanzielle Vorgänge wie Bargeldein- und -auszahlungen, gesplittete Buchungen und Umbuchungen abbilden können. Besondere Konten, beispielsweise Sparbücher, sollen dabei anders als normale Einnahmen und Ausgaben behandelt werden können.
 
-## Key Features
+
+## Hauptfunktionen
 
 * Girokonten anlegen und verwalten
 * Benutzer anlegen und verwalten und einem oder mehreren Girokonten zuordnen
@@ -54,7 +58,8 @@ Die Anwendung soll außerdem besondere finanzielle Vorgänge wie Bargeldein- und
 * Reports als passwortgeschützte PDF-Dateien per E-Mail an die hinterlegten Benutzer versenden
 * Weitere Buchungsformate zukünftig unterstützen können; das Importformat wird erkannt und die Importverarbeitung kann entsprechend erweitert werden
 
-## Target Audience
+
+## Zielgruppe
 
 Die Anwendung ist in erster Linie für die persönliche Finanzverwaltung des Entwicklers vorgesehen.
 

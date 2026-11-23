@@ -1,4 +1,5 @@
-# Technical Context
+# Technischer Kontext
+
 
 > Beschreibt die technischen Rahmenbedingungen des Projekts.
 >
@@ -14,7 +15,8 @@
 > Nur bestätigte Informationen aufnehmen. Unbekannte Angaben als
 > `[NOCH NICHT FESTGELEGT]` oder `[NOCH ZU KLÄREN]` kennzeichnen.
 
-## Technology Stack
+
+## Technologie-Stack
 
 * Programmiersprache: PHP
 * Framework: Laravel
@@ -22,7 +24,8 @@
 * PHP-Anforderung des Projekts: `^8.2`
 * Die Anwendung ist als CLI-Anwendung ausgelegt.
 
-## Database
+
+## Datenbank
 
 * Als Datenbank wird MariaDB verwendet.
 * Die MariaDB-Datenbank läuft aktuell in der lokalen Entwicklungsumgebung über Docker.
@@ -30,21 +33,24 @@
 * Das Projekt verwendet keine Laravel-Migrations zur Pflege des Datenbankschemas.
 * Wenn für eine Änderung SQL-Anpassungen erforderlich sind, werden die SQL-Statements bereitgestellt und manuell ausgeführt.
 
-## Execution Environment
+
+## Ausführungsumgebung
 
 * Die Anwendung wird für die persönliche Nutzung lokal auf dem eigenen Rechner ausgeführt.
 * Die vorgesehene Laufzeitumgebung ist WSL.
 * Die lokale MariaDB wird über Docker bereitgestellt.
 
-## External Services
 
-### Email
+## Externe Dienste
+
+### E-Mail
 
 * Der E-Mail-Versand erfolgt über einen SMTP-Server.
 * Für die persönliche Nutzung wird die E-Mail-Infrastruktur von `xovatec.de` beim Webhoster All-Inkl verwendet.
 * Zugangsdaten und sonstige Secrets werden nicht in der Memory Bank dokumentiert.
 
-## Development and Quality Assurance
+
+## Entwicklung und Qualitätssicherung
 
 * Das Projekt wird über GitHub verwaltet.
 * Ein GitHub Workflow prüft den Code automatisiert und führt Tests aus.
@@ -54,7 +60,8 @@
 * Neue Unit-Tests sind für Änderungen grundsätzlich nicht erforderlich.
 * Bereits vorhandene Tests sollen bei Änderungen berücksichtigt und bei Bedarf angepasst werden, wenn sie durch die Änderung betroffen sind.
 
-## Version and Update Strategy
+
+## Versions- und Aktualisierungsstrategie
 
 * Vor der persönlichen Nutzung soll das Projekt einmalig auf aktuelle stabile Versionen von PHP, Laravel und den verwendeten Paketen aktualisiert werden.
 * Die konkreten Zielversionen sind `[NOCH NICHT FESTGELEGT]`.
