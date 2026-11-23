@@ -1,4 +1,5 @@
-# Progress Log
+# Fortschritt
+
 
 > Dokumentiert nur langfristig relevante Meilensteine des Projekts.
 >
@@ -19,7 +20,8 @@
 > Die History bleibt bewusst kurz. Nicht jede Codeänderung oder jedes
 > abgeschlossene Feature benötigt einen eigenen Eintrag.
 
-## Milestones
+
+## Meilensteine
 
 * [x] Grundlegende Anwendung für die Analyse von Girokonto-Buchungen entwickelt
 * [x] Import von Bankbuchungen im Format CAMT.52 V8 umgesetzt
@@ -31,6 +33,7 @@
 * [ ] Version 1.0 fertigstellen
 * [ ] Anwendung auf aktuelle stabile Versionen von PHP, Laravel und den verwendeten Paketen aktualisieren
 
+
 ## History
 
 ### [NOCH NICHT FESTGELEGT] – Entwicklung der Service-Schicht begonnen
@@ -38,6 +41,7 @@
 Ein Teil der ursprünglich in Commands enthaltenen Businesslogik wurde schrittweise in Services ausgelagert.
 
 Die Auslagerung ist noch nicht vollständig abgeschlossen. Für Version 1.0 ist keine nachträgliche vollständige Vereinheitlichung der bestehenden Architektur vorgesehen.
+
 
 ### [NOCH NICHT FESTGELEGT] – Brownfield-Stand für Version 1.0 festgelegt
 

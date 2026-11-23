@@ -1,4 +1,5 @@
-# Glossary
+# Glossar
+
 
 > Enthält projektspezifische Fachbegriffe und die dafür verwendeten
 > englischen Bezeichnungen im Code.
@@ -12,7 +13,8 @@
 > Nur bestätigte Begriffe aufnehmen. Unbekannte Begriffe als
 > `[NOCH NICHT FESTGELEGT]` oder `[NOCH ZU KLÄREN]` kennzeichnen.
 
-## General Conventions
+
+## Allgemeine Konventionen
 
 | Deutsch | Englisch / Code-Begriff |
 |---|---|
@@ -25,7 +27,8 @@
 | Cashflow | `cashflow` |
 | Report | `report` |
 
-## Transactions
+
+## Transaktionen
 
 | Deutsch | Englisch / Code-Begriff |
 |---|---|
@@ -45,11 +48,13 @@
 | Umbuchung | `Transaction Adjustment` |
 | Split-Buchung | `Transaction Split` |
 
-### Transaction
+
+### Transaktion
 
 `Transaction` bezeichnet in erster Linie eine Bankbuchung bzw. Kontobewegung.
 
-### Transaction Adjustment
+
+### Transaktions-Anpassung (Transaction Adjustment)
 
 Eine `Transaction Adjustment` verändert die ursprüngliche `Transaction` nicht, sondern ermöglicht eine abweichende Berücksichtigung für die Auswertung.
 
@@ -58,7 +63,8 @@ Für die Report-Zuordnung gilt:
 * Ist ein `Transaction Adjustment` vorhanden, wird dessen `transaction_date` als effektives Buchungsdatum verwendet.
 * Ist kein `Transaction Adjustment` vorhanden, wird `transactions.transaction_date` verwendet.
 
-### Transaction Split
+
+### Transaktions-Split (Transaction Split)
 
 Ein `Transaction Split` ermöglicht die Aufteilung einer `Transaction` auf mehrere Anteile bzw. Kategorien.
 
@@ -77,15 +83,18 @@ Die Prüfung erfolgt bereits beim Erstellen und Bearbeiten eines Splits.
 
 Eine eigenständige Bargeldkasse wird derzeit nicht abgebildet. Bargeldeinnahmen ohne zugrunde liegende Bankbuchung werden daher derzeit nicht erfasst.
 
+
 ### unmatched
 
 `unmatched` bezeichnet eine Buchung, der noch keine Kategorie zugewiesen wurde.
+
 
 ### UNCATEGORISABLE
 
 `UNCATEGORISABLE` bezeichnet eine Buchung, die bewusst als nicht zuweisbar gekennzeichnet wurde und deshalb nicht weiter bearbeitet werden muss.
 
-## Accounts
+
+## Konten
 
 ### BankAccount
 
@@ -93,13 +102,15 @@ Eine eigenständige Bargeldkasse wird derzeit nicht abgebildet. Bargeldeinnahmen
 
 Besondere Konten wie beispielsweise Sparbücher werden davon begrifflich getrennt behandelt.
 
-## Categories
+
+## Kategorien
 
 ### Category
 
 `Category` bezeichnet eine Kategorie für die Zuordnung und Auswertung von Buchungen.
 
 Kategorien können hierarchisch als Ober- und Unterkategorien organisiert sein.
+
 
 ### Cashflow
 
@@ -112,7 +123,8 @@ Kategorien können hierarchisch als Ober- und Unterkategorien organisiert sein.
 
 Ein Kategorienbaum gehört jeweils zu einem Cashflow (`in` oder `out`).
 
-## Rules
+
+## Regeln
 
 ### Rule
 
@@ -120,13 +132,16 @@ Eine `Rule` dient der regelbasierten Zuordnung von Buchungen.
 
 Eine `Rule` besitzt eine oder mehrere `Condition` und ist mit einer `Action` verknüpft.
 
+
 ### Condition
 
 Eine `Condition` beschreibt eine Bedingung innerhalb einer `Rule`.
 
+
 ### Action
 
 Eine `Action` ist mit einer `Category` verknüpft und legt die durch eine `Rule` ausgelöste Zuordnung fest.
+
 
 ## Reports
 
@@ -135,6 +150,7 @@ Eine `Action` ist mit einer `Category` verknüpft und legt die durch eine `Rule`
 Ein `Report` ist eine monatliche oder jährliche Auswertung der Finanzdaten.
 
 Reports können mit vergangenen Zeiträumen verglichen werden.
+
 
 ### isCompletedTarget
 

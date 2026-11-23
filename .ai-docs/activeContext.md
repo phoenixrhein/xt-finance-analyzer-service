@@ -1,4 +1,5 @@
-# Active Context
+# Aktiver Kontext
+
 
 > Beschreibt ausschließlich den aktuellen Arbeitsstand des Projekts.
 >
@@ -24,13 +25,15 @@
 > Erledigte oder nicht mehr relevante Punkte entfernen bzw. aktualisieren,
 > statt sie als Historie stehen zu lassen.
 
-## Current Focus
+
+## Aktueller Fokus
 
 Weiterentwicklung des bestehenden Brownfield-Projekts in Richtung Version 1.0.
 
 Aktuell liegt der Fokus auf der Planung und Umsetzung weiterer Entwicklungsarbeiten im bestehenden Projekt, wobei die vorhandene Architektur grundsätzlich beibehalten wird.
 
-## Current Goal
+
+## Aktuelles Ziel
 
 Die für Version 1.0 noch erforderlichen Funktionen und Änderungen schrittweise umzusetzen.
 
@@ -38,14 +41,16 @@ Bei neuen Entwicklungsarbeiten soll bewusst entschieden werden, welche Logik in 
 
 Businesslogik soll bei neuen Funktionen möglichst in Services gekapselt werden. Wiederverwendbare Abläufe und Interaktionen können ebenfalls in Services liegen, wenn dies eine sinnvolle Wiederverwendung ermöglicht.
 
-## Open Tasks
+
+## Offene Aufgaben
 
 * [ ] Weitere für Version 1.0 erforderliche Funktionen und Änderungen umsetzen
 * [ ] Neue Entwicklungsarbeiten hinsichtlich ihrer Verantwortungsverteilung zwischen Command, Service und Model bewusst beurteilen
 * [ ] Änderungen durch Tests und automatisierte Prüfungen absichern
 * [ ] Projekt auf aktuelle stabile Versionen von PHP, Laravel und den verwendeten Paketen aktualisieren
 
-## Relevant Decisions
+
+## Relevante Entscheidungen
 
 * Die Umbenennung von `IgnoreList` zu `ExclusionList` wurde umgesetzt.
 * Die Umbenennung von `CashDeposit` zu `CashTransaction` wurde umgesetzt.
@@ -56,10 +61,12 @@ Businesslogik soll bei neuen Funktionen möglichst in Services gekapselt werden.
 * Services dürfen bei sinnvoller Wiederverwendung auch Interaktionen kapseln.
 * Eine starre Trennung, nach der Interaktionen ausschließlich in Commands stattfinden müssen, ist nicht vorgesehen.
 
-## Blockers
+
+## Blocker
 
 Keine.
 
-## Next Step
+
+## Nächster Schritt
 
 Die nächste konkrete Version-1.0-Entwicklungsaufgabe planen und anschließend umsetzen.
