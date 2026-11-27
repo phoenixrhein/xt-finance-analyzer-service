@@ -119,6 +119,29 @@ Die Planungstiefe richtet sich nach Umfang und Komplexität.
 - Berücksichtige erforderliche Datenmigrationen.
 - Wenn kein Migrationssystem vorhanden ist, muss der Plan
   die Bereitstellung ausführbarer SQL-Anweisungen vorsehen.
+### Verbindliche Speicherung von Entwicklungsplänen
+
+- Jeder für Copilot bestimmte Entwicklungsplan muss als
+  Markdown-Datei unter `.ai-docs/plans/` gespeichert werden.
+- Ein ausschließlich im Chat ausgegebener Plan gilt
+  nicht als abgeschlossene Übergabe.
+- Dateinamen müssen auf Englisch und im Format `kebab-case`
+  geschrieben werden, beispielsweise `report-summary.md`
+  oder `fix-invoice-calculation.md`.
+- Der Inhalt der Plandateien muss auf Deutsch verfasst sein.
+  Technische Bezeichner wie Klassen, Methoden, Variablen
+  und Dateipfade bleiben unverändert.
+- Neue Pläne erhalten zunächst den Status "Entwurf".
+- Nur nach ausdrücklicher Benutzerfreigabe wird der
+  Status auf "Freigegeben" gesetzt.
+- Falls der Plan-Modus das Speichern verhindert, weise
+  darauf hin und bitte um einen begrenzten Wechsel
+  in den Build-Modus ausschließlich zum Speichern.
+- Erstelle dabei keinen Anwendungscode.
+- Prüfe nach dem Speichern, ob die Plandatei existiert.
+- Nenne zum Abschluss den vollständigen relativen
+  Dateipfad für die Übergabe an Copilot.
+
 ## 4. Implementierung und Qualität
 
 

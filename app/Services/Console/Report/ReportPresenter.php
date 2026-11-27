@@ -120,6 +120,11 @@ class ReportPresenter extends AbstractIOService
 
         // Render summary table
         $this->renderSummary($reportData);
+
+        $this->newLine();
+
+        // Render total overview across all periods
+        $this->renderTotalOverview($reportData);
     }
 
     /**
@@ -233,5 +238,35 @@ class ReportPresenter extends AbstractIOService
             $balanceRow[] = $this->formatAmount($period->balance);
         }
         $this->tableRenderer->renderTotalRowData($balanceRow);
+    }
+
+    /**
+     * Render totals across all periods.
+     *
+     * @param Collection $reportData
+     * @return void
+     */
+    private function renderTotalOverview(Collection $reportData): void
+    {
+        $totalIncome = $reportData->sum(fn (PeriodReportData $period) => $period->totalIncome);
+        $totalOutgoing = $reportData->sum(fn (PeriodReportData $period) => $period->totalOutgoing);
+        $totalBalance = $totalIncome - $totalOutgoing;
+
+        $this->line(__('cli.report.presentation.title_total_overview'));
+        $this->tableRenderer->renderSingleColumnTableSeparator();
+        $this->tableRenderer->renderSingleColumnTableHeader(__('cli.report.presentation.label_total'));
+        $this->tableRenderer->renderSingleColumnDataRow([
+            __('cli.report.presentation.label_total_income'),
+            $this->formatAmount($totalIncome),
+        ]);
+        $this->tableRenderer->renderSingleColumnDataRow([
+            __('cli.report.presentation.label_total_expenses'),
+            $this->formatAmount($totalOutgoing),
+        ]);
+        $this->tableRenderer->renderSingleColumnTableSeparator();
+        $this->tableRenderer->renderSingleColumnTotalRowData([
+            __('cli.report.presentation.label_total_balance'),
+            $this->formatAmount($totalBalance),
+        ]);
     }
 }
