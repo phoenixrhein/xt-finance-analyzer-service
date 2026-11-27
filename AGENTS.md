@@ -1,4 +1,5 @@
 
+
 # Gemeinsame Projektanweisungen
 
 
@@ -99,8 +100,25 @@ Die Planungstiefe richtet sich nach Umfang und Komplexität.
 - Frage bei Widersprüchen, fehlenden Anforderungen oder wesentlichen Risiken nach.
 - Halte den vereinbarten Funktionsumfang ein.
 - Formuliere Entwicklungspläne so, dass ein anderer Agent sie ohne unnötige Zusatzanalyse umsetzen kann.
+### Rollenverteilung
 
+- OpenCode übernimmt standardmäßig Anforderungsanalyse,
+  Architekturberatung und Entwicklungsplanung.
+- GitHub Copilot CLI übernimmt standardmäßig die
+  Implementierung freigegebener Entwicklungspläne.
+- OpenCode implementiert keinen Anwendungscode ohne
+  ausdrücklichen Auftrag.
+- Wesentliche Planlücken werden vor der Implementierung
+  geklärt und der Plan bei Bedarf angepasst.
+### Datenbankänderungen in Entwicklungsplänen
 
+- Prüfe, ob die geplante Änderung Auswirkungen auf
+  die Datenbank hat.
+- Dokumentiere betroffene Tabellen, geplante Änderungen
+  und mögliche Risiken.
+- Berücksichtige erforderliche Datenmigrationen.
+- Wenn kein Migrationssystem vorhanden ist, muss der Plan
+  die Bereitstellung ausführbarer SQL-Anweisungen vorsehen.
 ## 4. Implementierung und Qualität
 
 
@@ -114,7 +132,22 @@ Die Planungstiefe richtet sich nach Umfang und Komplexität.
 - Behebe kleinere Fehler innerhalb des freigegebenen Umfangs selbstständig.
 - Frage nach, wenn wesentliche Architekturänderungen oder größere Abweichungen notwendig werden.
 - Behaupte niemals, Tests erfolgreich durchgeführt zu haben, wenn sie nicht tatsächlich ausgeführt wurden.
+### Datenbankänderungen
 
+
+- Prüfe, ob das Projekt ein Migrationssystem verwendet.
+- Erstelle kein neues Migrationssystem ohne Freigabe.
+- Ohne Migrationssystem muss Copilot alle erforderlichen
+  SQL-Anweisungen für Datenbankänderungen bereitstellen.
+- Berücksichtige Datenbanksystem und Version.
+- Dokumentiere die notwendige Ausführungsreihenfolge.
+- Kennzeichne potenziellen Datenverlust und erforderliche
+  Backups.
+- Stelle nach Möglichkeit Rückgängig-SQL bereit.
+- Führe Datenbankänderungen niemals ohne ausdrückliche
+  Freigabe aus.
+- Weise im Abschlussbericht auf noch ausstehende
+  Datenbankänderungen hin.
 
 ## 5. Sicherheit und Kostenkontrolle
 
