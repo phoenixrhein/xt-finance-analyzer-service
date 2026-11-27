@@ -326,6 +326,8 @@ Der aktuelle Report berücksichtigt für eine `Transaction` das effektive Buchun
 * vorhandene `Transaction Adjustment` → Datum des Adjustments
 * kein Adjustment → ursprüngliches `transaction_date`
 
+Wenn `--considerExclusionIbans` gesetzt ist, werden Buchungen zu ausgeschlossenen IBANs aus Einnahmen und Ausgaben herausgenommen und separat je `exclusion_list`-Eintrag ausgewertet. Für jedes Sparbuch mit Buchungen wird eine eigene Tabelle mit Kommentar, den letzten drei IBAN-Zeichen, Monatswerten und einer Zeitraumssumme ausgegeben. Ohne diese Option bleiben die Buchungen Bestandteil der normalen Einnahmen- und Ausgabenauswertung; Sparbuchtabellen werden nicht ausgegeben. Die vollständige IBAN wird nicht dargestellt.
+
 Weitere fachliche Reportregeln werden im Rahmen der jeweiligen Weiterentwicklung ergänzt.
 
 

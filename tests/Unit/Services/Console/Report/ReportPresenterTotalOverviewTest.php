@@ -76,7 +76,8 @@ class ReportPresenterTotalOverviewTest extends TestCase
             new Collection,
             $income,
             $outgoing,
-            $income - $outgoing
+            $income - $outgoing,
+            new Collection
         );
     }
 }

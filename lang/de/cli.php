@@ -559,6 +559,7 @@ return [
             'title_income' => 'EINNAHMEN',
             'title_expenses' => 'AUSGABEN',
             'title_savings_account' => 'SPARBUCH (nicht in Einnahmen/Ausgaben enthalten)',
+            'title_savings_account_prefix' => 'SPARBUCH:',
             'title_summary' => 'ZUSAMMENFASSUNG',
             'title_total_overview' => 'GESAMTÜBERSICHT',
             'label_income' => 'Einnahmen',
@@ -576,6 +577,7 @@ return [
             'label_unassigned' => 'unzugeordnet',
             'label_cash' => 'Bargeld',
             'label_category' => 'Kategorie',
+            'label_sum' => 'Summe',
             'no_data' => 'Keine Daten für den gewählten Zeitraum vorhanden.'
         ]
     ]

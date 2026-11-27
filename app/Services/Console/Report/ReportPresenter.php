@@ -6,6 +6,7 @@ use de\xovatec\financeAnalyzer\Enums\TimespanType;
 use de\xovatec\financeAnalyzer\Services\Console\AbstractIOService;
 use de\xovatec\financeAnalyzer\Services\Console\Report\CategoryTreeRenderer;
 use de\xovatec\financeAnalyzer\Dto\Report\PeriodReportData;
+use de\xovatec\financeAnalyzer\Dto\Report\SavingsAccountReportData;
 use de\xovatec\financeAnalyzer\Services\Console\Report\ReportTableMetrics;
 use de\xovatec\financeAnalyzer\Services\Console\Report\ReportTableRenderer;
 use de\xovatec\financeAnalyzer\Traits\Console\CurrencyFormatterTrait;
@@ -86,13 +87,15 @@ class ReportPresenter extends AbstractIOService
             return;
         }
 
-        // Check if savings account data exists
-        $hasSavingsData = $reportData->some(
-            fn (PeriodReportData $p) => $p->toExcludedIban !== 0.0 || $p->fromExcludedIban !== 0.0
-        );
+        $savingsAccounts = $this->getSavingsAccounts($reportData);
 
         // Calculate column widths and separators once
-        $this->tableMetrics->initialize($reportData);
+        $this->tableMetrics->initialize(
+            $reportData,
+            $savingsAccounts
+                ->map(fn (SavingsAccountReportData $account) => $this->getSavingsAccountTitle($account))
+                ->all()
+        );
 
         // Render income table
         $this->renderCategoryTable(
@@ -113,8 +116,8 @@ class ReportPresenter extends AbstractIOService
         $this->newLine();
 
         // Render savings account table if applicable
-        if ($hasSavingsData) {
-            $this->renderSavingsTable($reportData);
+        if ($savingsAccounts->isNotEmpty()) {
+            $this->renderSavingsTables($reportData, $savingsAccounts);
             $this->newLine();
         }
 
@@ -165,42 +168,99 @@ class ReportPresenter extends AbstractIOService
     }
 
     /**
-     * Render the savings account table.
+     * Collects savings accounts that have transactions in at least one period.
      *
-     * @param Collection $reportData
-     * @return void
+     * @return Collection<SavingsAccountReportData>
      */
-    private function renderSavingsTable(Collection $reportData): void
+    private function getSavingsAccounts(Collection $reportData): Collection
     {
-        $this->line(__('cli.report.presentation.title_savings_account'));
-        $this->tableRenderer->renderTableSeparator();
+        return $reportData
+            ->flatMap(fn (PeriodReportData $period) => $period->savingsAccounts)
+            ->unique('exclusionListId')
+            ->filter(function (SavingsAccountReportData $account) use ($reportData): bool {
+                return $reportData->contains(
+                    fn (PeriodReportData $period) => $period->savingsAccounts->contains(
+                        fn (SavingsAccountReportData $periodAccount) =>
+                            $periodAccount->exclusionListId === $account->exclusionListId
+                            && (
+                                $periodAccount->toExcludedIban !== 0.0
+                                || $periodAccount->fromExcludedIban !== 0.0
+                            )
+                    )
+                );
+            })
+            ->values();
+    }
 
-        // Render header
-        $this->tableRenderer->renderTableHeader($reportData);
+    /**
+     * Render one savings table per excluded IBAN.
+     *
+     * @param  Collection<PeriodReportData>  $reportData
+     * @param  Collection<SavingsAccountReportData>  $savingsAccounts
+     */
+    private function renderSavingsTables(Collection $reportData, Collection $savingsAccounts): void
+    {
+        foreach ($savingsAccounts->values() as $index => $account) {
+            $this->line($this->getSavingsAccountTitle($account));
+            $this->tableRenderer->renderTableSeparator(true);
+            $this->tableRenderer->renderTableHeader($reportData, true);
 
-        // Bankkonto → Sparbuch row (invert sign: money coming in is positive)
-        $toRow = [__('cli.report.presentation.label_transfer_to_savings')];
-        foreach ($reportData as $period) {
-            $toRow[] = $this->formatAmount(-$period->toExcludedIban);
+            $toAmounts = [];
+            $fromAmounts = [];
+
+            foreach ($reportData as $period) {
+                $periodAccount = $period->savingsAccounts->firstWhere('exclusionListId', $account->exclusionListId);
+                $toAmounts[] = -($periodAccount?->toExcludedIban ?? 0.0);
+                $fromAmounts[] = -($periodAccount?->fromExcludedIban ?? 0.0);
+            }
+
+            $toRow = [__('cli.report.presentation.label_transfer_to_savings')];
+            foreach ($toAmounts as $amount) {
+                $toRow[] = $this->formatSavingsAmount($amount);
+            }
+            $toRow[] = $this->formatSavingsAmount(array_sum($toAmounts));
+            $this->tableRenderer->renderDataRow($toRow, true);
+
+            $fromRow = [__('cli.report.presentation.label_transfer_from_savings')];
+            foreach ($fromAmounts as $amount) {
+                $fromRow[] = $this->formatSavingsAmount($amount);
+            }
+            $fromRow[] = $this->formatSavingsAmount(array_sum($fromAmounts));
+            $this->tableRenderer->renderDataRow($fromRow, true);
+
+            $this->tableRenderer->renderTableSeparator(true);
+            $balanceAmounts = array_map(
+                fn (float $toAmount, float $fromAmount) => $toAmount + $fromAmount,
+                $toAmounts,
+                $fromAmounts
+            );
+            $balanceRow = [__('cli.report.presentation.label_balance_change')];
+            foreach ($balanceAmounts as $amount) {
+                $balanceRow[] = $this->formatSavingsAmount($amount);
+            }
+            $balanceRow[] = $this->formatSavingsAmount(array_sum($balanceAmounts));
+            $this->tableRenderer->renderTotalRowData($balanceRow, true);
+
+            if ($index < $savingsAccounts->count() - 1) {
+                $this->newLine();
+            }
         }
-        $this->tableRenderer->renderDataRow($toRow);
+    }
 
-        // Sparbuch → Bankkonto row (invert sign: money going out is negative)
-        $fromRow = [__('cli.report.presentation.label_transfer_from_savings')];
-        foreach ($reportData as $period) {
-            $fromRow[] = $this->formatAmount(-$period->fromExcludedIban);
-        }
-        $this->tableRenderer->renderDataRow($fromRow);
+    private function getSavingsAccountTitle(SavingsAccountReportData $account): string
+    {
+        $comment = trim($account->comment);
+        $details = $comment === '' ? '' : $comment . ' ';
 
-        // Saldoveränderung row (total change in savings account)
-        $this->tableRenderer->renderTableSeparator();
-        $balanceRow = [__('cli.report.presentation.label_balance_change')];
-        foreach ($reportData as $period) {
-            // Balance change = money in + money out (with inverted signs)
-            $balance = -$period->toExcludedIban + (-$period->fromExcludedIban);
-            $balanceRow[] = $this->formatAmount($balance);
-        }
-        $this->tableRenderer->renderTotalRowData($balanceRow);
+        return __('cli.report.presentation.title_savings_account_prefix')
+            . ' '
+            .$details
+            . '(...' . $account->ibanLastThree . ')';
+    }
+
+    private function formatSavingsAmount(float $amount): string
+    {
+        return $amount === 0.0 ? '-' : $this->formatAmount($amount);
     }
 
     /**
