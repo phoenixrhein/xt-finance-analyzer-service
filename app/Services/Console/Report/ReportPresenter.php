@@ -254,7 +254,7 @@ class ReportPresenter extends AbstractIOService
 
         return __('cli.report.presentation.title_savings_account_prefix')
             . ' '
-            .$details
+            . $details
             . '(...' . $account->ibanLastThree . ')';
     }
 
