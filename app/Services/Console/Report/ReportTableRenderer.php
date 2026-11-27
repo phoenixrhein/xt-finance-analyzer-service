@@ -35,13 +35,13 @@ class ReportTableRenderer extends AbstractIOService
         $categoryText = __('cli.report.presentation.label_category');
         $categoryLength = mb_strlen($categoryText, 'UTF-8');
         $padding = max(0, $this->metrics->getCategoryColumnWidth() - $categoryLength);
-        $line = $categoryText.str_repeat(' ', $padding);
+        $line = $categoryText . str_repeat(' ', $padding);
 
         $i = 0;
         foreach ($reportData as $period) {
             $header = $period->getPeriodHeader();
             $width = $this->metrics->getColumnWidths()[$i] ?? 12;
-            $line .= '│ '.StringMbUtils::strPadUtf8($header, $width, ' ', STR_PAD_BOTH);
+            $line .= '│ ' . StringMbUtils::strPadUtf8($header, $width, ' ', STR_PAD_BOTH);
             $i++;
         }
         $this->line($line);
@@ -58,8 +58,8 @@ class ReportTableRenderer extends AbstractIOService
         $padding = max(0, $this->metrics->getCategoryColumnWidth() - $categoryLength);
         $width = $this->metrics->getColumnWidths()[0] ?? 12;
 
-        $line = $categoryText.str_repeat(' ', $padding);
-        $line .= '│ '.StringMbUtils::strPadUtf8($header, $width, ' ', STR_PAD_BOTH);
+        $line = $categoryText . str_repeat(' ', $padding);
+        $line .= '│ ' . StringMbUtils::strPadUtf8($header, $width, ' ', STR_PAD_BOTH);
 
         $this->line($line);
         $this->renderSingleColumnTableSeparator();
@@ -73,11 +73,11 @@ class ReportTableRenderer extends AbstractIOService
         $categoryText = $row[0];
         $categoryLength = mb_strlen($categoryText, 'UTF-8');
         $padding = max(0, $this->metrics->getCategoryColumnWidth() - $categoryLength);
-        $line = $categoryText.str_repeat(' ', $padding);
+        $line = $categoryText . str_repeat(' ', $padding);
 
         foreach ($this->metrics->getColumnWidths() as $i => $width) {
             $amount = $row[$i + 1] ?? '-';
-            $line .= '│ '.StringMbUtils::strPadUtf8((string) $amount, $width, ' ', STR_PAD_LEFT);
+            $line .= '│ ' . StringMbUtils::strPadUtf8((string) $amount, $width, ' ', STR_PAD_LEFT);
         }
         $this->line($line);
     }
@@ -110,13 +110,13 @@ class ReportTableRenderer extends AbstractIOService
         $categoryText = $row[0];
         $categoryLength = mb_strlen($categoryText, 'UTF-8');
         $padding = max(0, $this->metrics->getCategoryColumnWidth() - $categoryLength);
-        $line = $categoryText.str_repeat(' ', $padding);
+        $line = $categoryText . str_repeat(' ', $padding);
 
         foreach ($this->metrics->getColumnWidths() as $i => $width) {
             $amount = $row[$i + 1] ?? '-';
-            $line .= '│ '.StringMbUtils::strPadUtf8((string) $amount, $width, ' ', STR_PAD_LEFT);
+            $line .= '│ ' . StringMbUtils::strPadUtf8((string) $amount, $width, ' ', STR_PAD_LEFT);
         }
-        $this->line('<info>'.$line.'</info>');
+        $this->line('<info>' . $line . '</info>');
     }
 
     /**
@@ -142,7 +142,7 @@ class ReportTableRenderer extends AbstractIOService
     {
         $width = $this->metrics->getColumnWidths()[0] ?? 12;
         $separator = str_repeat('─', $this->metrics->getCategoryColumnWidth());
-        $separator .= '┼'.str_repeat('─', $width + 1);
+        $separator .= '┼' . str_repeat('─', $width + 1);
 
         $this->line($separator);
     }
@@ -154,9 +154,9 @@ class ReportTableRenderer extends AbstractIOService
         $padding = max(0, $this->metrics->getCategoryColumnWidth() - $categoryLength);
         $width = $this->metrics->getColumnWidths()[0] ?? 12;
 
-        $line = $categoryText.str_repeat(' ', $padding);
-        $line .= '│ '.StringMbUtils::strPadUtf8((string) ($row[1] ?? '-'), $width, ' ', STR_PAD_LEFT);
+        $line = $categoryText . str_repeat(' ', $padding);
+        $line .= '│ ' . StringMbUtils::strPadUtf8((string) ($row[1] ?? '-'), $width, ' ', STR_PAD_LEFT);
 
-        $this->line($isTotal ? '<info>'.$line.'</info>' : $line);
+        $this->line($isTotal ? '<info>' . $line . '</info>' : $line);
     }
 }
