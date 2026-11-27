@@ -27,3 +27,7 @@ tmpclaude-*
 # Entwicklungspläne nicht versionieren
 .ai-docs/plans/*
 !.ai-docs/plans/.gitkeep
+
+# Privater Projektkontext
+.ai-docs/private/*
+!.ai-docs/private/.gitkeep

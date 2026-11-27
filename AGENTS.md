@@ -214,6 +214,38 @@ aber nicht öffentlich dokumentiert werden darf:
 
 Die Prüfung durch einen KI-Agenten ersetzt keine
 Sicherheitskontrolle vor der Veröffentlichung.
+### Öffentliche und private Memory Bank
+
+
+Die Memory Bank unterscheidet zwischen öffentlichen
+und lokalen, vertraulichen Projektinformationen.
+
+
+Öffentliche Dokumentation:
+- Befindet sich in den regulären Dateien unter .ai-docs/.
+- Darf keine vertraulichen Informationen enthalten.
+- Muss für öffentliche Git-Repositories geeignet sein.
+
+
+Private Dokumentation:
+- Befindet sich unter .ai-docs/private/.
+- Wird durch .gitignore von der Versionskontrolle ausgeschlossen.
+- Enthält interne Informationen, die für die Entwicklung
+  wichtig sind, aber nicht veröffentlicht werden dürfen.
+- Wird nur bei konkretem Bedarf eingelesen.
+- Darf keine Passwörter, Tokens oder Zugangsdaten enthalten.
+
+
+Für beide Bereiche gilt:
+- Dokumentiere Informationen nur einmal.
+- Verweise bei Bedarf auf die jeweils andere Dokumentation,
+  ohne vertrauliche Details öffentlich offenzulegen.
+- Übertrage private Informationen niemals ungeprüft
+  in öffentliche Dokumente, Entwicklungspläne oder Logs.
+- Prüfe bei jeder Dokumentationsänderung, ob die
+  Information öffentlich oder privat abgelegt werden muss.
+- Die private Memory Bank darf nicht committed werden.
+- .gitignore darf nicht eigenmächtig umgangen werden.
 ### Lokale Entwicklungsdokumentation
 
 - `.ai-docs/databaseSchema.sql` ist ausschließlich lokal

@@ -17,7 +17,6 @@
 | `progress.md` | Erledigte Meilensteine und offene grobe Schritte | Bei Planung und Statusfragen |
 | `plans/` | Entwicklungspläne und Freigabestatus | Bei der Umsetzung |
 | `decisions/` | Begründete und genehmigte Entscheidungen | Bei betroffenen Änderungen |
-| `databaseSchema.sql` | Datenbankschema der Anwendung | Bei Datenbank- und Modelländerungen |
 
 
 ## Regeln
@@ -29,3 +28,18 @@
 - Lege `plans/` und `decisions/` nur bei Bedarf an.
 - Ein Datenbankschema ist optional.
 - Speichere niemals echte Zugangsdaten oder vertrauliche Datensätze.
+
+## Vertraulicher Projektkontext
+
+
+Zusätzliche interne Informationen können lokal unter
+`.ai-docs/private/internalContext.md` vorhanden sein.
+
+
+Diese Datei ist nicht versioniert und darf nur bei
+aufgabenbezogenem Bedarf gelesen werden.
+
+
+Sie darf nicht ungeprüft in öffentliche Dokumente
+oder Ausgaben übernommen werden.
+

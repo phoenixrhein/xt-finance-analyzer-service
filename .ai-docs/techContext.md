@@ -46,7 +46,7 @@
 ### E-Mail
 
 * Der E-Mail-Versand erfolgt über einen SMTP-Server.
-* Für die persönliche Nutzung wird die E-Mail-Infrastruktur von `xovatec.de` beim Webhoster All-Inkl verwendet.
+* Für die persönliche Nutzung wird ein eigener SMTP-Server beim Webhoster verwendet.
 * Zugangsdaten und sonstige Secrets werden nicht in der Memory Bank dokumentiert.
 
 
