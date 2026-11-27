@@ -315,7 +315,7 @@ class ReportDataProcessor
             ->leftJoin('rule_transaction', 'transactions.id', '=', 'rule_transaction.transaction_id')
             ->leftJoin('rule', 'rule_transaction.rule_id', '=', 'rule.id')
             ->leftJoin('action', 'rule.id', '=', 'action.rule_id')
-            ->select('transactions.id', 'transactions.amount', 'action.category_id')
+            ->select('transactions.id', 'transactions.amount', 'action.category_id', 'action.cashflow_type')
             ->get();
 
         $grouped = [];
@@ -328,7 +328,12 @@ class ReportDataProcessor
                 continue;
             }
 
-            $categoryId = $transactionMappings->first()->category_id ?? '_unassigned';
+            $cashflowType = $transaction->amount > 0 ? 'in' : ($transaction->amount < 0 ? 'out' : null);
+            $mapping = $cashflowType === null
+                ? null
+                : $transactionMappings->firstWhere('cashflow_type', $cashflowType);
+            $mapping ??= $transactionMappings->firstWhere('cashflow_type', null);
+            $categoryId = $mapping?->category_id ?? '_unassigned';
             $splitAmounts = $this->calculateSplitAmounts($transaction);
             $remainingAmount = $splitAmounts['remaining'];
 
@@ -353,16 +358,24 @@ class ReportDataProcessor
                         'action.rule_id'
                     )
                     ->whereIn('rule_transaction_split.transaction_split_id', $otherSplitIds)
-                    ->select('rule_transaction_split.transaction_split_id', 'action.category_id')
+                    ->select(
+                        'rule_transaction_split.transaction_split_id',
+                        'action.category_id',
+                        'action.cashflow_type'
+                    )
                     ->get()
-                    ->keyBy('transaction_split_id');
+                    ->groupBy('transaction_split_id');
 
                 foreach ($transaction->transactionSplit as $split) {
                     if ($split->type?->value !== TransactionSplitType::OTHER->value) {
                         continue;
                     }
 
-                    $splitCategoryId = $splitMappings->get($split->id)?->category_id ?? '_unassigned';
+                    $splitCashflowType = $transaction->amount > 0 ? 'in' : 'out';
+                    $mappings = $splitMappings->get($split->id, collect());
+                    $splitMapping = $mappings->firstWhere('cashflow_type', $splitCashflowType)
+                        ?? $mappings->firstWhere('cashflow_type', null);
+                    $splitCategoryId = $splitMapping?->category_id ?? '_unassigned';
                     $grouped[$splitCategoryId] = ($grouped[$splitCategoryId] ?? 0.0)
                         + (float) $split->amount;
                 }

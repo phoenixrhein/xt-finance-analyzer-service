@@ -28,10 +28,9 @@
 
 ## Aktueller Fokus
 
-Weiterentwicklung des bestehenden Brownfield-Projekts in Richtung Version 1.0.
+Weiterentwicklung des bestehenden Brownfield-Projekts in Richtung Version 1.0 bei Beibehaltung der bestehenden Architektur.
 
-Aktuell liegt der Fokus auf der Planung und Umsetzung weiterer Entwicklungsarbeiten im bestehenden Projekt, wobei die vorhandene Architektur grundsätzlich beibehalten wird.
-Die deutsche Betragsvalidierung und -normalisierung für den manuellen Regelassigner und den FinQuery-Pfad wurde umgesetzt.
+Regeln unterstützen optionale Einnahmen- und Ausgabenkategorien, wobei mindestens eine erforderlich ist. Speichern, Zuordnung, Indexierung, Reportdarstellung und Zuordnungsvalidierung berücksichtigen mehrere Actions; bestehende Actions ohne Cashflow-Typ bleiben kompatibel.
 
 
 ## Aktuelles Ziel

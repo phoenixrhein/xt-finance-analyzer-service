@@ -8,11 +8,13 @@ use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Models\TransactionSplit;
 use de\xovatec\financeAnalyzer\Enums\RuleTargetType;
+use de\xovatec\financeAnalyzer\Enums\Cashflow;
 use de\xovatec\financeAnalyzer\Enums\TransactionSplitType;
 use de\xovatec\financeAnalyzer\Services\Console\Output\ConsoleOutputInterface;
 use de\xovatec\financeAnalyzer\Services\FinQuery\SqlQueryBuilder;
 use de\xovatec\financeAnalyzer\Services\Rule\RuleListService;
 use de\xovatec\financeAnalyzer\Services\Rule\RuleToConditionTransformer;
+use de\xovatec\financeAnalyzer\Models\Category;
 use Illuminate\Database\Eloquent\Builder;
 
 class RuleTransactionAssignmentsValidator
@@ -159,10 +161,14 @@ class RuleTransactionAssignmentsValidator
                 $this->transformer->transformToConditionList($rule['condition_link'])
             );
 
-            $category = \de\xovatec\financeAnalyzer\Models\Category::find($rule['actions']['category_id']);
-            $cashflow = $category->getCashflow();
-            $cashflowCategory = $category->getCashflowRootCategory();
-            $amountOperator = $cashflow->in_category_id === $cashflowCategory->id ? '>=' : '<';
+            $action = $rule['actions'][0] ?? null;
+            if ($action === null) {
+                throw new \UnexpectedValueException('Transaction split rule must have a category action.');
+            }
+
+            $cashflowType = $action['cashflow_type']
+                ?? Category::findOrFail($action['category_id'])->getCashflowType()->name;
+            $amountOperator = $cashflowType === Cashflow::in->name ? '>=' : '<';
             $splitIds = $ruleQuery->where('transactions.amount', $amountOperator, 0)
                 ->pluck('transaction_split.id');
 

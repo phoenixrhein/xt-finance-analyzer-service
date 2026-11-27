@@ -4,6 +4,7 @@ namespace de\xovatec\financeAnalyzer\Console\Commands\Rule;
 
 use Illuminate\Support\Arr;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
+use de\xovatec\financeAnalyzer\Models\Category;
 use de\xovatec\financeAnalyzer\Services\Rule\RuleListService;
 use de\xovatec\financeAnalyzer\Console\Commands\FinCommand;
 use de\xovatec\financeAnalyzer\Traits\Command\BankAccountIdParameter;
@@ -55,11 +56,31 @@ class RuleList extends FinCommand
                 __('cli.rule.list.table_header.id'),
                 __('cli.rule.list.table_header.name'),
                 __('cli.rule.list.table_header.expression'),
-                __('cli.rule.list.table_header.category')
+                __('cli.rule.list.table_header.income_category'),
+                __('cli.rule.list.table_header.outcome_category')
             ],
             Arr::map($this->ruleListService->getRulesWithExpression($bankAccount->id), function (array $value) {
-                $category = $value['actions']['category']['name'] . ' [' . $value['actions']['category']['id'] . ']';
-                return Arr::only($value, ['id', 'name', 'expression']) + [$category];
+                $categories = collect($value['actions'])
+                    ->map(function (array $action): array {
+                        $action['cashflow_type'] ??= Category::findOrFail($action['category_id'])
+                            ->getCashflowType()
+                            ->name;
+                        return $action;
+                    })
+                    ->keyBy('cashflow_type');
+                $formatCategory = static function ($action): string {
+                    if ($action === null) {
+                        return '';
+                    }
+
+                    $category = $action['category'];
+                    return $category['name'] . ' [' . $category['id'] . ']';
+                };
+
+                return Arr::only($value, ['id', 'name', 'expression']) + [
+                    $formatCategory($categories->get('in')),
+                    $formatCategory($categories->get('out')),
+                ];
             })
         );
     }

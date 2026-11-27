@@ -72,6 +72,11 @@ class RefreshTransactionRuleIndexService
 
             foreach ($rules as $rule) {
                 $targetIds = $this->addRuleTargets($rule, $bankAccount, $exclusionIbans);
+                $categories = collect($rule['actions'])
+                    ->map(fn (array $action) => Category::find($action['category_id']))
+                    ->filter()
+                    ->map(fn (Category $category) => $this->buildPathAsString($category))
+                    ->implode(' | ');
 
                 $countStyle = $targetIds->count() > 0 ? 'info' : 'error';
                 $targetIds->count() === 0 ? $zero++ : $updated++;
@@ -79,7 +84,7 @@ class RefreshTransactionRuleIndexService
                     '<info>' . $rule['name'] . '</info>' .
                     ' [<comment>' . $rule['expression'] . '</comment>]: ' .
                     "<{$countStyle}>" . count($targetIds) . "</{$countStyle}>" .
-                    ' -> ' . $this->buildPathAsString(Category::find($rule['actions']['category_id']))
+                    ' -> ' . $categories
                 );
             }
 
@@ -102,6 +107,7 @@ class RefreshTransactionRuleIndexService
      */
     private function addRuleTranscations(
         array $rule,
+        array $action,
         BankAccount $bankAccount,
         Collection $exclusionIbans,
     ): SupportCollection {
@@ -112,7 +118,7 @@ class RefreshTransactionRuleIndexService
             $this->applyExclusionIbans($query, $exclusionIbans);
         }
 
-        $this->applyCashflowFilter($query, $rule);
+        $this->applyCashflowFilter($query, $action, false);
 
         $this->sqlQueryBuilder->build(
             $query,
@@ -154,7 +160,14 @@ class RefreshTransactionRuleIndexService
             return $this->addRuleTransactionSplits($rule, $bankAccount, $exclusionIbans);
         }
 
-        return $this->addRuleTranscations($rule, $bankAccount, $exclusionIbans);
+        $transactionIds = new SupportCollection();
+        foreach ($rule['actions'] as $action) {
+            $transactionIds = $transactionIds->merge(
+                $this->addRuleTranscations($rule, $action, $bankAccount, $exclusionIbans)
+            );
+        }
+
+        return $transactionIds->unique()->values();
     }
 
     private function addRuleTransactionSplits(
@@ -172,7 +185,10 @@ class RefreshTransactionRuleIndexService
             $this->applyExclusionIbans($query, $exclusionIbans);
         }
 
-        $this->applyCashflowFilter($query, $rule);
+        $action = $rule['actions'][0] ?? null;
+        if ($action !== null) {
+            $this->applyCashflowFilter($query, $action, true);
+        }
         $this->sqlQueryBuilder->build(
             $query,
             $this->transformer->transformToConditionList($rule['condition_link'])
@@ -195,31 +211,36 @@ class RefreshTransactionRuleIndexService
     /**
      *
      * @param Builder $query
-     * @param array $rule
+     * @param array $action
      * @return void
      */
-    private function applyCashflowFilter(Builder $query, array $rule): void
+    private function applyCashflowFilter(Builder $query, array $action, bool $isSplitQuery): void
     {
-        if ($this->isCashflowInRule($rule)) {
-            $query->where($query->getQuery()->joins ? 'transactions.amount' : 'amount', '>=', 0);
+        $amountColumn = $isSplitQuery || $query->getQuery()->joins
+            ? 'transactions.amount'
+            : 'amount';
+        if ($this->isCashflowInAction($action)) {
+            $query->where($amountColumn, '>=', 0);
         } else {
-            $query->where($query->getQuery()->joins ? 'transactions.amount' : 'amount', '<', 0);
+            $query->where($amountColumn, '<', 0);
         }
     }
 
     /**
      *
-     * @param array $rule
+     * @param array $action
      * @return boolean
      */
-    private function isCashflowInRule(array $rule): bool
+    private function isCashflowInAction(array $action): bool
     {
-        /** @var Category $category */
-        $category = Category::find($rule['actions']['category_id']);
-        $cashflow = $category->getCashflow();
-        $cashflowCategory = $category->getCashflowRootCategory();
+        $cashflowType = $action['cashflow_type'] ?? null;
+        if ($cashflowType !== null) {
+            return $cashflowType === 'in';
+        }
 
-        return $cashflow->in_category_id === $cashflowCategory->id;
+        /** @var Category $category */
+        $category = Category::findOrFail($action['category_id']);
+        return $category->getCashflowType()->name === 'in';
     }
 
     /**

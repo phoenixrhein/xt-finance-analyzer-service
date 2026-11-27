@@ -438,6 +438,17 @@ return [
             'transaction_split_not_found' => 'Der Split mit der ID :id wurde nicht gefunden oder ist kein sonstiger Split',
             'transaction_split_already_assigned' => 'Der Split mit der ID :id ist bereits einer Rule zugewiesen',
             'invalid_category_cashflow' => 'Die Kategorie gehört nicht zum Cashflow der übergeordneten Buchung',
+            'income_category' => [
+                'title' => 'Einnahmen-Kategorie zuweisen?'
+            ],
+            'outcome_category' => [
+                'title' => 'Ausgaben-Kategorie zuweisen?'
+            ],
+            'category' => [
+                'select' => 'Kategorie auswählen',
+                'skip' => 'Keine Kategorie zuweisen',
+                'at_least_one_required' => 'Bitte weisen Sie mindestens eine Einnahmen- oder Ausgaben-Kategorie zu.'
+            ],
             'transaction_split' => [
                 'table' => [
                     'header' => [
@@ -478,7 +489,8 @@ return [
                 'id' => 'ID',
                 'name' => 'Name',
                 'expression' => 'Expression',
-                'category' => 'Kategorie'
+                'income_category' => 'Einnahmen-Kategorie',
+                'outcome_category' => 'Ausgaben-Kategorie'
             ]
         ],
         'delete' => [

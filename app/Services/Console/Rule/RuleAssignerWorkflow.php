@@ -195,11 +195,51 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
 
         $this->treeViewConsoleService->displayCashflowTrees($cashflow, $categoryCashflowType);
         $this->manageConsoleService->manage($bankAccount->id, __('cli.rule.assign.cat_mgmt_continue_button_text'));
-        $selectedCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow, $categoryCashflowType);
+        $incomeCategoryId = null;
+        $outcomeCategoryId = null;
+
+        if ($categoryCashflowType === CashflowType::in) {
+            $incomeCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow, CashflowType::in);
+        } elseif ($categoryCashflowType === CashflowType::out) {
+            $outcomeCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow, CashflowType::out);
+        } else {
+            do {
+                if (select(
+                    __('cli.rule.assign.income_category.title'),
+                    [
+                        'select' => __('cli.rule.assign.category.select'),
+                        'skip' => __('cli.rule.assign.category.skip'),
+                    ]
+                ) === 'select') {
+                    $incomeCategoryId = $this->manageConsoleService->findAndSelectCategory(
+                        $cashflow,
+                        CashflowType::in
+                    );
+                }
+
+                if (select(
+                    __('cli.rule.assign.outcome_category.title'),
+                    [
+                        'select' => __('cli.rule.assign.category.select'),
+                        'skip' => __('cli.rule.assign.category.skip'),
+                    ]
+                ) === 'select') {
+                    $outcomeCategoryId = $this->manageConsoleService->findAndSelectCategory(
+                        $cashflow,
+                        CashflowType::out
+                    );
+                }
+
+                if ($incomeCategoryId === null && $outcomeCategoryId === null) {
+                    $this->error(__('cli.rule.assign.category.at_least_one_required'));
+                }
+            } while ($incomeCategoryId === null && $outcomeCategoryId === null);
+        }
 
         $this->saveRule(
             $this->viewInput('Name der Regel', 'required|min:1|unique:rule,name'),
-            $selectedCategoryId,
+            $incomeCategoryId,
+            $outcomeCategoryId,
             $conditionList,
             $bankAccount->id,
             $this->targetType
@@ -297,9 +337,11 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
         $conditionList = (new ConditionList())->add(
             new Condition(new IdField(), new Equal(), (string) $split->transaction_id)
         );
+        $cashflowType = $selectedCategory->getCashflowType();
         $this->saveRule(
             $this->viewInput('Name der Regel', 'required|min:1|unique:rule,name'),
-            $selectedCategoryId,
+            $cashflowType === CashflowType::in ? $selectedCategoryId : null,
+            $cashflowType === CashflowType::out ? $selectedCategoryId : null,
             $conditionList,
             $bankAccount->id,
             RuleTargetType::TRANSACTION_SPLIT,
@@ -310,14 +352,16 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
     /**
      *
      * @param string $name
-     * @param integer $categoryId
+     * @param integer|null $incomeCategoryId
+     * @param integer|null $outcomeCategoryId
      * @param ConditionList $conditionList
      * @param integer $bankAccountId
      * @return void
      */
     private function saveRule(
         string $name,
-        int $categoryId,
+        ?int $incomeCategoryId,
+        ?int $outcomeCategoryId,
         ConditionList $conditionList,
         int $bankAccountId,
         RuleTargetType $targetType,
@@ -327,7 +371,8 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
             DB::beginTransaction();
             $id = $this->ruleDataManager->saveRuleForTarget(
                 $name,
-                $categoryId,
+                $incomeCategoryId,
+                $outcomeCategoryId,
                 $conditionList,
                 $bankAccountId,
                 $targetType,
