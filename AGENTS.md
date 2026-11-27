@@ -174,7 +174,64 @@ Die Planungstiefe richtet sich nach Umfang und Komplexität.
 
 ## 5. Sicherheit und Kostenkontrolle
 
+### Vertraulichkeit und öffentliche Repositories
 
+Die Memory Bank und Entwicklungspläne können Bestandteil
+öffentlicher Git-Repositories werden.
+
+Behandle daher alle Projektdateien grundsätzlich so,
+als könnten sie öffentlich zugänglich werden.
+
+- Dokumentiere keine Passwörter, API-Keys, Tokens,
+  Zugangsdaten oder sonstigen Geheimnisse.
+- Vermeide personenbezogene Daten und echte
+  Produktionsdaten in Dokumentation und Beispielen.
+- Übernimm keine vertraulichen internen Informationen,
+  Serveradressen oder Infrastrukturdetails ungeprüft.
+- Dokumentiere Sicherheitslücken und Angriffswege nicht
+  in öffentlich zugänglichen Dateien, wenn dadurch
+  zusätzliche Risiken entstehen.
+- Verwende bei Beispielen ausschließlich fiktive oder
+  ausreichend anonymisierte Daten.
+- Prüfe neue und geänderte Memory-Bank-Dokumente,
+  Entwicklungspläne und SQL-Dateien auf vertrauliche Inhalte.
+- Weise den Benutzer auf potenziell sensible Inhalte hin,
+  bevor diese Dateien in Git übernommen werden.
+- Entferne fachlich wichtige Informationen nicht
+  eigenmächtig, sondern schlage bei Vertraulichkeitsrisiken
+  eine sichere Dokumentationsform vor.
+- Füge keine sensiblen Dateien eigenständig zur
+  Versionskontrolle hinzu.
+
+Wenn eine Information für die Entwicklung benötigt wird,
+aber nicht öffentlich dokumentiert werden darf:
+
+- Frage nach einer geeigneten vertraulichen Ablage.
+- Referenziere diese Informationen möglichst, statt
+  sensible Inhalte in die Memory Bank zu kopieren.
+- Beachte, dass .gitignore bereits versionierte Dateien
+  nicht schützt.
+
+Die Prüfung durch einen KI-Agenten ersetzt keine
+Sicherheitskontrolle vor der Veröffentlichung.
+### Lokale Entwicklungsdokumentation
+
+- `.ai-docs/databaseSchema.sql` ist ausschließlich lokal
+  und darf nicht in Git aufgenommen werden.
+- `.ai-docs/plans/` dient als lokaler Übergabebereich
+  zwischen OpenCode und GitHub Copilot CLI.
+- `.ai-docs/plans/.gitkeep` darf versioniert werden,
+  damit das Verzeichnis im Repository vorhanden ist.
+- Entwicklungspläne unter `.ai-docs/plans/` dürfen
+  nicht committed oder veröffentlicht werden.
+- Agents dürfen ignorierte Dateien lokal lesen,
+  erstellen und aktualisieren, sofern dies für die
+  freigegebene Aufgabe erforderlich ist.
+- Die `.gitignore`-Regeln dürfen nicht eigenmächtig
+  geändert oder umgangen werden.
+- Vor Git-Operationen ist darauf zu achten, dass
+  vertrauliche und lokal ausgeschlossene Dateien
+  nicht versehentlich aufgenommen werden.
 ### Berechtigungen und Änderungen
 
 

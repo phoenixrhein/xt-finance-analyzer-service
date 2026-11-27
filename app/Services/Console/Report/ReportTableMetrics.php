@@ -56,7 +56,7 @@ class ReportTableMetrics
     /**
      * Initialize column widths and separators from report data.
      */
-    public function initialize(Collection $reportData): void
+    public function initialize(Collection $reportData, array $reportLabels = []): void
     {
         $this->columnWidths = [];
 
@@ -90,8 +90,7 @@ class ReportTableMetrics
             __('cli.report.presentation.label_subcategories_sum'),
             __('cli.report.presentation.label_unassigned'),
         ];
-
-        foreach ($additionalLabels as $label) {
+        foreach (array_merge($additionalLabels, $reportLabels) as $label) {
             $maxCategoryLength = max($maxCategoryLength, mb_strlen($label, 'UTF-8'));
         }
 
@@ -170,9 +169,11 @@ class ReportTableMetrics
     /**
      * Get column widths array.
      */
-    public function getColumnWidths(): array
+    public function getColumnWidths(bool $includeSumColumn = false): array
     {
-        return $this->columnWidths;
+        return $includeSumColumn
+            ? [...$this->columnWidths, 16]
+            : $this->columnWidths;
     }
 
     /**
@@ -186,16 +187,20 @@ class ReportTableMetrics
     /**
      * Get table separator string.
      */
-    public function getTableSeparator(): string
+    public function getTableSeparator(bool $includeSumColumn = false): string
     {
-        return $this->tableSeparator;
+        return $includeSumColumn
+            ? $this->tableSeparator . '┼' . str_repeat('─', 17)
+            : $this->tableSeparator;
     }
 
     /**
      * Get header separator string.
      */
-    public function getHeaderSeparator(): string
+    public function getHeaderSeparator(bool $includeSumColumn = false): string
     {
-        return $this->headerSeparator;
+        return $includeSumColumn
+            ? $this->headerSeparator . '┼' . str_repeat('─', 17)
+            : $this->headerSeparator;
     }
 }

@@ -30,7 +30,7 @@ class ReportTableRenderer extends AbstractIOService
     /**
      * Render table header with period labels.
      */
-    public function renderTableHeader(Collection $reportData): void
+    public function renderTableHeader(Collection $reportData, bool $includeSumColumn = false): void
     {
         $categoryText = __('cli.report.presentation.label_category');
         $categoryLength = mb_strlen($categoryText, 'UTF-8');
@@ -40,12 +40,21 @@ class ReportTableRenderer extends AbstractIOService
         $i = 0;
         foreach ($reportData as $period) {
             $header = $period->getPeriodHeader();
-            $width = $this->metrics->getColumnWidths()[$i] ?? 12;
+            $width = $this->metrics->getColumnWidths($includeSumColumn)[$i] ?? 12;
             $line .= '│ ' . StringMbUtils::strPadUtf8($header, $width, ' ', STR_PAD_BOTH);
             $i++;
         }
+        if ($includeSumColumn) {
+            $sumWidth = $this->metrics->getColumnWidths(true)[$i];
+            $line .= '│ ' . StringMbUtils::strPadUtf8(
+                __('cli.report.presentation.label_sum'),
+                $sumWidth,
+                ' ',
+                STR_PAD_BOTH
+            );
+        }
         $this->line($line);
-        $this->line($this->metrics->getHeaderSeparator());
+        $this->line($this->metrics->getHeaderSeparator($includeSumColumn));
     }
 
     /**
@@ -68,14 +77,14 @@ class ReportTableRenderer extends AbstractIOService
     /**
      * Render a data row with right-aligned amounts.
      */
-    public function renderDataRow(array $row): void
+    public function renderDataRow(array $row, bool $includeSumColumn = false): void
     {
         $categoryText = $row[0];
         $categoryLength = mb_strlen($categoryText, 'UTF-8');
         $padding = max(0, $this->metrics->getCategoryColumnWidth() - $categoryLength);
         $line = $categoryText . str_repeat(' ', $padding);
 
-        foreach ($this->metrics->getColumnWidths() as $i => $width) {
+        foreach ($this->metrics->getColumnWidths($includeSumColumn) as $i => $width) {
             $amount = $row[$i + 1] ?? '-';
             $line .= '│ ' . StringMbUtils::strPadUtf8((string) $amount, $width, ' ', STR_PAD_LEFT);
         }
@@ -105,14 +114,14 @@ class ReportTableRenderer extends AbstractIOService
     /**
      * Render total row data (bold).
      */
-    public function renderTotalRowData(array $row): void
+    public function renderTotalRowData(array $row, bool $includeSumColumn = false): void
     {
         $categoryText = $row[0];
         $categoryLength = mb_strlen($categoryText, 'UTF-8');
         $padding = max(0, $this->metrics->getCategoryColumnWidth() - $categoryLength);
         $line = $categoryText . str_repeat(' ', $padding);
 
-        foreach ($this->metrics->getColumnWidths() as $i => $width) {
+        foreach ($this->metrics->getColumnWidths($includeSumColumn) as $i => $width) {
             $amount = $row[$i + 1] ?? '-';
             $line .= '│ ' . StringMbUtils::strPadUtf8((string) $amount, $width, ' ', STR_PAD_LEFT);
         }
@@ -130,9 +139,9 @@ class ReportTableRenderer extends AbstractIOService
     /**
      * Render separator line.
      */
-    public function renderTableSeparator(): void
+    public function renderTableSeparator(bool $includeSumColumn = false): void
     {
-        $this->line($this->metrics->getTableSeparator());
+        $this->line($this->metrics->getTableSeparator($includeSumColumn));
     }
 
     /**

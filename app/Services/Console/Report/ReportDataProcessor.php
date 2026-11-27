@@ -6,9 +6,11 @@ use Carbon\Carbon;
 use de\xovatec\financeAnalyzer\Enums\TransactionSplitType;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Models\Category;
+use de\xovatec\financeAnalyzer\Models\ExclusionList;
 use de\xovatec\financeAnalyzer\Models\Transactions;
 use de\xovatec\financeAnalyzer\Dto\Report\CategoryNode;
 use de\xovatec\financeAnalyzer\Dto\Report\PeriodReportData;
+use de\xovatec\financeAnalyzer\Dto\Report\SavingsAccountReportData;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -62,23 +64,34 @@ class ReportDataProcessor
         bool $considerExclusionIbans
     ): PeriodReportData {
         $transactions = $this->loadTransactions($bankAccount, $start, $end, $considerExclusionIbans);
-        // Load excluded IBAN transactions if needed for reporting
-        $excludedIbanTransactions = collect();
-        $excludedIbans = [];
+        $savingsAccounts = collect();
         if ($considerExclusionIbans) {
-            $excludedIbans = $bankAccount
+            $exclusionEntries = $bankAccount
                 ->exclusionList()
-                ->where('type', 'iban')
-                ->pluck('value')
-                ->toArray();
+                ->where('type', ExclusionList::TYPE_IBAN)
+                ->get();
 
-            if (!empty($excludedIbans)) {
-                $excludedIbanTransactions = $bankAccount
+            $savingsAccounts = $exclusionEntries->map(function (ExclusionList $exclusionEntry) use (
+                $bankAccount,
+                $start,
+                $end
+            ): SavingsAccountReportData {
+                $savingsTransactions = $bankAccount
                     ->transactions()
                     ->tap(fn (Builder $query) => $this->applyEffectiveDateFilter($query, $start, $end))
-                    ->whereIn('creditor_iban', $excludedIbans)
+                    ->where('creditor_iban', $exclusionEntry->value)
                     ->get();
-            }
+
+                return new SavingsAccountReportData(
+                    (int) $exclusionEntry->id,
+                    $exclusionEntry->comment ?? '',
+                    substr($exclusionEntry->value, -3),
+                    $start,
+                    $end,
+                    (float) $savingsTransactions->filter(fn (Transactions $t) => $t->amount < 0)->sum('amount'),
+                    (float) $savingsTransactions->filter(fn (Transactions $t) => $t->amount > 0)->sum('amount')
+                );
+            });
         }
 
         // Separate transactions by income/expense
@@ -101,10 +114,6 @@ class ReportDataProcessor
         $totalIncome = $incomingTransactions->sum('amount');
         $totalOutgoing = abs($outgoingTransactions->sum('amount'));
 
-        // Calculate excluded IBAN transfers
-        $toExcludedIban = $excludedIbanTransactions->filter(fn (Transactions $t) => $t->amount < 0)->sum('amount');
-        $fromExcludedIban = $excludedIbanTransactions->filter(fn (Transactions $t) => $t->amount > 0)->sum('amount');
-
         return new PeriodReportData(
             $start,
             $end,
@@ -113,8 +122,7 @@ class ReportDataProcessor
             $totalIncome,
             $totalOutgoing,
             $totalIncome - $totalOutgoing,
-            $toExcludedIban,
-            $fromExcludedIban
+            $savingsAccounts
         );
     }
 
@@ -473,8 +481,7 @@ class ReportDataProcessor
                 $period->totalIncome,
                 $period->totalOutgoing,
                 $period->balance,
-                $period->toExcludedIban,
-                $period->fromExcludedIban
+                $period->savingsAccounts
             );
         });
     }

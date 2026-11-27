@@ -20,4 +20,10 @@ yarn-error.log
 docker-compose.yml
 /docker
 tmpclaude-*
+# Lokales Datenbankschema
 .ai-docs/databaseSchema.sql
+
+
+# Entwicklungspläne nicht versionieren
+.ai-docs/plans/*
+!.ai-docs/plans/.gitkeep
