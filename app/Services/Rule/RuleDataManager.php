@@ -132,10 +132,12 @@ class RuleDataManager
             'target_type' => $targetType,
         ]);
 
-        foreach ([
-            Cashflow::in->name => $incomeCategoryId,
-            Cashflow::out->name => $outcomeCategoryId,
-        ] as $cashflowType => $categoryId) {
+        foreach (
+            [
+                Cashflow::in->name => $incomeCategoryId,
+                Cashflow::out->name => $outcomeCategoryId,
+            ] as $cashflowType => $categoryId
+        ) {
             if ($categoryId !== null) {
                 Action::create([
                     'rule_id' => $rule->id,

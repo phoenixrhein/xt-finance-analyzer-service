@@ -204,26 +204,30 @@ class RuleAssignerWorkflow extends AbstractIOService implements ProvidesAccountL
             $outcomeCategoryId = $this->manageConsoleService->findAndSelectCategory($cashflow, CashflowType::out);
         } else {
             do {
-                if (select(
-                    __('cli.rule.assign.income_category.title'),
-                    [
-                        'select' => __('cli.rule.assign.category.select'),
-                        'skip' => __('cli.rule.assign.category.skip'),
-                    ]
-                ) === 'select') {
+                if (
+                    select(
+                        __('cli.rule.assign.income_category.title'),
+                        [
+                            'select' => __('cli.rule.assign.category.select'),
+                            'skip' => __('cli.rule.assign.category.skip'),
+                        ]
+                    ) === 'select'
+                ) {
                     $incomeCategoryId = $this->manageConsoleService->findAndSelectCategory(
                         $cashflow,
                         CashflowType::in
                     );
                 }
 
-                if (select(
-                    __('cli.rule.assign.outcome_category.title'),
-                    [
-                        'select' => __('cli.rule.assign.category.select'),
-                        'skip' => __('cli.rule.assign.category.skip'),
-                    ]
-                ) === 'select') {
+                if (
+                    select(
+                        __('cli.rule.assign.outcome_category.title'),
+                        [
+                            'select' => __('cli.rule.assign.category.select'),
+                            'skip' => __('cli.rule.assign.category.skip'),
+                        ]
+                    ) === 'select'
+                ) {
                     $outcomeCategoryId = $this->manageConsoleService->findAndSelectCategory(
                         $cashflow,
                         CashflowType::out
