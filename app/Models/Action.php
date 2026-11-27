@@ -21,7 +21,11 @@ class Action extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['rule_id', 'category_id'];
+    protected $fillable = ['rule_id', 'category_id', 'cashflow_type'];
+
+    protected $casts = [
+        'cashflow_type' => 'string',
+    ];
 
     /**
      *

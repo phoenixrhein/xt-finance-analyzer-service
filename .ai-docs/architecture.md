@@ -249,7 +249,7 @@ Wichtige Beziehungen sind unter anderem:
 * `BankAccount` → `Transactions`
 * `Cashflow` → Kategorien
 * `Category` → übergeordnete Kategorie und Unterkategorien
-* `Rule` → `Action`
+* `Rule` → mehrere `Action`-Datensätze (je eine optionale Einnahmen- und Ausgabenkategorie)
 * `Rule` → `ConditionLink`
 * `Rule` ↔ `Transactions`
 * `Rule` → `BankAccount`
@@ -284,7 +284,7 @@ Unter anderem bestehen folgende Abhängigkeiten:
 * Beim Löschen eines `BankAccount` werden zugehörige `Cashflow`, `ExclusionList` und `Transactions` entfernt.
 * Beim Löschen eines `Cashflow` werden die zugehörigen Ein- und Ausgangskategorien entfernt.
 * Beim Löschen einer `Category` werden deren Unterkategorien entfernt.
-* Beim Löschen eines `Rule` werden zugehörige `Action` und `ConditionLink` entfernt.
+* Beim Löschen eines `Rule` werden zugehörige `Action`-Datensätze und der `ConditionLink` entfernt.
 * Beim Löschen eines `ConditionLink` werden abhängig vom Typ zugehörige Conditions bzw. Gruppen entfernt.
 * Beim Löschen einer `Transactions` werden zugehörige `TransactionAdjustment` und `TransactionSplit` entfernt.
 

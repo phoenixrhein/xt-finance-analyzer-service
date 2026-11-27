@@ -12,6 +12,7 @@ use de\xovatec\financeAnalyzer\Dto\FinQuery\ConditionList;
 use de\xovatec\financeAnalyzer\Exceptions\ExpressionSyntaxException;
 use de\xovatec\financeAnalyzer\Models\BankAccount;
 use de\xovatec\financeAnalyzer\Enums\RuleTargetType;
+use de\xovatec\financeAnalyzer\Enums\Cashflow;
 use de\xovatec\financeAnalyzer\Services\Rule\RefreshTransactionRuleIndexService;
 
 class RuleDataManager
@@ -71,9 +72,13 @@ class RuleDataManager
      */
     public function saveRule(string $name, int $categoryId, ConditionList $conditionList, int $bankAccountId): int
     {
+        $category = Category::findOrFail($categoryId);
+        $cashflowType = $category->getCashflowType();
+
         return $this->saveRuleForTarget(
             $name,
-            $categoryId,
+            $cashflowType === Cashflow::in ? $categoryId : null,
+            $cashflowType === Cashflow::out ? $categoryId : null,
             $conditionList,
             $bankAccountId,
             RuleTargetType::TRANSACTION
@@ -83,7 +88,8 @@ class RuleDataManager
     /**
      *
      * @param string $name
-     * @param integer $categoryId
+     * @param integer|null $incomeCategoryId
+     * @param integer|null $outcomeCategoryId
      * @param ConditionList $conditionList
      * @param integer $bankAccountId
      * @param RuleTargetType $targetType
@@ -91,13 +97,32 @@ class RuleDataManager
      */
     public function saveRuleForTarget(
         string $name,
-        int $categoryId,
+        ?int $incomeCategoryId,
+        ?int $outcomeCategoryId,
         ConditionList $conditionList,
         int $bankAccountId,
         RuleTargetType $targetType,
         ?array $targetIds = null
     ): int {
-        Category::findOrFail($categoryId);
+        if ($incomeCategoryId === null && $outcomeCategoryId === null) {
+            throw new \InvalidArgumentException('At least one category must be provided.');
+        }
+
+        if (
+            $targetType === RuleTargetType::TRANSACTION_SPLIT
+            && $incomeCategoryId !== null
+            && $outcomeCategoryId !== null
+        ) {
+            throw new \InvalidArgumentException('A transaction split rule can only have one category.');
+        }
+
+        if ($incomeCategoryId !== null) {
+            Category::findOrFail($incomeCategoryId);
+        }
+        if ($outcomeCategoryId !== null) {
+            Category::findOrFail($outcomeCategoryId);
+        }
+
         $conditionLinkId = $this->saveCondition($this->transformer->transformToArray($conditionList));
 
         $rule = Rule::create([
@@ -107,10 +132,20 @@ class RuleDataManager
             'target_type' => $targetType,
         ]);
 
-        Action::create([
-            'rule_id' => $rule->id,
-            'category_id' => $categoryId
-        ]);
+        foreach (
+            [
+                Cashflow::in->name => $incomeCategoryId,
+                Cashflow::out->name => $outcomeCategoryId,
+            ] as $cashflowType => $categoryId
+        ) {
+            if ($categoryId !== null) {
+                Action::create([
+                    'rule_id' => $rule->id,
+                    'category_id' => $categoryId,
+                    'cashflow_type' => $cashflowType,
+                ]);
+            }
+        }
 
         $bankAccount = BankAccount::find($bankAccountId);
         if ($targetType === RuleTargetType::TRANSACTION_SPLIT && $targetIds !== null) {

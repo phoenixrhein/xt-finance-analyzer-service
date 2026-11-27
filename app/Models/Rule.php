@@ -5,7 +5,7 @@ namespace de\xovatec\financeAnalyzer\Models;
 use de\xovatec\financeAnalyzer\Enums\RuleTargetType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -39,11 +39,11 @@ class Rule extends Model
 
     /**
      *
-     * @return HasOne
+     * @return HasMany
      */
-    public function actions(): HasOne
+    public function actions(): HasMany
     {
-        return $this->hasOne(Action::class);
+        return $this->hasMany(Action::class);
     }
 
     /**
@@ -90,11 +90,11 @@ class Rule extends Model
 
         static::deleting(function ($rule) {
             DB::table('rule_transaction_split')->where('rule_id', $rule->id)->delete();
-            if (!is_null($rule->actions)) {
+            foreach ($rule->actions as $action) {
                 if ($rule->isForceDeleting()) {
-                    $rule->actions->forceDelete();
+                    $action->forceDelete();
                 } else {
-                    $rule->actions->delete();
+                    $action->delete();
                 }
             }
 
